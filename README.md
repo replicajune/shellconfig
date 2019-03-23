@@ -15,15 +15,9 @@ Then, source `.shellconfig.sh` in your home shell config file. Optionally, do th
 if [ -f /home/${SUDO_USER-$USER}/.shellconfig.sh ]; then
     source ~/.shellconfig.sh
 fi
-
 ```
 
 ## Notes
 
-- aliases for `apk` are not perfect but they do the job, if you have any suggestions for that, please open an issue !
+- aliases for `apk` are not perfect but they do the job. If you have any suggestions for that, please open an issue !
 - As all other repos of this kind, it'll always be a work in progress. So, Any feedbacks, recomendations or anything else are always welcomed.
-
-## Comming up
-
--   Aliases for `yum`
--   Your suggestions here !
