@@ -25,7 +25,6 @@ alias topd="du -sch .[!.]* * |sort -rh |head -11"
 alias lsn="sudo ss -lpnt |column -t"
 
 # PACKAGE MANAGMENT
-
 case $_PKG_MGR in
   apt)
     alias upd="sudo apt update && apt list --upgradable"
@@ -52,7 +51,6 @@ case $_PKG_MGR in
   *)
     ;;
 esac
-
 unset _PKG_MGR
 
 # MISC
