@@ -20,10 +20,10 @@ fi
 
 ## Notes
 
-As all other repos of this kind, it'll always be a work in progress. So, Any feedbacks, recomendations or anything else are always welcomed !
+- aliases for `apk` are not perfect but they do the job, if you have any suggestions for that, please open an issue !
+- As all other repos of this kind, it'll always be a work in progress. So, Any feedbacks, recomendations or anything else are always welcomed.
 
 ## Comming up
 
 -   Aliases for `yum`
--   Aliases for `apk`
 -   Your suggestions here !
