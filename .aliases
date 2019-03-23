@@ -25,7 +25,6 @@ alias topd="du -sch .[!.]* * |sort -rh |head -11"
 alias lsn="sudo ss -lpnt |column -t"
 
 # PACKAGE MANAGMENT
-_PKG_MGR="$(([ -x $(whereis apt |cut -d' ' -f2) ] && echo 'apt')||([ -x $(whereis yum |cut -d' ' -f2) ] && echo 'yum'))" # guessing the package manager
 
 case $_PKG_MGR in
   apt)
@@ -39,10 +38,18 @@ case $_PKG_MGR in
   yum)
     ;;
   apk)
+    alias upd="sudo apk update && echo 'UPGRADABLE :' && sudo apk upgrade -s"
+    alias updnow="sudo apk update && sudo apk upgrade"
+    alias rmp="sudo apk del"
+    alias cleanpm="sudo apk -v cache clean"
+    alias lsp="apk list -I"
+    alias lspl=""
     ;;
   *)
     ;;
 esac
+
+unset _PKG_MGR
 
 # MISC
 alias less="vim -M"
@@ -50,4 +57,4 @@ alias datei="date --iso-8601=s"
 alias weather="curl wttr.in"
 
 # FOR PERSONNAL OR PRIVATE ALIASES (THINGS WITH CONTEXTS AND STUFF)
-[ -f "~/.aliases.private" ] && source ~/.aliases.private || true
+[ -f ~/.aliases.private ] && source ~/.aliases.private || true
