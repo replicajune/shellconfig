@@ -55,6 +55,7 @@ unset _PKG_MGR
 
 # DOCKER & DOCKER-COMPOSE
 alias dk="docker"
+alias dkr="docker run -it"
 alias dkpc="docker container prune -f"
 alias dkpi="docker image prune -f"
 alias dkps="docker ps -a"
