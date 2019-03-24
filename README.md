@@ -13,7 +13,7 @@ Then, source `.shellconfig.sh` in your home shell config file. Optionally, do th
 
 ``` sh
 if [ -f /home/${SUDO_USER-$USER}/.shellconfig.sh ]; then
-    source ~/.shellconfig.sh
+    source /home/${SUDO_USER-$USER}/.shellconfig.sh
 fi
 ```
 
