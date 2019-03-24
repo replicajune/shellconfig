@@ -53,6 +53,23 @@ case $_PKG_MGR in
 esac
 unset _PKG_MGR
 
+# DOCKER & DOCKER-COMPOSE
+alias dk="docker"
+alias dkpc="docker container prune -f"
+alias dkpi="docker image prune -f"
+alias dkps="docker ps -a"
+alias dklr="docker network ls"
+alias dklv="docker volume ls"
+alias dkdf="docker system df"
+alias dki="docker system info"
+alias dkprsys="docker system prune -af"
+
+alias dkc="docker-compose"
+alias dkcb="docker-compose build"
+alias dkcu="docker-compose up -d"
+alias dkcd="docker-compose down"
+alias dkcr="docker-compose restart"
+
 # MISC
 alias less="vim -M"
 alias datei="date --iso-8601=s"
