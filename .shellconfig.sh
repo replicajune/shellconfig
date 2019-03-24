@@ -23,6 +23,6 @@ else
   continue
 fi
 
-[ -h ~/.environments ] && source .environments
-[ -h ~/.aliases ] && source .aliases
-[ -e ~/.aliases.private ] && source .aliases.private || true
+[ -h /home/${SUDO_USER-$USER}/.environments ] && source /home/${SUDO_USER-$USER}/.environments
+[ -h /home/${SUDO_USER-$USER}/.aliases ] && source /home/${SUDO_USER-$USER}/.aliases
+[ -e /home/${SUDO_USER-$USER}/.aliases.private ] && source /home/${SUDO_USER-$USER}/.aliases.private || true
