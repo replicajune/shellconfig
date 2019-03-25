@@ -4,5 +4,5 @@ export VISUAL="vim"
 export EDITOR="vim"
 export PATH=$PATH:/home/${SUDO_USER-$USER}/.local/bin
 export HISTCONTROL=ignoredups
-export HISTSIZE=-1
+export HISTSIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
