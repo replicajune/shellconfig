@@ -7,7 +7,7 @@ else
   PS1="\t [\[\e[0;32m\]\u\[\e[0m\]@\[\e[0;36m\]\h \[\e[0;34m\]\w\[\e[0m\]]$ "
 fi
 
-# tmux
+# tmux : disable this using "export TMUX=disable" before loading shellconfig
 if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [ -z "$SUDO_USER" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
 fi
@@ -22,6 +22,8 @@ elif [ -x $(whereis apk |cut -d' ' -f2) ]; then
 else
   continue
 fi
+
+[ "$(strings $(whereis ps |cut -d' ' -f2) |grep busybox |head -1)" = 'busybox' ] && _BBX=true || true
 
 [ -h /home/${SUDO_USER-$USER}/.environments ] && source /home/${SUDO_USER-$USER}/.environments
 [ -h /home/${SUDO_USER-$USER}/.aliases ] && source /home/${SUDO_USER-$USER}/.aliases

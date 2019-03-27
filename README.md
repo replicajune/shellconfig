@@ -20,4 +20,5 @@ fi
 ## Notes
 
 - aliases for `apk` are not perfect but they do the job. If you have any suggestions for that, please open an issue !
+- busybox's ps aliases doesn't work atm but a workaround is in progress to have something similar than with the gnu ps one.
 - As all other repos of this kind, it'll always be a work in progress. So, Any feedbacks, recomendations or anything else are always welcomed.

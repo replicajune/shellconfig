@@ -9,7 +9,9 @@ alias lz="ls -FlhZ"
 alias rm="rm -i"
 alias rmr="rm -ri"
 
-alias dirs="dirs -v"
+alias dirs="dirs -v" # i'm going to delete that one soon because the other one is too funny
+alias lsd="dirs -v" # list stack directory
+alias pdir="pushd ./"
 alias pdir="pushd ./"
 alias cdp="pushd" # not doing the cd="pushd", but having the option is nice
 
