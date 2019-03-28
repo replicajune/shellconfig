@@ -11,8 +11,7 @@ alias rmr="rm -ri"
 
 alias dirs="dirs -v" # i'm going to delete that one soon because the other one is too funny
 alias lsd="dirs -v" # list stack directory
-alias pdir="pushd ./"
-alias pdir="pushd ./"
+alias pdir="pushd ./ > /dev/null; dirs -v"
 alias cdp="pushd" # not doing the cd="pushd", but having the option is nice
 
 # RESSOURCES
@@ -72,6 +71,15 @@ alias dkcb="docker-compose build"
 alias dkcu="docker-compose up -d"
 alias dkcd="docker-compose down"
 alias dkcr="docker-compose restart"
+
+# GIT - some of them might evolve :)
+alias gs="git status"
+alias ga="git add ."
+alias gc="git commit -m"
+alias gph="git push --all"
+alias gpl="git pull --all"
+alias gl="git log --graph --oneline"
+alias gs="git status --show-stash"
 
 # MISC
 alias less="vim -M"
