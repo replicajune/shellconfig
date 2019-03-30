@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # PS1
-type __git_ps1 2> /dev/null | grep '()' &> /dev/null && _SCPS1GIT='$(__git_ps1 "(%s)")'
+type __git_ps1 2> /dev/null | grep '()' &> /dev/null && _SCPS1GIT='$(__git_ps1 "(%s) ")'
 echo $0 | grep 'bash' &> /dev/null && _PS1HISTNB='|\!\[\e[2;2m\]'
 PS1='\[\e[2;2m\]\t \[\e[0m\][\[\e[0;'$([ $USER = "root" ] && echo "31" || echo '32')'m\]\u\[\e[0m\]@\[\e[0;36m\]\h\[\e[0m\] \[\e[2;2m\]\w\[\e[0m\] \[\e[0;93m\]'$_SCPS1GIT'\[\e[0m\]] \[\e[2;2m\]$?'$_PS1HISTNB'\n> \[\e[0m\]'
 unset _SCPS1GIT _PS1HISTNB
