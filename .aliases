@@ -17,10 +17,15 @@ alias cdp="pushd" # not doing the cd="pushd", but having the option is nice
 # RESSOURCES
 alias df="df -h"
 alias lsm="findmnt"
-alias psf="ps --ppid 2 -p 2 --deselect --format user,pid,ppid,pcpu,pmem,time,stat,cmd --forest"
-alias topm="ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pmem |head -11"
-alias topt="ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -time |head -11"
-alias topd="du -sch .[!.]* * |sort -rh |head -11"
+
+if [ $_BBX == 'true' ]; then
+  alias topd="du -sc .[!.]* * |sort -rn |head -11"
+else
+  alias topd="du -sch .[!.]* * |sort -rh |head -11"
+  alias psf="ps --ppid 2 -p 2 --deselect --format user,pid,ppid,pcpu,pmem,time,stat,cmd --forest"
+  alias topm="ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pmem |head -11"
+  alias topt="ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -time |head -11"
+fi
 
 # NETWORK
 alias lsn="sudo ss -lpnt |column -t"
@@ -82,6 +87,7 @@ alias gl="git log --graph --oneline"
 alias gs="git status --show-stash"
 
 # MISC
+alias h="history |tail -20"
 alias less="vim -M"
 alias datei="date --iso-8601=s"
 alias weather="curl wttr.in"
