@@ -9,16 +9,17 @@ alias lz="ls -FlhZ"
 alias rm="rm -i"
 alias rmr="rm -ri"
 
-alias dirs="dirs -v" # i'm going to delete that one soon because the other one is too funny
-alias lsd="dirs -v" # list stack directory
-alias pdir="pushd ./ > /dev/null; dirs -v"
-alias cdp="pushd" # not doing the cd="pushd", but having the option is nice
+if [[ $_BBX != 'true' ]]; then
+  alias dirs="dirs -v" # i'm going to delete that one soon because the other one is too funny
+  alias lsd="dirs -v" # list stack directory
+  alias pdir="pushd ./ > /dev/null; dirs -v"
+  alias cdp="pushd" # not doing the cd="pushd", but having the option is nice
+fi
 
 # RESSOURCES
 alias df="df -h"
 alias lsm="findmnt"
-
-if [ $_BBX == 'true' ]; then
+if [[ $_BBX = 'true' ]]; then
   alias topd="du -sc .[!.]* * |sort -rn |head -11"
 else
   alias topd="du -sch .[!.]* * |sort -rh |head -11"
@@ -88,7 +89,7 @@ alias gs="git status --show-stash"
 
 # MISC
 alias h="history |tail -20"
-alias less="vim -M"
+alias vless="vim -M"
 alias datei="date --iso-8601=s"
 alias weather="curl wttr.in"
 
