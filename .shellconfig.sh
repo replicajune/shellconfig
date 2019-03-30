@@ -2,23 +2,32 @@
 
 # PS1
 
+# color codes
+_CC_dark_grey='\[\e[2;2m\]'
+_CC_cyan='\[\e[0;36m\]'
+_CC_orange='\[\e[0;93m\]'
+# special codes
+_CC_reset='\[\e[0m\]'
+_CC_user='\[\e[0;'$([ $USER = "root" ] && echo "31" || echo '32')'m\]'
+
 # is it a bash shell ?
 echo $0 | grep 'bash' &> /dev/null && _SCPS1HISTNB='|\!\[\e[2;2m\]'
-
 # is git installed ?
-type __git_ps1 2> /dev/null | grep '()' &> /dev/null && _SCPS1GIT='$(__git_ps1 "(%s) ")'
-
+type __git_ps1 2> /dev/null | grep '()' &> /dev/null && _SCPS1GIT='$(__git_ps1 " (%s)")'
 # is it running with systemd ?
 if [[ $(cat /proc/1/comm) = 'systemd' ]]; then
   _SCSDST () {
     _SCSDST=$(systemctl is-system-running) && return 0
-    echo -ne ' \e[31m●\e[0m'
+    echo -ne '\e[31m●\e[0m'
   }
   _SCSDSTS='$(_SCSDST)'
 fi
-
-PS1='\[\e[2;2m\]\t \[\e[0m\][\[\e[0;'$([ $USER = "root" ] && echo "31" || echo '32')'m\]\u\[\e[0m\]@\[\e[0;36m\]\h\[\e[0m\] \[\e[2;2m\]\w\[\e[0m\] \[\e[0;93m\]'$_SCPS1GIT'\[\e[0m\]] \[\e[2;2m\]$?'$_SCPS1HISTNB$_SCSDSTS'\n> \[\e[0m\]'
-unset _SCPS1GIT _SCPS1HISTNB _SCSDSTS
+# load average, running proc/sleeps & latest assign pid number
+_SCLDAVG='[$(echo -n $(cat /proc/loadavg))]'
+# actual PS1 definition
+PS1=$_CC_dark_grey'\t '$_CC_reset'[ '$_CC_user'\u'$_CC_reset'@'$_CC_cyan'\h'$_CC_dark_grey' \W'$_CC_orange$_SCPS1GIT$_CC_reset' ] '$_CC_dark_grey'$?'$_SCPS1HISTNB' '$_SCLDAVG' '$_SCSDSTS'\n→  '$_CC_reset
+PS2='…  '
+unset _SCPS1GIT _SCPS1HISTNB _SCSDSTS _SCLDAVG _CC_dark_grey _CC_cyan _CC_orange _CC_reset _CC_user
 
 # tmux : disable this using "export TMUX=disable" before loading shellconfig
 if command -v tmux &> /dev/null && [ -z "$TMUX" ] && [ -z "$SUDO_USER" ]; then
