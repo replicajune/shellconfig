@@ -26,6 +26,7 @@ else
   alias psf="ps --ppid 2 -p 2 --deselect --format user,pid,ppid,pcpu,pmem,time,stat,cmd --forest"
   alias topm="ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pmem |head -11"
   alias topt="ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -time |head -11"
+  alias topc="ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pcpu |head -11"
 fi
 
 # NETWORK
