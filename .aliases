@@ -64,7 +64,6 @@ unset _PKG_MGR
 if [ -x $(whereis docker |cut -d' ' -f2) ]; then
   alias dk="docker"
   alias dkr="docker run -it"
-
   alias dklc="docker ps -a"
   alias dkli="docker image ls"
   alias dkln="docker network ls"
@@ -83,6 +82,7 @@ if [ -x $(whereis docker-compose |cut -d' ' -f2) ]; then
   alias dkc="docker-compose"
   alias dkcb="docker-compose build"
   alias dkcu="docker-compose up -d"
+  alias dkcub="docker-compose up -d --build"
   alias dkcd="docker-compose down"
   alias dkcr="docker-compose restart"
 fi
