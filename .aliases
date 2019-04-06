@@ -64,15 +64,19 @@ unset _PKG_MGR
 if [ -x $(whereis docker |cut -d' ' -f2) ]; then
   alias dk="docker"
   alias dkr="docker run -it"
+
+  alias dklc="docker ps -a"
+  alias dkli="docker image ls"
+  alias dkln="docker network ls"
+  alias dklv="docker volume ls"
   alias dkpc="docker container prune -f"
   alias dkpi="docker image prune -f"
-  alias dkps="docker ps -a"
-  alias dklr="docker network ls"
-  alias dklv="docker volume ls"
+  alias dkpn="docker network prune -f"
+  alias dkpv="docker volume prune -f"
+  alias dkpurge="docker system prune -af"
+  alias dkpurgeall="docker system prune -af; docker volume prune -f"
   alias dkdf="docker system df"
   alias dki="docker system info"
-  alias dkprsys="docker system prune -af"
-  alias dkpurge="docker system prune -af; docker volume prune -f"
 fi
 
 if [ -x $(whereis docker-compose |cut -d' ' -f2) ]; then
