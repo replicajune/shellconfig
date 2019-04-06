@@ -61,32 +61,37 @@ case $_PKG_MGR in
 esac
 unset _PKG_MGR
 
-# DOCKER & DOCKER-COMPOSE
-alias dk="docker"
-alias dkr="docker run -it"
-alias dkpc="docker container prune -f"
-alias dkpi="docker image prune -f"
-alias dkps="docker ps -a"
-alias dklr="docker network ls"
-alias dklv="docker volume ls"
-alias dkdf="docker system df"
-alias dki="docker system info"
-alias dkprsys="docker system prune -af"
+if [ -x $(whereis docker |cut -d' ' -f2) ]; then
+  alias dk="docker"
+  alias dkr="docker run -it"
+  alias dkpc="docker container prune -f"
+  alias dkpi="docker image prune -f"
+  alias dkps="docker ps -a"
+  alias dklr="docker network ls"
+  alias dklv="docker volume ls"
+  alias dkdf="docker system df"
+  alias dki="docker system info"
+  alias dkprsys="docker system prune -af"
+  alias dkpurge="docker system prune -af; docker volume prune -f"
+fi
 
-alias dkc="docker-compose"
-alias dkcb="docker-compose build"
-alias dkcu="docker-compose up -d"
-alias dkcd="docker-compose down"
-alias dkcr="docker-compose restart"
+if [ -x $(whereis docker-compose |cut -d' ' -f2) ]; then
+  alias dkc="docker-compose"
+  alias dkcb="docker-compose build"
+  alias dkcu="docker-compose up -d"
+  alias dkcd="docker-compose down"
+  alias dkcr="docker-compose restart"
+fi
 
-# GIT - some of them might evolve :)
-alias gs="git status"
-alias ga="git add ."
-alias gc="git commit -m"
-alias gph="git push --all"
-alias gpl="git pull --all"
-alias gl="git log --graph --oneline"
-alias gs="git status --show-stash"
+if [ -x $(whereis git |cut -d' ' -f2) ]; then
+  alias gs="git status"
+  alias ga="git add ."
+  alias gc="git commit -m"
+  alias gph="git push --all"
+  alias gpl="git pull --all"
+  alias gl="git log --graph --oneline"
+  alias gs="git status --show-stash"
+fi
 
 # MISC
 alias h="history |tail -20"
