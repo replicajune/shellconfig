@@ -59,7 +59,6 @@ case $_PKG_MGR in
   *)
     ;;
 esac
-unset _PKG_MGR
 
 if [ -x $(whereis docker |cut -d' ' -f2) ]; then
   alias dk="docker"
