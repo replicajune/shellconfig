@@ -82,7 +82,7 @@ if [ -x $(whereis docker-compose |cut -d' ' -f2) ]; then
   alias dkc="docker-compose"
   alias dkcb="docker-compose build"
   alias dkcu="docker-compose up -d"
-  alias dkcub="docker-compose up -d --build"
+  alias dkcbu="docker-compose up -d --build"
   alias dkcd="docker-compose down"
   alias dkcr="docker-compose restart"
 fi
