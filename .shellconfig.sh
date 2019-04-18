@@ -52,5 +52,5 @@ fi
 [ "$(strings $(whereis ps |cut -d' ' -f2) |grep busybox |head -1)" = 'busybox' ] && _BBX=true || true
 
 for item in environments functions aliases aliases.private; do
-[ -h /home/${SUDO_USER-$USER}/.${item} ] && source /home/${SUDO_USER-$USER}/.${item}
+  [ -h /home/${SUDO_USER-$USER}/.${item} ] && source /home/${SUDO_USER-$USER}/.${item} || true;
 done
