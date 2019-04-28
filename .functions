@@ -4,37 +4,40 @@
 if [ -x $(whereis rambox |cut -d' ' -f2) ]; then
 # download and install the latest rambox package
 # quick and dirty, but it works !
-rambox_update () {
+  rambox_update () {
+    # define the package needed
+    case ${_PKG_MGR} in
+      apt)  PKG_TYPE="amd64.deb";
+            PKG_INST_CMD="dpkg -i";
+            PKG_INST_CMD_NOFAIL="apt-get -f install";
+        ;;
+      yum)  PKG_TYPE="x86_64.rpm";
+            PKG_INST_CMD="yum install -y";
+        ;;
+      *) echo "sorry, not compatible" && return 1;;
+    esac
 
-  # define the package needed
-  case ${_PKG_MGR} in
-    apt) PKG_TYPE="amd64.deb";;
-    yum) PKG_TYPE="x86_64.rpm";;
-    *) echo "sorry, not compatible" && return 1;;
-  esac
+    # get a list if available packages
+    REPO='ramboxapp/community-edition'
+    LATEST_RELEASES=$(
+      curl https://api.github.com/repos/${REPO}/releases/latest 2> /dev/null |
+      jq ".assets |.[] | .browser_download_url" |
+      tr -d '"'
+    )
 
-  # get a list if available packages
-  REPO='ramboxapp/community-edition'
-  LATEST_RELEASE=$(
-    curl https://api.github.com/repos/${REPO}/releases/latest 2> /dev/null |
-    jq ".assets |.[] | .browser_download_url" |
-    tr -d '"'
-  )
+    for URL in ${LATEST_RELEASES}; do
+      # get the right URL
+      if [[ "${URL##*-}" = "${PKG_TYPE}" ]]; then
+        echo "downloading ..."
+        wget ${URL} --output-document="/tmp/${URL##*/}" --quiet
+        # install using defined package manager & manage a dpkg fail
+        echo "installing, or upgrading ..."
+        sudo ${PKG_INST_CMD} "/tmp/${URL##*/}" ||\
+          ${PKG_INST_CMD_NOFAIL-'true'}
+        rm -f "/tmp/${URL##*/}"
+        break
+      fi
+    done
 
-  for URL in ${LATEST_RELEASES}; do
-    # get the right URL
-    if [[ "${URL##*-}" = "${PKG_TYPE}" ]]; then
-      echo "downloading ..."
-      wget ${URL} --output-document="/tmp/${URL##*/}" --quiet
-      case ${_PKG_MGR} in
-        apt) sudo dpkg -i "/tmp/${URL##*/}";;
-        yum) sudo yum install -y "/tmp/${URL##*/}";;
-        *) return 2;;
-      esac
-      rm -f "/tmp/${URL##*/}"
-      break
-    fi
-  done
-
-}
+  }
 fi
