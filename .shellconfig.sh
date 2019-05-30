@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# PS1
+# --- PS1
 
 # color & special codes
 _CC_dark_grey='\[\e[2;2m\]'
@@ -27,7 +27,7 @@ fi
 # load average, running proc/sleeps & latest assign pid number
 _SCLDAVG='[$(echo -n $(cat /proc/loadavg))]'
 
-# actual PS1 definition
+# PS1/2 definition
 PS1=$_CC_dark_grey'\t '$_CC_reset'[ '$_CC_user'\u'$_CC_reset'@'$_CC_cyan'\h'$_CC_dark_grey' \W'$_CC_orange$_SCPS1GIT$_CC_reset' ] '$_CC_dark_grey'$?'$_SCPS1HISTNB' '$_SCLDAVG' '$_SCSDSTS'\n→  '$_CC_reset
 PS2='…  '
 unset _SCPS1GIT _SCPS1HISTNB _SCSDSTS _SCLDAVG _CC_dark_grey _CC_cyan _CC_orange _CC_reset _CC_user
