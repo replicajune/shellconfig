@@ -25,7 +25,7 @@ if [[ $(cat /proc/1/comm) = 'systemd' ]]; then
 fi
 
 # load average, running proc/sleeps & latest assign pid number
-_SCLDAVG='[$(echo -n $(cat /proc/loadavg))]'
+_SCLDAVG='[$(echo -n $(cat /proc/loadavg | cut -d" " -f1-3 ))]'
 
 # PS1/2 definition
 PS1=$_CC_dark_grey'\t '$_CC_reset'[ '$_CC_user'\u'$_CC_reset'@'$_CC_cyan'\h'$_CC_dark_grey' \W'$_CC_orange$_SCPS1GIT$_CC_reset' ] '$_CC_dark_grey'$?'$_SCPS1HISTNB' '$_SCLDAVG' '$_SCSDSTS'\n→  '$_CC_reset
