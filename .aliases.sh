@@ -107,7 +107,7 @@ if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
 fi
 
 # FOR PERSONNAL OR PRIVATE ALIASES (THINGS WITH CONTEXTS AND STUFF)
-fi [ -f '~/.aliases.private' ]; then
+if [ -f '~/.aliases.private' ]; then
   # shellcheck source=/dev/null
   source ~/.aliases.private
 fi
