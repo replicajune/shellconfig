@@ -7,10 +7,10 @@ _CC_dark_grey='\[\e[2;2m\]'
 _CC_cyan='\[\e[0;36m\]'
 _CC_orange='\[\e[0;93m\]'
 _CC_reset='\[\e[0m\]'
-_CC_user='\[\e[0;'$([ $USER = "root" ] && echo "31" || echo '32')'m\]'
+_CC_user='\[\e[0;'"$([ $USER = "root" ] && echo "31" || echo '32')"'m\]'
 
 # is it a bash shell ?
-echo $0 | grep 'bash' &> /dev/null && _SCPS1HISTNB='|\!\[\e[2;2m\]'
+echo "${0}" | grep 'bash' &> /dev/null && _SCPS1HISTNB='|\!\[\e[2;2m\]'
 
 # is git installed ?
 type __git_ps1 2> /dev/null | grep '()' &> /dev/null && _SCPS1GIT='$(__git_ps1 " (%s)")'
