@@ -59,7 +59,7 @@ case $_PKG_MGR in
     ;;
 esac
 
-if [ -x $(whereis docker |cut -d' ' -f2) ]; then
+if [ -x "$(whereis docker |cut -d' ' -f2)" ]; then
   alias dk="docker"
   alias dkr="docker run -it"
   alias dklc="docker ps -a"
@@ -76,7 +76,7 @@ if [ -x $(whereis docker |cut -d' ' -f2) ]; then
   alias dki="docker system info"
 fi
 
-if [ -x $(whereis docker-compose |cut -d' ' -f2) ]; then
+if [ -x "$(whereis docker-compose |cut -d' ' -f2)" ]; then
   alias dkc="docker-compose"
   alias dkcb="docker-compose build"
   alias dkcu="docker-compose up -d"
@@ -85,7 +85,7 @@ if [ -x $(whereis docker-compose |cut -d' ' -f2) ]; then
   alias dkcr="docker-compose restart"
 fi
 
-if [ -x $(whereis git |cut -d' ' -f2) ]; then
+if [ -x "$(whereis git |cut -d' ' -f2)" ]; then
   alias gs="git status"
   alias ga="git add ."
   alias gc="git commit -m"
@@ -102,7 +102,11 @@ alias datei="date --iso-8601=s"
 alias weather="curl wttr.in"
 
 # OPTIONALS
-[ -x $(whereis lazygit |cut -d' ' -f2) ] && alias lz=lazygit || true
+if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
+  alias lz=lazygit
+fi
 
 # FOR PERSONNAL OR PRIVATE ALIASES (THINGS WITH CONTEXTS AND STUFF)
-[ -f ~/.aliases.private ] && source ~/.aliases.private || true
+fi [ -f '~/.aliases.private' ]; then
+ source ~/.aliases.private
+fi
