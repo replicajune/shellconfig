@@ -1,7 +1,8 @@
 #!/bin/sh
 
-[ -n "${PATH##*/.local/bin*}" ] &&\
+if [ -n "${PATH##*/.local/bin*}" ]; then
   export PATH=$PATH:/home/${SUDO_USER-$USER}/.local/bin || true
+fi
 
 export VISUAL="vim"
 export EDITOR="vim"
