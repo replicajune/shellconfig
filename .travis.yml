@@ -1,5 +1,5 @@
 ---
-  
+
 matrix:
   include:
     - language: shell
@@ -14,4 +14,4 @@ matrix:
     - language: python
       install: pip3 install yamllint
       script:
-        - yamllint .
+        - yamllint --strict .
