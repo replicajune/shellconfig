@@ -1,0 +1,17 @@
+---
+
+matrix:
+  include:
+    - language: shell
+      script:
+        - shellcheck $(find ./ -iname "*.sh" -type f)
+
+    - language: ruby
+      install: gem install mdl
+      script:
+        - mdl .
+
+    - language: python
+      install: pip3 install yamllint
+      script:
+        - yamllint --strict .
