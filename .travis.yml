@@ -1,0 +1,10 @@
+matrix:
+  include:
+    - language: shell
+      script:
+        - bash -c 'shopt -s globstar; shellcheck **/*.{sh,ksh,bash}'
+
+    - language: ruby
+      install: gem install mdl
+      script:
+        - bash -c 'shopt -s globstar; mdl **/*.{md,markdown}'
