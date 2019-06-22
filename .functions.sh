@@ -32,7 +32,6 @@ rambox_update () {
       echo "installing, or upgrading ..."
       # shellcheck disable=SC2086
       sudo ${PKG_INST_CMD} "/tmp/${URL##*/}" ||\
-        # shellcheck disable=SC2086
         sudo ${PKG_INST_CMD_NOFAIL-'true'} || return 2
       rm -f "/tmp/${URL##*/}"
       break
