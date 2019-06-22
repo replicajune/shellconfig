@@ -2,9 +2,9 @@ matrix:
   include:
     - language: shell
       script:
-        - bash -c 'shopt -s globstar; shellcheck **/*.{sh,ksh,bash}'
+        - shellcheck $(find ./ -iname "*.sh" -type f)
 
     - language: ruby
       install: gem install mdl
       script:
-        - bash -c 'shopt -s globstar; mdl **/*.{md,markdown}'
+        - mdl .
