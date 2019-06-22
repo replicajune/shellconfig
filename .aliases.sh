@@ -108,5 +108,6 @@ fi
 
 # FOR PERSONNAL OR PRIVATE ALIASES (THINGS WITH CONTEXTS AND STUFF)
 fi [ -f '~/.aliases.private' ]; then
- source ~/.aliases.private
+  # shellcheck source=/dev/null
+  source ~/.aliases.private
 fi
