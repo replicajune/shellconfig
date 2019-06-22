@@ -15,3 +15,5 @@ export GIT_PS1_SHOWUNTRACKEDFILES=y
 
 # https://github.com/atom/atom/issues/17452
 export ELECTRON_TRASH=gio
+
+export VAGRANT_DEFAULT_PROVIDER=libvirt # better perfs, less oracle stuff
