@@ -17,7 +17,7 @@ export HISTSIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
 
 # show more git stuff in ps1
-export GIT_PS1_SHOWUPSTREAM='verbose name git'
+export GIT_PS1_SHOWUPSTREAM='verbose'
 export GIT_PS1_SHOWUNTRACKEDFILES=y
 
 # https://github.com/atom/atom/issues/17452
@@ -213,13 +213,6 @@ fi
 
 # --- PS1
 
-# color & special codes
-_CC_dark_grey='\[\e[2;2m\]'
-_CC_cyan='\[\e[0;36m\]'
-_CC_orange='\[\e[0;93m\]'
-_CC_reset='\[\e[0m\]'
-_CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "31" || echo '32')"'m\]'
-
 # is it a bash shell ?
 if echo "${0}" | grep -q bash; then
   _SCPS1HISTNB='|\!\[\e[2;2m\]'
@@ -249,8 +242,27 @@ fi
 # shellcheck disable=SC2016
 _SCLDAVG='[$(echo -n $(cat /proc/loadavg | cut -d" " -f1-3 ))]'
 
+# color & special codes
+_CC_dark_grey='\[\e[2;2m\]'
+_CC_cyan='\[\e[0;36m\]'
+_CC_orange='\[\e[0;33m\]'
+_CC_reset='\[\e[0m\]'
+_CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "31" || echo '32')"'m\]'
+
+# blocks definition for ps1
+PS_DATE=$_CC_dark_grey'\t '$_CC_reset
+PS_LOCATION=$_CC_user'\u'$_CC_reset'@'$_CC_cyan'\h'$_CC_reset
+PS_DIR=$_CC_dark_grey' \W'$_CC_reset
+PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
+PS_ST_HIST=$_CC_dark_grey'$?'$_SCPS1HISTNB$_CC_reset
+PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
+PS_SYSD=$_CC_dark_grey$_SCSDSTS$_CC_reset
+PS_PROMPT='\n→  '
+
 # PS1/2 definition
-PS1=$_CC_dark_grey'\t '$_CC_reset'[ '$_CC_user'\u'$_CC_reset'@'$_CC_cyan'\h'$_CC_dark_grey' \W'$_CC_orange$_SCPS1GIT$_CC_reset' ] '$_CC_dark_grey'$?'$_SCPS1HISTNB' '$_SCLDAVG' '$_SCSDSTS'\n→  '$_CC_reset
+PS_LOC_BLOCK='[ '$PS_LOCATION$PS_DIR$PS_GIT' ] '
+PS_EXTRA_BLOCK=$PS_ST_HIST$' '$PS_LOAD' '$PS_SYSD
+PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_PROMPT
 PS2='…  '
 
 # TMUX : disable this using "export TMUX=disable" before loading shellconfig
