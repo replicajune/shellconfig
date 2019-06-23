@@ -1,5 +1,216 @@
 #!/bin/sh
 
+# --- ENVIRONMENTS VARIABLES
+
+# user binary in ~/.local/bin
+if [ -n "${PATH##*/.local/bin*}" ]; then
+  export PATH=$PATH:/home/${SUDO_USER-$USER}/.local/bin
+fi
+
+# use vim when possible
+export VISUAL="vim"
+export EDITOR="vim"
+
+# history with date, no size limit
+export HISTCONTROL=ignoredups
+export HISTSIZE='INF'
+export HISTTIMEFORMAT="[%d/%m/%y %T] "
+
+# show more git stuff in ps1
+export GIT_PS1_SHOWUPSTREAM='verbose name git'
+export GIT_PS1_SHOWUNTRACKEDFILES=y
+
+# https://github.com/atom/atom/issues/17452
+export ELECTRON_TRASH=gio
+
+# better perfs, less oracle stuff
+export VAGRANT_DEFAULT_PROVIDER=libvirt
+
+# --- DETECTIONS
+
+# Package managment definition (used for aliases and functions)
+if [ -x "$(whereis apt |cut -d' ' -f2)" ]; then
+  _PKG_MGR='apt'
+elif [ -x "$(whereis yum |cut -d' ' -f2)" ]; then
+  _PKG_MGR='yum'
+elif [ -x "$(whereis apk |cut -d' ' -f2)" ]; then
+  _PKG_MGR='apk'
+else
+  true
+fi
+
+# # Busybox based system ?
+if  [\
+    "$(strings "$(whereis ps |cut -d' ' -f2)" | grep busybox | head -1)"\
+     = 'busybox' \
+    ]; then
+      _BBX=true
+fi
+
+# --- FUNCTIONS
+
+rambox_update () {
+  # download and install the latest rambox package
+  # quick and dirty, but it works !
+
+  # define the package needed
+  case ${_PKG_MGR} in
+    apt)  PKG_TYPE="amd64.deb";
+          PKG_INST_CMD="dpkg -i";
+          PKG_INST_CMD_NOFAIL="apt-get -f install";
+      ;;
+    yum)  PKG_TYPE="x86_64.rpm";
+          PKG_INST_CMD="yum install -y";
+      ;;
+    *) echo "sorry, not compatible" && return 1;;
+  esac
+
+  # get a list if available packages
+  REPO='ramboxapp/community-edition'
+  LATEST_RELEASES=$(
+    curl "https://api.github.com/repos/${REPO}/releases/latest" 2> /dev/null |
+    jq ".assets |.[] | .browser_download_url" |
+    tr -d '"'
+  )
+
+  for URL in ${LATEST_RELEASES}; do
+    # get the right URL
+    if [ "${URL##*-}" = "${PKG_TYPE}" ]; then
+      echo "downloading ..."
+      wget "${URL}" --output-document="/tmp/${URL##*/}" --quiet
+      # install using defined package manager & manage a dpkg fail
+      echo "installing, or upgrading ..."
+      # shellcheck disable=SC2086
+      sudo ${PKG_INST_CMD} "/tmp/${URL##*/}" ||\
+        sudo ${PKG_INST_CMD_NOFAIL-'true'} || return 2
+      rm -f "/tmp/${URL##*/}"
+      break
+    fi
+  done
+}
+
+# --- ALIASES
+
+# files managment
+alias l='ls -CF'
+alias ll="ls -Flh"
+alias la="ls -Flha"
+alias lz="ls -FlhZ"
+
+alias rm="rm -i"
+alias rmr="rm -ri"
+
+if [ "${_BBX}" != 'true' ]; then
+  alias lsd="dirs -v" # list stack directory
+  alias pdir="pushd ./ > /dev/null; dirs -v"
+  alias cdp="pushd" # not doing the cd="pushd", but having the option is nice
+fi
+
+# ressources
+alias df="df -h"
+alias lsm="findmnt"
+if [ "${_BBX}" != 'true' ]; then
+  alias topd="du -sch .[!.]* * |sort -rh |head -11"
+  alias psf="
+    ps --ppid 2 -p 2 --deselect \
+    --format user,pid,ppid,pcpu,pmem,time,stat,cmd --forest"
+  alias topm="
+    ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pmem \
+    | head -11"
+  alias topt="
+    ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -time \
+    | head -11"
+  alias topc="
+    ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pcpu \
+    | head -11"
+else
+  alias topd="du -sc .[!.]* * |sort -rn |head -11"
+fi
+
+# network
+alias lsn="sudo ss -lpnt |column -t"
+
+# package managment
+case $_PKG_MGR in
+  apt)
+    alias upd="sudo apt update && apt list --upgradable"
+    alias updnow="sudo apt update && sudo apt upgrade -y"
+    alias rmp="sudo apt purge -y"
+    alias cleanpm="sudo apt autoremove -y && sudo apt autoclean"
+    alias lsp="apt list -i"
+    alias lspl="dpkg -l |column"
+    ;;
+  yum)
+    alias upd="sudo yum update --assumeno"
+    alias updnow="sudo yum update -y"
+    alias rmp="sudo yum remove"
+    alias cleanpm="sudo yum clean all"
+    alias lsp="rpm -qa"
+    ;;
+  apk)
+    alias upd="sudo apk update && echo 'UPGRADABLE :' && sudo apk upgrade -s"
+    alias updnow="sudo apk update && sudo apk upgrade"
+    alias rmp="sudo apk del"
+    alias cleanpm="sudo apk -v cache clean"
+    alias lsp="apk list -I"
+    ;;
+  *)
+    ;;
+esac
+
+if [ -x "$(whereis docker |cut -d' ' -f2)" ]; then
+  alias dk="docker"
+  alias dkr="docker run -it"
+  alias dklc="docker ps -a"
+  alias dkli="docker image ls"
+  alias dkln="docker network ls"
+  alias dklv="docker volume ls"
+  alias dkpc="docker container prune -f"
+  alias dkpi="docker image prune -f"
+  alias dkpn="docker network prune -f"
+  alias dkpv="docker volume prune -f"
+  alias dkpurge="docker system prune -af"
+  alias dkpurgeall="docker system prune -af; docker volume prune -f"
+  alias dkdf="docker system df"
+  alias dki="docker system info"
+fi
+
+if [ -x "$(whereis docker-compose |cut -d' ' -f2)" ]; then
+  alias dkc="docker-compose"
+  alias dkcb="docker-compose build"
+  alias dkcu="docker-compose up -d"
+  alias dkcbu="docker-compose up -d --build"
+  alias dkcd="docker-compose down"
+  alias dkcr="docker-compose restart"
+fi
+
+if [ -x "$(whereis git |cut -d' ' -f2)" ]; then
+  alias gs="git status"
+  alias ga="git add ."
+  alias gc="git commit -m"
+  alias gph="git push --all"
+  alias gpl="git pull --all"
+  alias gl="git log --graph --oneline"
+  alias gs="git status --show-stash"
+fi
+
+# misc
+alias h="history |tail -20"
+alias vless="vim -M"
+alias datei="date --iso-8601=s"
+alias weather="curl wttr.in"
+
+# optionals
+if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
+  alias lzg=lazygit
+fi
+
+# for personnal or private aliases (things with contexts and stuff)
+if [ -f "${HOME}/.aliases.private.sh" ]; then
+  # shellcheck source=/dev/null
+  . ~/.aliases.private.sh
+fi
+
 # --- PS1
 
 # color & special codes
@@ -26,7 +237,7 @@ fi
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   _SCSDST () {
     systemctl is-system-running > /dev/null 2> /dev/null && return 0
-    # backslash escapes and non new lines required
+    # backslash escapes and non new line required
     # shellcheck disable=SC2039
     echo -ne '\e[31m●\e[0m'
   }
@@ -34,49 +245,17 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   _SCSDSTS='$(_SCSDST)'
 fi
 
-# load average, running proc/sleeps & latest assign pid number
+# load average
 # shellcheck disable=SC2016
 _SCLDAVG='[$(echo -n $(cat /proc/loadavg | cut -d" " -f1-3 ))]'
 
 # PS1/2 definition
 PS1=$_CC_dark_grey'\t '$_CC_reset'[ '$_CC_user'\u'$_CC_reset'@'$_CC_cyan'\h'$_CC_dark_grey' \W'$_CC_orange$_SCPS1GIT$_CC_reset' ] '$_CC_dark_grey'$?'$_SCPS1HISTNB' '$_SCLDAVG' '$_SCSDSTS'\n→  '$_CC_reset
 PS2='…  '
-unset _SCPS1GIT _SCPS1HISTNB _SCSDSTS _SCLDAVG _CC_dark_grey _CC_cyan _CC_orange _CC_reset _CC_user
 
-# tmux : disable this using "export TMUX=disable" before loading shellconfig
+# TMUX : disable this using "export TMUX=disable" before loading shellconfig
 if command -v tmux > /dev/null 2> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
 fi
-
-# PACKAGE MANAGMENT DEFINITION (used for aliases and functions)
-if [ -x "$(whereis apt |cut -d' ' -f2)" ]; then
-  # variable used in another script
-  # shellcheck disable=SC2034
-  _PKG_MGR='apt'
-elif [ -x "$(whereis yum |cut -d' ' -f2)" ]; then
-  # variable used in another script
-  # shellcheck disable=SC2034
-  _PKG_MGR='yum'
-elif [ -x "$(whereis apk |cut -d' ' -f2)" ]; then
-  # variable used in another script
-  # shellcheck disable=SC2034
-  _PKG_MGR='apk'
-else
-  true
-fi
-
-# # Busybox based system ?
-if [ "$(strings "$(whereis ps |cut -d' ' -f2)" |grep busybox |head -1)" = 'busybox' ]; then
-  # variable used in another script
-  # shellcheck disable=SC2034
-  _BBX=true
-fi
-
-for item in environments functions aliases aliases.private; do
-  if [ -h "/home/${SUDO_USER-$USER}/.${item}" ]; then
-    # shellcheck source=/dev/null
-    . "/home/${SUDO_USER-$USER}/.${item}"
-  fi
-done
