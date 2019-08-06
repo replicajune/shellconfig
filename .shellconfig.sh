@@ -157,6 +157,14 @@ case $_PKG_MGR in
     ;;
 esac
 
+# pager
+if [ -x "$(whereis most |cut -d' ' -f2)" ]; then
+  # most is color friendly
+  alias man='PAGER=most man'
+fi
+
+
+# docker
 if [ -x "$(whereis docker |cut -d' ' -f2)" ]; then
   alias dk="docker"
   alias dkr="docker run -it"
