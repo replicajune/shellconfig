@@ -207,6 +207,20 @@ if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
   alias lzg=lazygit
 fi
 
+# vagrant
+if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
+  function vagrant_rsync() {
+    # replace vagrant-scp
+    # usage : vagrant_rsync_conf <source> <target>
+    UUID=$(cat /proc/sys/kernel/random/uuid)
+    CONF="/tmp/vagrant_ssh-config.${UUID}"
+    vagrant ssh-config > "${CONF}"
+    rsync -ave "ssh -F ${CONF}" "${1}" "${2}" || EXIT_CODE=${?}
+    rm -f "${CONF}"
+    return ${EXIT_CODE}
+  }
+fi
+
 # misc
 alias h="history |tail -20"
 alias vless="vim -M"
