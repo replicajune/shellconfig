@@ -47,48 +47,6 @@ if  [\
       _BBX=true
 fi
 
-# --- FUNCTIONS
-
-rambox_update () {
-  # download and install the latest rambox package
-  # quick and dirty, but it works !
-
-  # define the package needed
-  case ${_PKG_MGR} in
-    apt)  PKG_TYPE="amd64.deb";
-          PKG_INST_CMD="dpkg -i";
-          PKG_INST_CMD_NOFAIL="apt-get -f install";
-      ;;
-    yum)  PKG_TYPE="x86_64.rpm";
-          PKG_INST_CMD="yum install -y";
-      ;;
-    *) echo "sorry, not compatible" && return 1;;
-  esac
-
-  # get a list if available packages
-  REPO='ramboxapp/community-edition'
-  LATEST_RELEASES=$(
-    curl "https://api.github.com/repos/${REPO}/releases/latest" 2> /dev/null |
-    jq ".assets |.[] | .browser_download_url" |
-    tr -d '"'
-  )
-
-  for URL in ${LATEST_RELEASES}; do
-    # get the right URL
-    if [ "${URL##*-}" = "${PKG_TYPE}" ]; then
-      echo "downloading ..."
-      wget "${URL}" --output-document="/tmp/${URL##*/}" --quiet
-      # install using defined package manager & manage a dpkg fail
-      echo "installing, or upgrading ..."
-      # shellcheck disable=SC2086
-      sudo ${PKG_INST_CMD} "/tmp/${URL##*/}" ||\
-        sudo ${PKG_INST_CMD_NOFAIL-'true'} || return 2
-      rm -f "/tmp/${URL##*/}"
-      break
-    fi
-  done
-}
-
 # --- ALIASES
 
 # files managment
@@ -158,6 +116,13 @@ case $_PKG_MGR in
     ;;
 esac
 
+# pager
+if [ -x "$(whereis most |cut -d' ' -f2)" ]; then
+  # most is color friendly
+  alias man='PAGER=most man'
+fi
+
+# docker
 if [ -x "$(whereis docker |cut -d' ' -f2)" ]; then
   alias dk="docker"
   alias dkr="docker run -it"
@@ -184,6 +149,7 @@ if [ -x "$(whereis docker-compose |cut -d' ' -f2)" ]; then
   alias dkcr="docker-compose restart"
 fi
 
+# git
 if [ -x "$(whereis git |cut -d' ' -f2)" ]; then
   alias gs="git status"
   alias ga="git add ."
@@ -194,16 +160,30 @@ if [ -x "$(whereis git |cut -d' ' -f2)" ]; then
   alias gs="git status --show-stash"
 fi
 
+# lazygit
+if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
+  alias lzg=lazygit
+fi
+
+# vagrant
+if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
+  vagrant_rsync() {
+    # replace vagrant-scp
+    # usage : vagrant_rsync_conf <source> <target>
+    UUID=$(cat /proc/sys/kernel/random/uuid)
+    CONF="/tmp/vagrant_ssh-config.${UUID}"
+    vagrant ssh-config > "${CONF}"
+    rsync -ave "ssh -F ${CONF}" "${1}" "${2}" || EXIT_CODE=${?}
+    rm -f "${CONF}"
+    return ${EXIT_CODE}
+  }
+fi
+
 # misc
 alias h="history |tail -20"
 alias vless="vim -M"
 alias datei="date --iso-8601=s"
 alias weather="curl wttr.in"
-
-# optionals
-if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
-  alias lzg=lazygit
-fi
 
 # for personnal or private aliases (things with contexts and stuff)
 if [ -f "${HOME}/.aliases.private.sh" ]; then
