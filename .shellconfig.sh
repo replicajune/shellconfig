@@ -49,7 +49,7 @@ fi
 
 # --- FUNCTIONS
 
-# function rambox_update() {
+# rambox_update() {
 #   # so long rambox, it was fun while it lasted
 #
 #   # define the package needed
@@ -209,7 +209,7 @@ fi
 
 # vagrant
 if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
-  function vagrant_rsync() {
+  vagrant_rsync() {
     # replace vagrant-scp
     # usage : vagrant_rsync_conf <source> <target>
     UUID=$(cat /proc/sys/kernel/random/uuid)
