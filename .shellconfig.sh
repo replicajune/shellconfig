@@ -97,6 +97,9 @@ case $_PKG_MGR in
     alias cleanpm="sudo apt autoremove -y && sudo apt autoclean"
     alias lsp="apt list -i"
     alias lspl="dpkg -l |column"
+    pkg_inst () {
+      sudo apt install -y "./${1}"
+    }
     ;;
   yum)
     alias upd="sudo yum update --assumeno"
@@ -104,6 +107,10 @@ case $_PKG_MGR in
     alias rmp="sudo yum remove"
     alias cleanpm="sudo yum clean all"
     alias lsp="rpm -qa"
+    pkg_inst () {
+      sudo yum install -y "./${1}"
+    }
+
     ;;
   apk)
     alias upd="sudo apk update && echo 'UPGRADABLE :' && sudo apk upgrade -s"
