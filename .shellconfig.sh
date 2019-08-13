@@ -169,13 +169,17 @@ fi
 if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
   vagrant_rsync() {
     # replace vagrant-scp
-    # usage : vagrant_rsync_conf <source> <target>
-    UUID=$(cat /proc/sys/kernel/random/uuid)
-    CONF="/tmp/vagrant_ssh-config.${UUID}"
-    vagrant ssh-config > "${CONF}"
-    rsync -ave "ssh -F ${CONF}" "${1}" "${2}" || EXIT_CODE=${?}
-    rm -f "${CONF}"
-    return ${EXIT_CODE}
+    # usage : use it like rsync
+    if [ $# -lt 2 ]; then
+      rsync --help
+      return 1
+    else
+      UUID=$(cat /proc/sys/kernel/random/uuid)
+      CONF="/tmp/vagrant_ssh-config.${UUID}"
+      vagrant ssh-config > "${CONF}"
+      rsync -e "ssh -F ${CONF}" "${@}"
+      rm -f "${CONF}"
+    fi
   }
 fi
 
