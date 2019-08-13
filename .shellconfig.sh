@@ -177,7 +177,7 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
       UUID=$(cat /proc/sys/kernel/random/uuid)
       CONF="/tmp/vagrant_ssh-config.${UUID}"
       vagrant ssh-config > "${CONF}"
-      rsync -e "ssh -F ${CONF}" ${*}
+      rsync -e "ssh -F ${CONF}" "${@}"
       rm -f "${CONF}"
     fi
   }
