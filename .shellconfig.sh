@@ -97,7 +97,6 @@ case $_PKG_MGR in
     alias updnow="sudo apt update && sudo apt upgrade -y"
     alias rmp="sudo apt purge -y"
     alias cleanpm="sudo apt autoremove -y && sudo apt autoclean"
-    alias lsp="apt list -i"
     alias gpkg="dpkg -l | grep -i"
     pkg_inst () {
       sudo apt install -y "./${1}"
@@ -129,7 +128,6 @@ case $_PKG_MGR in
     alias updnow="sudo apk update && sudo apk upgrade"
     alias rmp="sudo apk del"
     alias cleanpm="sudo apk -v cache clean"
-    alias lsp="apk list -I"
     alias gpkg="apk list -I | grep -i"
     ;;
   *)
