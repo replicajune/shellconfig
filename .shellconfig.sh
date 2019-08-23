@@ -31,6 +31,8 @@ export VAGRANT_DEFAULT_PROVIDER=libvirt
 # Package managment definition (used for aliases and functions)
 if [ -x "$(whereis apt |cut -d' ' -f2)" ]; then
   _PKG_MGR='apt'
+elif [ -x "$(whereis dnf |cut -d' ' -f2)" ]; then
+  _PKG_MGR='dnf'
 elif [ -x "$(whereis yum |cut -d' ' -f2)" ]; then
   _PKG_MGR='yum'
 elif [ -x "$(whereis apk |cut -d' ' -f2)" ]; then
@@ -99,6 +101,16 @@ case $_PKG_MGR in
     alias gpkg="dpkg -l | grep -i"
     pkg_inst () {
       sudo apt install -y "./${1}"
+    }
+    ;;
+  dnf)
+    alias upd="sudo dnf check-update --refresh --assumeno"
+    alias updnow="sudo dnf update --assumeyes"
+    alias rmp="sudo dnf remove --assumeyes"
+    alias cleanpm="sudo dnf clean all"
+    alias gpkg="rpm -qa | grep -i"
+    pkg_inst () {
+      sudo dnf install -y "./${1}"
     }
     ;;
   yum)
