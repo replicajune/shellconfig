@@ -163,7 +163,6 @@ if [ -x "$(whereis git |cut -d' ' -f2)" ]; then
   alias gc="git commit -m"
   alias gph="git push --all"
   alias gpl="git pull --all"
-  alias gl="git log --graph --oneline"
   alias gs="git status --show-stash"
 fi
 
