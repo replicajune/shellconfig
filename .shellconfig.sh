@@ -194,7 +194,7 @@ fi
 alias h="history |tail -20"
 alias vless="vim -M"
 alias datei="date --iso-8601=s"
-alias weather="curl wttr.in"
+alias weather="curl wttr.in/?0"
 
 # for personnal or private aliases (things with contexts and stuff)
 if [ -f "${HOME}/.aliases.private.sh" ]; then
