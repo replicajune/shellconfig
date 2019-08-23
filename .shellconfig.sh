@@ -169,7 +169,7 @@ fi
 
 # lazygit
 if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
-  alias lzg=lazygit
+  alias lgt=lazygit
 fi
 
 # vagrant
