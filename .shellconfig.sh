@@ -31,6 +31,8 @@ export VAGRANT_DEFAULT_PROVIDER=libvirt
 # Package managment definition (used for aliases and functions)
 if [ -x "$(whereis apt |cut -d' ' -f2)" ]; then
   _PKG_MGR='apt'
+elif [ -x "$(whereis dnf |cut -d' ' -f2)" ]; then
+  _PKG_MGR='dnf'
 elif [ -x "$(whereis yum |cut -d' ' -f2)" ]; then
   _PKG_MGR='yum'
 elif [ -x "$(whereis apk |cut -d' ' -f2)" ]; then
@@ -93,20 +95,32 @@ case $_PKG_MGR in
   apt)
     alias upd="sudo apt update && apt list --upgradable"
     alias updnow="sudo apt update && sudo apt upgrade -y"
-    alias rmp="sudo apt purge -y"
+    alias ipkg="sudo apt install -y"
+    alias rpkg="sudo apt purge -y"
+    alias gpkg="dpkg -l | grep -i"
     alias cleanpm="sudo apt autoremove -y && sudo apt autoclean"
-    alias lsp="apt list -i"
-    alias lspl="dpkg -l |column"
     pkg_inst () {
       sudo apt install -y "./${1}"
+    }
+    ;;
+  dnf)
+    alias upd="sudo dnf check-update --refresh --assumeno"
+    alias updnow="sudo dnf update --assumeyes"
+    alias ipkg="sudo dnf install -y"
+    alias rpkg="sudo dnf remove --assumeyes"
+    alias gpkg="rpm -qa | grep -i"
+    alias cleanpm="sudo dnf clean all"
+    pkg_inst () {
+      sudo dnf install -y "./${1}"
     }
     ;;
   yum)
     alias upd="sudo yum update --assumeno"
     alias updnow="sudo yum update -y"
-    alias rmp="sudo yum remove"
+    alias ipkg="sudo yum install -y"
+    alias rpkg="sudo yum remove"
+    alias gpkg="rpm -qa | grep -i"
     alias cleanpm="sudo yum clean all"
-    alias lsp="rpm -qa"
     pkg_inst () {
       sudo yum install -y "./${1}"
     }
@@ -117,7 +131,7 @@ case $_PKG_MGR in
     alias updnow="sudo apk update && sudo apk upgrade"
     alias rmp="sudo apk del"
     alias cleanpm="sudo apk -v cache clean"
-    alias lsp="apk list -I"
+    alias gpkg="apk list -I | grep -i"
     ;;
   *)
     ;;
@@ -163,13 +177,12 @@ if [ -x "$(whereis git |cut -d' ' -f2)" ]; then
   alias gc="git commit -m"
   alias gph="git push --all"
   alias gpl="git pull --all"
-  alias gl="git log --graph --oneline"
   alias gs="git status --show-stash"
 fi
 
 # lazygit
 if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
-  alias lzg=lazygit
+  alias lgt=lazygit
 fi
 
 # vagrant
@@ -194,7 +207,7 @@ fi
 alias h="history |tail -20"
 alias vless="vim -M"
 alias datei="date --iso-8601=s"
-alias weather="curl wttr.in"
+alias weather="curl wttr.in/?0"
 
 # for personnal or private aliases (things with contexts and stuff)
 if [ -f "${HOME}/.aliases.private.sh" ]; then
@@ -206,6 +219,7 @@ fi
 
 # is it a bash shell ?
 if echo "${0}" | grep -q bash; then
+  # show history number
   _SCPS1HISTNB='|\!\[\e[2;2m\]'
 fi
 
@@ -213,12 +227,14 @@ fi
 # type works on both bash and ash
 # shellcheck disable=SC2039
 if type __git_ps1 2> /dev/null | grep -q '()'; then
+  # includes git info
   # shellcheck disable=SC2016
   _SCPS1GIT='$(__git_ps1 " (%s)")'
 fi
 
 # is it running with systemd ?
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
+  # show a critical red dot if systemd isn't healthy
   _SCSDST () {
     systemctl is-system-running > /dev/null 2> /dev/null && return 0
     # backslash escapes and non new line required
@@ -261,4 +277,5 @@ if command -v tmux > /dev/null 2> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
+  exit
 fi
