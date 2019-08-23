@@ -261,4 +261,5 @@ if command -v tmux > /dev/null 2> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
+  exit
 fi
