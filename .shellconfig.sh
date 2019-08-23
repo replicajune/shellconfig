@@ -95,9 +95,10 @@ case $_PKG_MGR in
   apt)
     alias upd="sudo apt update && apt list --upgradable"
     alias updnow="sudo apt update && sudo apt upgrade -y"
-    alias rmp="sudo apt purge -y"
-    alias cleanpm="sudo apt autoremove -y && sudo apt autoclean"
+    alias ipkg="sudo apt install -y"
+    alias rpkg="sudo apt purge -y"
     alias gpkg="dpkg -l | grep -i"
+    alias cleanpm="sudo apt autoremove -y && sudo apt autoclean"
     pkg_inst () {
       sudo apt install -y "./${1}"
     }
@@ -105,9 +106,10 @@ case $_PKG_MGR in
   dnf)
     alias upd="sudo dnf check-update --refresh --assumeno"
     alias updnow="sudo dnf update --assumeyes"
-    alias rmp="sudo dnf remove --assumeyes"
-    alias cleanpm="sudo dnf clean all"
+    alias ipkg="sudo dnf install -y"
+    alias rpkg="sudo dnf remove --assumeyes"
     alias gpkg="rpm -qa | grep -i"
+    alias cleanpm="sudo dnf clean all"
     pkg_inst () {
       sudo dnf install -y "./${1}"
     }
@@ -115,9 +117,10 @@ case $_PKG_MGR in
   yum)
     alias upd="sudo yum update --assumeno"
     alias updnow="sudo yum update -y"
-    alias rmp="sudo yum remove"
-    alias cleanpm="sudo yum clean all"
+    alias ipkg="sudo yum install -y"
+    alias rpkg="sudo yum remove"
     alias gpkg="rpm -qa | grep -i"
+    alias cleanpm="sudo yum clean all"
     pkg_inst () {
       sudo yum install -y "./${1}"
     }
