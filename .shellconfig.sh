@@ -60,6 +60,8 @@ alias lz="ls -FlhZ"
 alias rm="rm -i"
 alias rmr="rm -ri"
 
+alias vd="diff --side-by-side --suppress-common-lines"
+
 if [ "${_BBX}" != 'true' ]; then
   alias lsd="dirs -v" # list stack directory
   alias pdir="pushd ./ > /dev/null; dirs -v"
