@@ -206,6 +206,7 @@ fi
 
 # is it a bash shell ?
 if echo "${0}" | grep -q bash; then
+  # show history number
   _SCPS1HISTNB='|\!\[\e[2;2m\]'
 fi
 
@@ -213,12 +214,14 @@ fi
 # type works on both bash and ash
 # shellcheck disable=SC2039
 if type __git_ps1 2> /dev/null | grep -q '()'; then
+  # includes git info
   # shellcheck disable=SC2016
   _SCPS1GIT='$(__git_ps1 " (%s)")'
 fi
 
 # is it running with systemd ?
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
+  # show a critical red dot if systemd isn't healthy
   _SCSDST () {
     systemctl is-system-running > /dev/null 2> /dev/null && return 0
     # backslash escapes and non new line required
