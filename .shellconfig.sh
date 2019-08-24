@@ -61,6 +61,7 @@ alias rm="rm -i"
 alias rmr="rm -ri"
 
 alias vd="diff --side-by-side --suppress-common-lines"
+alias ltree="tree -a --prune --noreport -h -C -I '*.git' | less"
 
 if [ "${_BBX}" != 'true' ]; then
   alias lsd="dirs -v" # list stack directory
@@ -142,6 +143,7 @@ esac
 # pager
 if [ -x "$(whereis most |cut -d' ' -f2)" ]; then
   # most is color friendly
+  alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
   alias man='PAGER=most man'
 fi
 
