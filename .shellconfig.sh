@@ -174,16 +174,6 @@ if [ -x "$(whereis docker-compose |cut -d' ' -f2)" ]; then
   alias dkcr="docker-compose restart"
 fi
 
-# git
-if [ -x "$(whereis git |cut -d' ' -f2)" ]; then
-  alias gs="git status"
-  alias ga="git add ."
-  alias gc="git commit -m"
-  alias gph="git push --all"
-  alias gpl="git pull --all"
-  alias gs="git status --show-stash"
-fi
-
 # lazygit
 if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
   alias lgt=lazygit
