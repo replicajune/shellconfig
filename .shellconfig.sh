@@ -106,6 +106,7 @@ case $_PKG_MGR in
       sudo apt install -y "./${1}"
     }
     ;;
+
   dnf)
     alias upd="sudo dnf check-update --refresh --assumeno"
     alias updnow="sudo dnf update --assumeyes"
@@ -117,6 +118,7 @@ case $_PKG_MGR in
       sudo dnf install -y "./${1}"
     }
     ;;
+
   yum)
     alias upd="sudo yum update --assumeno"
     alias updnow="sudo yum update -y"
@@ -127,8 +129,8 @@ case $_PKG_MGR in
     pkg_inst () {
       sudo yum install -y "./${1}"
     }
-
     ;;
+
   apk)
     alias upd="sudo apk update && echo 'UPGRADABLE :' && sudo apk upgrade -s"
     alias updnow="sudo apk update && sudo apk upgrade"
@@ -136,6 +138,7 @@ case $_PKG_MGR in
     alias cleanpm="sudo apk -v cache clean"
     alias gpkg="apk list -I | grep -i"
     ;;
+
   *)
     ;;
 esac
