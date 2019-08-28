@@ -134,9 +134,9 @@ case $_PKG_MGR in
   apk)
     alias upd="sudo apk update && echo 'UPGRADABLE :' && sudo apk upgrade -s"
     alias updnow="sudo apk update && sudo apk upgrade"
-    alias rmp="sudo apk del"
-    alias cleanpm="sudo apk -v cache clean"
+    alias rpkg="sudo apk del"
     alias gpkg="apk list -I | grep -i"
+    alias cleanpm="sudo apk -v cache clean"
     ;;
 
   *)
