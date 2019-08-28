@@ -140,7 +140,7 @@ case $_PKG_MGR in
     ;;
 esac
 
-# pager
+# pager or mod of aliases using a pager
 if [ -x "$(whereis most |cut -d' ' -f2)" ]; then
   # most is color friendly
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
@@ -214,12 +214,6 @@ alias datei="date --iso-8601=s"
 alias weather="curl wttr.in/?0"
 alias rambotify="until spotify &> /dev/null; do echo try again; done &"
 
-# for personnal or private aliases (things with contexts and stuff)
-if [ -f "${HOME}/.aliases.private.sh" ]; then
-  # shellcheck source=/dev/null
-  . ~/.aliases.private.sh
-fi
-
 # --- PS1
 
 # is it a bash shell ?
@@ -277,7 +271,13 @@ PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SYSD
 PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_PROMPT
 PS2='…  '
 
-# TMUX : disable this using "export TMUX=disable" before loading shellconfig
+# --- for personnal or private aliases (things with contexts and stuff)
+if [ -f "${HOME}/.private.sh" ]; then
+  # shellcheck source=/dev/null
+  . ~/.private.sh
+fi
+
+# --- TMUX : disable this using "export TMUX=disable" before loading shellconfig
 if command -v tmux > /dev/null 2> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ]; then
