@@ -43,10 +43,10 @@ fi
 
 # # Busybox based system ?
 if  [\
-    "$(strings "$(whereis ps |cut -d' ' -f2)" | grep busybox | head -1)"\
-     = 'busybox' \
-    ]; then
-      _BBX=true
+  "$(strings "$(whereis ps |cut -d' ' -f2)" | grep busybox | head -1)"\
+   = 'busybox' \
+  ]; then
+    _BBX=true
 fi
 
 # --- ALIASES
