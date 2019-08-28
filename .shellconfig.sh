@@ -203,7 +203,7 @@ fi
 # misc
 alias h="history |tail -20"
 alias vless="vim -M"
-alias datei="date --iso-8601=s"
+alias datei="date --iso-8601=m"
 alias weather="curl wttr.in/?0"
 alias rambotify="until spotify &> /dev/null; do echo try again; done &"
 
