@@ -43,10 +43,10 @@ fi
 
 # # Busybox based system ?
 if  [\
-    "$(strings "$(whereis ps |cut -d' ' -f2)" | grep busybox | head -1)"\
-     = 'busybox' \
-    ]; then
-      _BBX=true
+  "$(strings "$(whereis ps |cut -d' ' -f2)" | grep busybox | head -1)"\
+   = 'busybox' \
+  ]; then
+    _BBX=true
 fi
 
 # --- ALIASES
@@ -106,6 +106,7 @@ case $_PKG_MGR in
       sudo apt install -y "./${1}"
     }
     ;;
+
   dnf)
     alias upd="sudo dnf check-update --refresh --assumeno"
     alias updnow="sudo dnf update --assumeyes"
@@ -117,6 +118,7 @@ case $_PKG_MGR in
       sudo dnf install -y "./${1}"
     }
     ;;
+
   yum)
     alias upd="sudo yum update --assumeno"
     alias updnow="sudo yum update -y"
@@ -127,20 +129,21 @@ case $_PKG_MGR in
     pkg_inst () {
       sudo yum install -y "./${1}"
     }
-
     ;;
+
   apk)
     alias upd="sudo apk update && echo 'UPGRADABLE :' && sudo apk upgrade -s"
     alias updnow="sudo apk update && sudo apk upgrade"
-    alias rmp="sudo apk del"
-    alias cleanpm="sudo apk -v cache clean"
+    alias rpkg="sudo apk del"
     alias gpkg="apk list -I | grep -i"
+    alias cleanpm="sudo apk -v cache clean"
     ;;
+
   *)
     ;;
 esac
 
-# pager
+# pager or mod of aliases using a pager
 if [ -x "$(whereis most |cut -d' ' -f2)" ]; then
   # most is color friendly
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
@@ -174,16 +177,6 @@ if [ -x "$(whereis docker-compose |cut -d' ' -f2)" ]; then
   alias dkcr="docker-compose restart"
 fi
 
-# git
-if [ -x "$(whereis git |cut -d' ' -f2)" ]; then
-  alias gs="git status"
-  alias ga="git add ."
-  alias gc="git commit -m"
-  alias gph="git push --all"
-  alias gpl="git pull --all"
-  alias gs="git status --show-stash"
-fi
-
 # lazygit
 if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
   alias lgt=lazygit
@@ -210,15 +203,9 @@ fi
 # misc
 alias h="history |tail -20"
 alias vless="vim -M"
-alias datei="date --iso-8601=s"
+alias datei="date --iso-8601=m"
 alias weather="curl wttr.in/?0"
 alias rambotify="until spotify &> /dev/null; do echo try again; done &"
-
-# for personnal or private aliases (things with contexts and stuff)
-if [ -f "${HOME}/.aliases.private.sh" ]; then
-  # shellcheck source=/dev/null
-  . ~/.aliases.private.sh
-fi
 
 # --- PS1
 
@@ -277,7 +264,13 @@ PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SYSD
 PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_PROMPT
 PS2='…  '
 
-# TMUX : disable this using "export TMUX=disable" before loading shellconfig
+# --- for personnal or private aliases (things with contexts and stuff)
+if [ -f "${HOME}/.private.sh" ]; then
+  # shellcheck source=/dev/null
+  . ~/.private.sh
+fi
+
+# --- TMUX : disable this using "export TMUX=disable" before loading shellconfig
 if command -v tmux > /dev/null 2> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ]; then
