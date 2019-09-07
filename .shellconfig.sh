@@ -56,6 +56,7 @@ alias l='ls -CF'
 alias ll="ls -Flh"
 alias la="ls -Flha"
 alias lz="ls -FlhZ"
+alias lt='du -sh * | sort -h'
 
 alias rm="rm -i"
 alias rmr="rm -ri"
@@ -202,10 +203,12 @@ fi
 
 # misc
 alias h="history |tail -20"
+alias gh='history|grep'
 alias vless="vim -M"
 alias datei="date --iso-8601=m"
 alias weather="curl wttr.in/?0"
 alias rambotify="until spotify &> /dev/null; do echo try again; done &"
+alias mnt='mount | grep -E ^/dev | column -t'
 
 # --- PS1
 
