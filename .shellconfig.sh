@@ -260,6 +260,13 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
           | cut -d' ' -f2 \
           | cut -d'-' -f1)"
         ;;
+      fedora)
+        systemd_pkg_ver="$(
+          rpm -qi systemd \
+          | grep -E "^Version\s+\:\s[0-9]+$" \
+          | cut -d':' -f2 \
+          | tr -d ' ')"
+        ;;
       *)
         return 0 # non supported system
         ;;
@@ -276,6 +283,7 @@ fi
 
 # am I using the last kernel available on my system ?
 _SCKRT () {
+  kernel_live_ver="$(uname -r)"
   case $ID in
     ubuntu)
       kernel_live_ver="$(uname -r | cut -d'-' -f1-2 | tr '-' '.')"
@@ -286,7 +294,6 @@ _SCKRT () {
         | cut -d'.' -f-4)"
       ;;
     raspbian)
-      kernel_live_ver="$(uname -r)"
       kernel_pkg_ver="$(
         for VER in /lib/modules/*; do
           if [ "${kernel_live_ver}" = "${VER}" ]; then
@@ -295,6 +302,9 @@ _SCKRT () {
           fi
         done
         )"
+      ;;
+    fedora)
+      kernel_pkg_ver="$(rpm -q kernel | sort -r | head -1 | cut -d'-' -f2-)"
       ;;
     *)
       return 0 # non supported system (yet ?)
