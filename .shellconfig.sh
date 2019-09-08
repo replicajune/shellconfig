@@ -213,6 +213,7 @@ alias mnt='mount | grep -E ^/dev | column -t'
 # --- PS1
 
 # source distrib information; will use 'ID' variable
+# shellcheck source=/etc/os-release
 . '/etc/os-release'
 
 # is it a bash shell ?
@@ -334,6 +335,7 @@ PS_PROMPT='\n→  '
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
 PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SYSDS
+PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SYSDS$PS_SYSDR$PS_SYSKR
 PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_PROMPT
 PS2='…  '
 
