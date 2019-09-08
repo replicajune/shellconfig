@@ -212,6 +212,9 @@ alias mnt='mount | grep -E ^/dev | column -t'
 
 # --- PS1
 
+# source distrib information; will use 'ID' variable
+. '/etc/os-release'
+
 # is it a bash shell ?
 if echo "${0}" | grep -q bash; then
   # show history number
@@ -238,6 +241,34 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   }
   # shellcheck disable=SC2016
   _SCSDSTS='$(_SCSDST)'
+
+  # - show a blue dot if systemd needs to be restarted
+  _SCSDRT () {
+    # shellcheck disable=SC2039
+    local systemd_live_ver
+    systemd_live_ver="$(systemd --version | head -1 | cut -d' ' -f2)"
+    # shellcheck disable=SC2039
+    local systemd_pkg_ver
+    case $ID in
+      ubuntu|debian|raspbian)
+        systemd_pkg_ver="$(
+          dpkg -s systemd \
+          | grep '^Version\:\s.*$' \
+          | cut -d' ' -f2 \
+          | cut -d'-' -f1)"
+        ;;
+      *)
+        return 0 # non supported system
+        ;;
+    esac
+
+    if [ "${systemd_live_ver}" != "${systemd_pkg_ver}" ]; then
+      # shellcheck disable=SC2039
+      echo -ne '\e[34m♻\e[0m '
+    fi
+  }
+  # shellcheck disable=SC2016
+  _SCSDRTS='$(_SCSDRT)'
 fi
 
 # load average
@@ -259,6 +290,7 @@ PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
 PS_ST_HIST=$_CC_dark_grey'$?'$_SCPS1HISTNB$_CC_reset
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
 PS_SYSD=$_CC_dark_grey$_SCSDSTS$_CC_reset
+PS_SYSDR=$_CC_dark_grey$_SCSDRTS$_CC_reset
 PS_PROMPT='\n→  '
 
 # PS1/2 definition
