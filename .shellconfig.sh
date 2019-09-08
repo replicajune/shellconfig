@@ -305,7 +305,7 @@ _SCKRT () {
         )"
       ;;
     fedora)
-      kernel_pkg_ver="$(rpm -q kernel | sort -r | head -1 | cut -d'-' -f2-)"
+      kernel_pkg_ver="$(rpm -q kernel | sort -Vr | head -1 | cut -d'-' -f2-)"
       ;;
     *)
       return 0 # non supported system
