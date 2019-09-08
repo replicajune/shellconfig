@@ -271,6 +271,30 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   _SCSDRTS='$(_SCSDRT)'
 fi
 
+# am I using the last kernel available on my system ?
+_SCKRT () {
+  case $ID in
+    ubuntu)
+      kernel_live_ver="$(uname -r | cut -d'-' -f1-2 | tr '-' '.')"
+      kernel_pkg_ver="$(
+        dpkg -s linux-generic \
+        | grep '^Version\:\s.*$' \
+        | cut -d' ' -f2 \
+        | cut -d'.' -f-4)"
+      ;;
+    *)
+      return 0 # non supported system (yet ?)
+      ;;
+  esac
+
+  if [ "${kernel_live_ver}" != "${kernel_pkg_ver}" ]; then
+    # shellcheck disable=SC2039
+    echo -ne '\e[33m↻\e[0m'
+  fi
+}
+# shellcheck disable=SC2016
+_SCKRTS='$(_SCKRT)'
+
 # load average
 # shellcheck disable=SC2016
 _SCLDAVG='[$(echo -n $(cat /proc/loadavg | cut -d" " -f1-3 ))]'
@@ -291,6 +315,7 @@ PS_ST_HIST=$_CC_dark_grey'$?'$_SCPS1HISTNB$_CC_reset
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
 PS_SYSD=$_CC_dark_grey$_SCSDSTS$_CC_reset
 PS_SYSDR=$_CC_dark_grey$_SCSDRTS$_CC_reset
+PS_SYSKR=$_CC_dark_grey$_SCKRTS$_CC_reset
 PS_PROMPT='\n→  '
 
 # PS1/2 definition
