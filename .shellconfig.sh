@@ -249,7 +249,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   _SCSDRT () {
     # shellcheck disable=SC2039
     local systemd_live_ver
-    systemd_live_ver="$(systemd --version | head -1 | cut -d' ' -f2)"
+    systemd_live_ver="$(systemctl --version | grep '^systemd' | cut -d' ' -f2)"
     # shellcheck disable=SC2039
     local systemd_pkg_ver
     case $ID in
@@ -307,7 +307,7 @@ _SCKRT () {
       kernel_pkg_ver="$(rpm -q kernel | sort -r | head -1 | cut -d'-' -f2-)"
       ;;
     *)
-      return 0 # non supported system (yet ?)
+      return 0 # non supported system
       ;;
   esac
 
