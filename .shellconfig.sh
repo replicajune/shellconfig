@@ -230,14 +230,16 @@ if type __git_ps1 2> /dev/null | grep -q '()'; then
   _SCPS1GIT='$(__git_ps1 " (%s)")'
 fi
 
-# is it running with systemd ?
+# is it running with systemd ? then, show when it's in a bad state or need
+# a restart
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
-  # show a critical red dot if systemd isn't healthy
+
+  # - show a red flag if systemd isn't healthy
+  # skipped shellcheck rules : usually systems with systemd run with bash
   _SCSDST () {
     systemctl is-system-running > /dev/null 2> /dev/null && return 0
-    # backslash escapes and non new line required
     # shellcheck disable=SC2039
-    echo -ne '\e[31m●\e[0m'
+    echo -ne '\e[31m⚑\e[0m '
   }
   # shellcheck disable=SC2016
   _SCSDSTS='$(_SCSDST)'
@@ -313,14 +315,14 @@ PS_DIR=$_CC_dark_grey' \W'$_CC_reset
 PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
 PS_ST_HIST=$_CC_dark_grey'$?'$_SCPS1HISTNB$_CC_reset
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
-PS_SYSD=$_CC_dark_grey$_SCSDSTS$_CC_reset
+PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
 PS_SYSDR=$_CC_dark_grey$_SCSDRTS$_CC_reset
 PS_SYSKR=$_CC_dark_grey$_SCKRTS$_CC_reset
 PS_PROMPT='\n→  '
 
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
-PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SYSD
+PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SYSDS
 PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_PROMPT
 PS2='…  '
 
