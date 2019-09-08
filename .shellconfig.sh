@@ -261,6 +261,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
           | cut -d'-' -f1)"
         ;;
       fedora)
+        # shellcheck disable=SC1117
         systemd_pkg_ver="$(
           rpm -qi systemd \
           | grep -E "^Version\s+\:\s[0-9]+$" \
