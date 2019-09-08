@@ -284,6 +284,17 @@ _SCKRT () {
         | cut -d' ' -f2 \
         | cut -d'.' -f-4)"
       ;;
+    raspbian)
+      kernel_live_ver="$(uname -r)"
+      kernel_pkg_ver="$(
+        for VER in /lib/modules/*; do
+          if [ "${kernel_live_ver}" = "${VER}" ]; then
+            echo "${VER}"
+            break
+          fi
+        done
+        )"
+      ;;
     *)
       return 0 # non supported system (yet ?)
       ;;
