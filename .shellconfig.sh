@@ -294,6 +294,17 @@ _SCKRT () {
         | cut -d' ' -f2 \
         | cut -d'.' -f-4)"
       ;;
+    debian)
+      kernel_live_ver="$(uname -r | sed 's/\-[a-zA-Z]*[0-9]*[a-zA-Z]*$//')"
+      kernel_pkg_ver="$(\
+        dpkg -s "$( \
+          dpkg -s linux-image-amd64 \
+          | grep '^Depends\:' \
+          | cut -d' ' -f2)" \
+        | grep '^Version\:' \
+        | cut -d' ' -f2 \
+        | cut -d'+' -f1)"
+      ;;
     raspbian)
       kernel_pkg_ver="$(
         for VER in /lib/modules/*; do
