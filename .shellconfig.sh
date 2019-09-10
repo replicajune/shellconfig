@@ -287,8 +287,11 @@ _SCKRT () {
     raspbian)
       kernel_pkg_ver="$(
         for VER in /lib/modules/*; do
-          if [ "${kernel_live_ver}" = "${VER}" ]; then
-            echo "${VER}"
+          # shellcheck disable=SC2039
+          local VERNUM
+          VERNUM="${VER##*/}"
+          if [ "${kernel_live_ver}" = "${VERNUM}" ]; then
+            echo "${VERNUM}"
             break
           fi
         done
