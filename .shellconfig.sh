@@ -260,7 +260,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
           | cut -d' ' -f2 \
           | cut -d'-' -f1)"
         ;;
-      fedora)
+      centos|fedora)
         # shellcheck disable=SC1117
         systemd_pkg_ver="$(
           rpm -qi systemd \
@@ -304,7 +304,7 @@ _SCKRT () {
         done
         )"
       ;;
-    fedora)
+    centos|fedora)
       kernel_pkg_ver="$(rpm -q kernel | sort -Vr | head -1 | cut -d'-' -f2-)"
       ;;
     *)
