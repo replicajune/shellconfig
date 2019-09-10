@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# source distrib information; will use 'ID' variable
+# shellcheck source=/etc/os-release
+. '/etc/os-release'
+
 # --- ENVIRONMENTS VARIABLES
 
 # user binary in ~/.local/bin
@@ -26,29 +30,6 @@ export ELECTRON_TRASH=gio
 # better perfs, less oracle stuff
 export VAGRANT_DEFAULT_PROVIDER=libvirt
 
-# --- DETECTIONS
-
-# Package managment definition (used for aliases and functions)
-if [ -x "$(whereis apt |cut -d' ' -f2)" ]; then
-  _PKG_MGR='apt'
-elif [ -x "$(whereis dnf |cut -d' ' -f2)" ]; then
-  _PKG_MGR='dnf'
-elif [ -x "$(whereis yum |cut -d' ' -f2)" ]; then
-  _PKG_MGR='yum'
-elif [ -x "$(whereis apk |cut -d' ' -f2)" ]; then
-  _PKG_MGR='apk'
-else
-  true
-fi
-
-# # Busybox based system ?
-if  [\
-  "$(strings "$(whereis ps |cut -d' ' -f2)" | grep busybox | head -1)"\
-   = 'busybox' \
-  ]; then
-    _BBX=true
-fi
-
 # --- ALIASES
 
 # files managment
@@ -64,16 +45,13 @@ alias rmr="rm -ri"
 alias vd="diff --side-by-side --suppress-common-lines"
 alias ltree="tree -a --prune --noreport -h -C -I '*.git' | less"
 
-if [ "${_BBX}" != 'true' ]; then
+if [ "${ID}" != 'alpine' ]; then
+  # directory stack
   alias lsd="dirs -v" # list stack directory
   alias pdir="pushd ./ > /dev/null; dirs -v"
   alias cdp="pushd" # not doing the cd="pushd", but having the option is nice
-fi
 
-# ressources
-alias df="df -h"
-alias lsm="findmnt"
-if [ "${_BBX}" != 'true' ]; then
+  # ressources; regular systems
   alias topd="du -sch .[!.]* * |sort -rh |head -11"
   alias psf="
     ps --ppid 2 -p 2 --deselect \
@@ -88,15 +66,20 @@ if [ "${_BBX}" != 'true' ]; then
     ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pcpu \
     | head -11"
 else
+  # ressources ; busybox based system(s) (only alpine atm)
   alias topd="du -sc .[!.]* * |sort -rn |head -11"
 fi
+
+# ressources; all systems
+alias df="df -h"
+alias lsm="findmnt"
 
 # network
 alias lsn="sudo ss -lpnt |column -t"
 
 # package managment
-case $_PKG_MGR in
-  apt)
+case $ID in
+  ubuntu|debian|raspbian)
     alias upd="sudo apt update && apt list --upgradable"
     alias updnow="sudo apt update && sudo apt upgrade -y"
     alias ipkg="sudo apt install -y"
@@ -108,7 +91,7 @@ case $_PKG_MGR in
     }
     ;;
 
-  dnf)
+  fedora)
     alias upd="sudo dnf check-update --refresh --assumeno"
     alias updnow="sudo dnf update --assumeyes"
     alias ipkg="sudo dnf install -y"
@@ -120,7 +103,7 @@ case $_PKG_MGR in
     }
     ;;
 
-  yum)
+  centos)
     alias upd="sudo yum update --assumeno"
     alias updnow="sudo yum update -y"
     alias ipkg="sudo yum install -y"
@@ -132,7 +115,7 @@ case $_PKG_MGR in
     }
     ;;
 
-  apk)
+  alpine)
     alias upd="sudo apk update && echo 'UPGRADABLE :' && sudo apk upgrade -s"
     alias updnow="sudo apk update && sudo apk upgrade"
     alias rpkg="sudo apk del"
@@ -207,14 +190,9 @@ alias gh='history|grep'
 alias vless="vim -M"
 alias datei="date --iso-8601=m"
 alias weather="curl wttr.in/?0"
-alias rambotify="until spotify &> /dev/null; do echo try again; done &"
 alias mnt='mount | grep -E ^/dev | column -t'
 
 # --- PS1
-
-# source distrib information; will use 'ID' variable
-# shellcheck source=/etc/os-release
-. '/etc/os-release'
 
 # is it a bash shell ?
 if echo "${0}" | grep -q bash; then
@@ -249,9 +227,10 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   _SCSDRT () {
     # shellcheck disable=SC2039
     local systemd_live_ver
-    systemd_live_ver="$(systemctl --version | grep '^systemd' | cut -d' ' -f2)"
     # shellcheck disable=SC2039
     local systemd_pkg_ver
+
+    systemd_live_ver="$(systemctl --version | grep '^systemd' | cut -d' ' -f2)"
     case $ID in
       ubuntu|debian|raspbian)
         systemd_pkg_ver="$(
