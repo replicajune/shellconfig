@@ -212,6 +212,10 @@ alias mnt='mount | grep -E ^/dev | column -t'
 
 # --- PS1
 
+# source distrib information; will use 'ID' variable
+# shellcheck source=/etc/os-release
+. '/etc/os-release'
+
 # is it a bash shell ?
 if echo "${0}" | grep -q bash; then
   # show history number
@@ -227,18 +231,105 @@ if type __git_ps1 2> /dev/null | grep -q '()'; then
   _SCPS1GIT='$(__git_ps1 " (%s)")'
 fi
 
-# is it running with systemd ?
+# is it running with systemd ? then, show when it's in a bad state or need
+# a restart
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
-  # show a critical red dot if systemd isn't healthy
+
+  # - show a red flag if systemd isn't healthy
+  # skipped shellcheck rules : usually systems with systemd run with bash
   _SCSDST () {
     systemctl is-system-running > /dev/null 2> /dev/null && return 0
-    # backslash escapes and non new line required
     # shellcheck disable=SC2039
-    echo -ne '\e[31m●\e[0m'
+    echo -ne '\e[31m⚑\e[0m '
   }
   # shellcheck disable=SC2016
   _SCSDSTS='$(_SCSDST)'
+
+  # - show a blue dot if systemd needs to be restarted
+  _SCSDRT () {
+    # shellcheck disable=SC2039
+    local systemd_live_ver
+    systemd_live_ver="$(systemctl --version | grep '^systemd' | cut -d' ' -f2)"
+    # shellcheck disable=SC2039
+    local systemd_pkg_ver
+    case $ID in
+      ubuntu|debian|raspbian)
+        systemd_pkg_ver="$(
+          dpkg -s systemd \
+          | grep '^Version\:\s.*$' \
+          | cut -d' ' -f2 \
+          | cut -d'-' -f1)"
+        ;;
+      centos|fedora)
+        # shellcheck disable=SC1117
+        systemd_pkg_ver="$(
+          rpm -qi systemd \
+          | grep -E "^Version\s+\:\s[0-9]+$" \
+          | cut -d':' -f2 \
+          | tr -d ' ')"
+        ;;
+      *)
+        return 0 # non supported system
+        ;;
+    esac
+
+    if [ "${systemd_live_ver}" != "${systemd_pkg_ver}" ]; then
+      # shellcheck disable=SC2039
+      echo -ne '\e[34m♻\e[0m '
+    fi
+  }
+  # shellcheck disable=SC2016
+  _SCSDRTS='$(_SCSDRT)'
 fi
+
+# am I using the last kernel available on my system ?
+_SCKRT () {
+  kernel_live_ver="$(uname -r)"
+  case $ID in
+    ubuntu)
+      kernel_live_ver="$(uname -r | cut -d'-' -f1-2 | tr '-' '.')"
+      kernel_pkg_ver="$(
+        dpkg -s linux-generic \
+        | grep '^Version\:\s.*$' \
+        | cut -d' ' -f2 \
+        | cut -d'.' -f-4)"
+      ;;
+    debian)
+      kernel_live_ver="$(uname -r | sed 's/\-[a-zA-Z]*[0-9]*[a-zA-Z]*$//')"
+      kernel_pkg_ver="$(\
+        dpkg -s "$( \
+          dpkg -s linux-image-amd64 \
+          | grep '^Depends\:' \
+          | cut -d' ' -f2)" \
+        | grep '^Version\:' \
+        | cut -d' ' -f2 \
+        | cut -d'+' -f1)"
+      ;;
+    raspbian)
+      kernel_pkg_ver="$(
+        for VER in /lib/modules/*; do
+          if [ "${kernel_live_ver}" = "${VER}" ]; then
+            echo "${VER}"
+            break
+          fi
+        done
+        )"
+      ;;
+    centos|fedora)
+      kernel_pkg_ver="$(rpm -q kernel | sort -Vr | head -1 | cut -d'-' -f2-)"
+      ;;
+    *)
+      return 0 # non supported system
+      ;;
+  esac
+
+  if [ "${kernel_live_ver}" != "${kernel_pkg_ver}" ]; then
+    # shellcheck disable=SC2039
+    echo -ne '\e[33m↻\e[0m'
+  fi
+}
+# shellcheck disable=SC2016
+_SCKRTS='$(_SCKRT)'
 
 # load average
 # shellcheck disable=SC2016
@@ -258,12 +349,14 @@ PS_DIR=$_CC_dark_grey' \W'$_CC_reset
 PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
 PS_ST_HIST=$_CC_dark_grey'$?'$_SCPS1HISTNB$_CC_reset
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
-PS_SYSD=$_CC_dark_grey$_SCSDSTS$_CC_reset
+PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
+PS_SYSDR=$_CC_dark_grey$_SCSDRTS$_CC_reset
+PS_SYSKR=$_CC_dark_grey$_SCKRTS$_CC_reset
 PS_PROMPT='\n→  '
 
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
-PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SYSD
+PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SYSDS$PS_SYSDR$PS_SYSKR
 PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_PROMPT
 PS2='…  '
 
