@@ -11,24 +11,23 @@ if [ -n "${PATH##*/.local/bin*}" ]; then
   export PATH=$PATH:/home/${SUDO_USER-$USER}/.local/bin
 fi
 
-# use vim when possible
-export VISUAL="vim"
-export EDITOR="vim"
+# use vim if possible, nano otherwise
+if [ -x "$(whereis vim |cut -d' ' -f2)" ]; then
+  export VISUAL="vim"
+  export EDITOR="vim"
+else
+  export VISUAL="nano"
+  export EDITOR="nano"
+
+fi
 
 # history with date, no size limit
 export HISTCONTROL=ignoredups
 export HISTSIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
 
-# show more git stuff in ps1
-export GIT_PS1_SHOWUPSTREAM='verbose'
-export GIT_PS1_SHOWUNTRACKEDFILES=y
-
 # https://github.com/atom/atom/issues/17452
 export ELECTRON_TRASH=gio
-
-# better perfs, less oracle stuff
-export VAGRANT_DEFAULT_PROVIDER=libvirt
 
 # --- ALIASES
 
@@ -72,7 +71,7 @@ fi
 
 # ressources; all systems
 alias df="df -h"
-alias lsm="findmnt"
+alias lsm='mount | grep -E ^/dev | column -t'
 
 # network
 alias lsn="sudo ss -lpnt |column -t"
@@ -86,7 +85,7 @@ case $ID in
     alias rpkg="sudo apt purge -y"
     alias gpkg="dpkg -l | grep -i"
     alias cleanpm="sudo apt autoremove -y && sudo apt autoclean"
-    pkg_inst () {
+    ilpkg () {
       sudo apt install -y "./${1}"
     }
     ;;
@@ -98,7 +97,7 @@ case $ID in
     alias rpkg="sudo dnf remove --assumeyes"
     alias gpkg="rpm -qa | grep -i"
     alias cleanpm="sudo dnf clean all"
-    pkg_inst () {
+    ilpkg () {
       sudo dnf install -y "./${1}"
     }
     ;;
@@ -110,7 +109,7 @@ case $ID in
     alias rpkg="sudo yum remove"
     alias gpkg="rpm -qa | grep -i"
     alias cleanpm="sudo yum clean all"
-    pkg_inst () {
+    ilpkg () {
       sudo yum install -y "./${1}"
     }
     ;;
@@ -127,9 +126,8 @@ case $ID in
     ;;
 esac
 
-# pager or mod of aliases using a pager
+# pager or mod of aliases using a pager. Using most, color friendly
 if [ -x "$(whereis most |cut -d' ' -f2)" ]; then
-  # most is color friendly
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
   alias man='PAGER=most man'
 fi
@@ -158,7 +156,22 @@ if [ -x "$(whereis docker-compose |cut -d' ' -f2)" ]; then
   alias dkcu="docker-compose up -d"
   alias dkcbu="docker-compose up -d --build"
   alias dkcd="docker-compose down"
-  alias dkcr="docker-compose restart"
+fi
+
+# LXC
+if [ -x "$(whereis lxc |cut -d' ' -f2)" ]; then
+  # go in a container, do some test, leave. stop and destroy it automatically
+  lxcspawn() {
+    # usage : lxcspawn image_name shell_name
+    # shell is opt, default to bash
+    IMAGE="${1}"
+    SHELL="${2:-bash}"
+    UUID=$(cat /proc/sys/kernel/random/uuid)
+    lxc launch "images:${IMAGE}" "$UUID"
+    lxc exec "$UUID" "${SHELL}"
+    lxc stop "$UUID"
+    lxc delete "$UUID"
+  }
 fi
 
 # lazygit
@@ -168,6 +181,10 @@ fi
 
 # vagrant
 if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
+
+  # use libvirt instead of default virtualbox : better perfs, less oracle stuff
+  export VAGRANT_DEFAULT_PROVIDER=libvirt
+
   vagrant_rsync() {
     # replace vagrant-scp
     # usage : use it like rsync
@@ -190,7 +207,6 @@ alias gh='history|grep'
 alias vless="vim -M"
 alias datei="date --iso-8601=m"
 alias weather="curl wttr.in/?0"
-alias mnt='mount | grep -E ^/dev | column -t'
 
 # --- PS1
 
@@ -204,6 +220,11 @@ fi
 # type works on both bash and ash
 # shellcheck disable=SC2039
 if type __git_ps1 2> /dev/null | grep -q '()'; then
+
+  # show more git stuff
+  export GIT_PS1_SHOWUPSTREAM='verbose'
+  export GIT_PS1_SHOWUNTRACKEDFILES=y
+
   # includes git info
   # shellcheck disable=SC2016
   _SCPS1GIT='$(__git_ps1 " (%s)")'
@@ -343,7 +364,7 @@ PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_PROMPT
 PS2='…  '
 
 # --- for personnal or private aliases (things with contexts and stuff)
-if [ -f "${HOME}/.private.sh" ]; then
+if [ -f ~/.private.sh ]; then
   # shellcheck source=/dev/null
   . ~/.private.sh
 fi
