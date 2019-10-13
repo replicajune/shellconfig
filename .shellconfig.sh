@@ -166,11 +166,11 @@ if [ -x "$(whereis lxc |cut -d' ' -f2)" ]; then
     # shell is opt, default to bash
     IMAGE="${1}"
     SHELL="${2:-bash}"
-    UUID=$(cat /proc/sys/kernel/random/uuid)
-    lxc launch "images:${IMAGE}" "$UUID"
-    lxc exec "$UUID" "${SHELL}"
-    lxc stop "$UUID"
-    lxc delete "$UUID"
+    CNT_NAME=$(head /dev/urandom | tr -dc '[:lower:]' | head -c 12 ; echo '')
+    lxc launch "images:${IMAGE}" "$CNT_NAME"
+    lxc exec "$CNT_NAME" "${SHELL}"
+    lxc stop "$CNT_NAME"
+    lxc delete "$CNT_NAME"
   }
 fi
 
