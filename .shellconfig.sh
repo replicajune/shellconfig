@@ -158,7 +158,22 @@ if [ -x "$(whereis docker-compose |cut -d' ' -f2)" ]; then
   alias dkcu="docker-compose up -d"
   alias dkcbu="docker-compose up -d --build"
   alias dkcd="docker-compose down"
-  alias dkcr="docker-compose restart"
+fi
+
+# LXC
+if [ -x "$(whereis lxc |cut -d' ' -f2)" ]; then
+  # go in a container, do some test, leave. stop and destroy it automatically
+  lxcspawn() {
+    # usage : lxcspawn image_name shell_name
+    # shell is opt, default to bash
+    IMAGE="${1}"
+    SHELL="${2:-bash}"
+    UUID=$(cat /proc/sys/kernel/random/uuid)
+    lxc launch "images:${IMAGE}" "$UUID"
+    lxc exec "$UUID" "${SHELL}"
+    lxc stop "$UUID"
+    lxc delete "$UUID"
+  }
 fi
 
 # lazygit
@@ -340,7 +355,7 @@ PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_PROMPT
 PS2='…  '
 
 # --- for personnal or private aliases (things with contexts and stuff)
-if [ -f "${HOME}/.private.sh" ]; then
+if [ -f ~/.private.sh ]; then
   # shellcheck source=/dev/null
   . ~/.private.sh
 fi
