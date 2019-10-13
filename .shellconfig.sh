@@ -166,7 +166,7 @@ if [ -x "$(whereis lxc |cut -d' ' -f2)" ]; then
     # shell is opt, default to bash
     IMAGE="${1}"
     SHELL="${2:-bash}"
-    CNT_NAME=$(head /dev/urandom | tr -dc a-z | head -c 12 ; echo '')
+    CNT_NAME=$(head /dev/urandom | tr -dc '[:lower:]' | head -c 12 ; echo '')
     lxc launch "images:${IMAGE}" "$CNT_NAME"
     lxc exec "$CNT_NAME" "${SHELL}"
     lxc stop "$CNT_NAME"
