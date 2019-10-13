@@ -11,24 +11,23 @@ if [ -n "${PATH##*/.local/bin*}" ]; then
   export PATH=$PATH:/home/${SUDO_USER-$USER}/.local/bin
 fi
 
-# use vim when possible
-export VISUAL="vim"
-export EDITOR="vim"
+# use vim if possible, nano otherwise
+if [ -x "$(whereis vim |cut -d' ' -f2)" ]; then
+  export VISUAL="vim"
+  export EDITOR="vim"
+else
+  export VISUAL="nano"
+  export EDITOR="nano"
+
+fi
 
 # history with date, no size limit
 export HISTCONTROL=ignoredups
 export HISTSIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
 
-# show more git stuff in ps1
-export GIT_PS1_SHOWUPSTREAM='verbose'
-export GIT_PS1_SHOWUNTRACKEDFILES=y
-
 # https://github.com/atom/atom/issues/17452
 export ELECTRON_TRASH=gio
-
-# better perfs, less oracle stuff
-export VAGRANT_DEFAULT_PROVIDER=libvirt
 
 # --- ALIASES
 
@@ -72,7 +71,7 @@ fi
 
 # ressources; all systems
 alias df="df -h"
-alias lsm="findmnt"
+alias lsm='mount | grep -E ^/dev | column -t'
 
 # network
 alias lsn="sudo ss -lpnt |column -t"
@@ -127,9 +126,8 @@ case $ID in
     ;;
 esac
 
-# pager or mod of aliases using a pager
+# pager or mod of aliases using a pager. Using most, color friendly
 if [ -x "$(whereis most |cut -d' ' -f2)" ]; then
-  # most is color friendly
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
   alias man='PAGER=most man'
 fi
@@ -183,6 +181,10 @@ fi
 
 # vagrant
 if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
+
+  # use libvirt instead of default virtualbox : better perfs, less oracle stuff
+  export VAGRANT_DEFAULT_PROVIDER=libvirt
+
   vagrant_rsync() {
     # replace vagrant-scp
     # usage : use it like rsync
@@ -205,7 +207,6 @@ alias gh='history|grep'
 alias vless="vim -M"
 alias datei="date --iso-8601=m"
 alias weather="curl wttr.in/?0"
-alias mnt='mount | grep -E ^/dev | column -t'
 
 # --- PS1
 
@@ -219,6 +220,11 @@ fi
 # type works on both bash and ash
 # shellcheck disable=SC2039
 if type __git_ps1 2> /dev/null | grep -q '()'; then
+
+  # show more git stuff
+  export GIT_PS1_SHOWUPSTREAM='verbose'
+  export GIT_PS1_SHOWUNTRACKEDFILES=y
+
   # includes git info
   # shellcheck disable=SC2016
   _SCPS1GIT='$(__git_ps1 " (%s)")'
