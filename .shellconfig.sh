@@ -86,7 +86,7 @@ case $ID in
     alias rpkg="sudo apt purge -y"
     alias gpkg="dpkg -l | grep -i"
     alias cleanpm="sudo apt autoremove -y && sudo apt autoclean"
-    pkg_inst () {
+    ilpkg () {
       sudo apt install -y "./${1}"
     }
     ;;
@@ -98,7 +98,7 @@ case $ID in
     alias rpkg="sudo dnf remove --assumeyes"
     alias gpkg="rpm -qa | grep -i"
     alias cleanpm="sudo dnf clean all"
-    pkg_inst () {
+    ilpkg () {
       sudo dnf install -y "./${1}"
     }
     ;;
@@ -110,7 +110,7 @@ case $ID in
     alias rpkg="sudo yum remove"
     alias gpkg="rpm -qa | grep -i"
     alias cleanpm="sudo yum clean all"
-    pkg_inst () {
+    ilpkg () {
       sudo yum install -y "./${1}"
     }
     ;;
