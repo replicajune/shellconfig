@@ -84,7 +84,16 @@ case $ID in
     alias ipkg="sudo apt install -y"
     alias rpkg="sudo apt purge -y"
     alias gpkg="dpkg -l | grep -i"
-    alias cleanpm="sudo apt autoremove -y && sudo apt autoclean"
+    cleanpm () {
+      echo "remove orphans"
+      sudo apt-get autoremove -y > /dev/null;
+      echo "cleaning apt"
+      sudo apt-get autoclean > /dev/null;
+      echo "delete old/removed package configs"
+      for PKG in $(dpkg -l | grep -E '(^rc\s+.*$)' | cut -d' ' -f3); do
+        sudo dpkg -P "${PKG}" > /dev/null
+      done
+    }
     ilpkg () {
       sudo apt install -y "./${1}"
     }
