@@ -3,10 +3,22 @@ name: Shellcheck
 on: [push]
 
 jobs:
+
   build:
-
     runs-on: ubuntu-latest
+    steps:
+      - name: clone
+        uses: actions/checkout@v1
+      - name: install
+        run: |
+          sudo apt-get -qqq update &> /dev/null
+          sudo apt-get -qqq -y install \
+            shellcheck \
+            parallel &> /dev/null
+          echo | parallel --will-cite  &> /dev/null;
 
+  lint:
+    runs-on: ubuntu-latest
     steps:
       - name: clone
         uses: actions/checkout@v1
