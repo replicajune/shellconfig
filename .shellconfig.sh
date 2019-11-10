@@ -208,6 +208,25 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
       rm -f "${CONF}"
     fi
   }
+
+  vmspawn() {
+    # go in a VM, do some test, leave. stop and destroy it automatically
+    # usage : vmspan image_name
+    # lookup names at https://app.vagrantup.com/boxes/search
+    CWD="${PWD}"
+    IMAGE="${1:?'no image name given'}"
+    UUID=$(cat /proc/sys/kernel/random/uuid)
+    TMP_DIR="/tmp/vmspan.$UUID"
+    (mkdir "${TMP_DIR}" && cd "${TMP_DIR}") || return 1
+    printf \
+      "Vagrant.configure('2') do |config|\n\tconfig.vm.box = '%s'\nend\n" \
+      "${IMAGE}" > Vagrantfile
+    vagrant up
+    vagrant ssh
+    vagrant destroy -f
+    cd "${CWD}" || cd "${HOME}" || return 1
+    rm -rf "${TMP_DIR}"
+  }
 fi
 
 # misc
