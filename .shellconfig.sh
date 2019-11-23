@@ -222,7 +222,11 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     IMAGE="${1:?'no image name given'}"
     UUID=$(cat /proc/sys/kernel/random/uuid)
     TMP_DIR="/tmp/vmspan.$UUID"
-    (mkdir "${TMP_DIR}" && cd "${TMP_DIR}") || return 1
+    if mkdir "${TMP_DIR}"; then
+      cd "${TMP_DIR}"
+    else
+      return 1
+    fi
     printf \
       "Vagrant.configure('2') do |config|\n\tconfig.vm.box = '%s'\nend\n" \
       "${IMAGE}" > Vagrantfile
