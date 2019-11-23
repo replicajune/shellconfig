@@ -11,6 +11,11 @@ if [ -n "${PATH##*/.local/bin*}" ]; then
   export PATH=$PATH:/home/${SUDO_USER-$USER}/.local/bin
 fi
 
+# user default python virtual env in ~/.venv
+if [ -n "${PATH##*/.venv/bin*}" ]; then
+  export PATH=$PATH:/home/${SUDO_USER-$USER}/.venv/bin
+fi
+
 # use vim if possible, nano otherwise
 if [ -x "$(whereis vim |cut -d' ' -f2)" ]; then
   export VISUAL="vim"
