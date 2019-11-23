@@ -1,6 +1,6 @@
 # Yet another shell configuration repository
 
-[![Actions Status](https://github.com/replicajune/shellconfig/workflows/shelcheck/badge.svg)](https://github.com/replicajune/shellconfig/actions)
+[![Actions Status](https://github.com/replicajune/shellconfig/workflows/Shellcheck/badge.svg)](https://github.com/replicajune/shellconfig/actions)
 
 ## Install
 
