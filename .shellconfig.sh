@@ -11,6 +11,11 @@ if [ -n "${PATH##*/.local/bin*}" ]; then
   export PATH=$PATH:/home/${SUDO_USER-$USER}/.local/bin
 fi
 
+# user default python virtual env in ~/.venv
+if [ -n "${PATH##*/.venv/bin*}" ]; then
+  export PATH=$PATH:/home/${SUDO_USER-$USER}/.venv/bin
+fi
+
 # use vim if possible, nano otherwise
 if [ -x "$(whereis vim |cut -d' ' -f2)" ]; then
   export VISUAL="vim"
@@ -99,7 +104,7 @@ case $ID in
     }
     ;;
 
-  fedora)
+  fedora|centos)
     alias upd="sudo dnf check-update --refresh --assumeno"
     alias updnow="sudo dnf update --assumeyes"
     alias ipkg="sudo dnf install -y"
@@ -108,18 +113,6 @@ case $ID in
     alias cleanpm="sudo dnf clean all"
     ilpkg () {
       sudo dnf install -y "./${1}"
-    }
-    ;;
-
-  centos)
-    alias upd="sudo yum update --assumeno"
-    alias updnow="sudo yum update -y"
-    alias ipkg="sudo yum install -y"
-    alias rpkg="sudo yum remove"
-    alias gpkg="rpm -qa | grep -i"
-    alias cleanpm="sudo yum clean all"
-    ilpkg () {
-      sudo yum install -y "./${1}"
     }
     ;;
 
@@ -217,10 +210,14 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     IMAGE="${1:?'no image name given'}"
     UUID=$(cat /proc/sys/kernel/random/uuid)
     TMP_DIR="/tmp/vmspan.$UUID"
-    (mkdir "${TMP_DIR}" && cd "${TMP_DIR}") || return 1
+    if mkdir "${TMP_DIR}"; then
+      cd "${TMP_DIR}" || return 1
+    else
+      return 1
+    fi
     printf \
       "Vagrant.configure('2') do |config|\n\tconfig.vm.box = '%s'\nend\n" \
-      "${IMAGE}" > Vagrantfile
+      "${IMAGE}" > "${TMP_DIR}/Vagrantfile"
     vagrant up
     vagrant ssh
     vagrant destroy -f

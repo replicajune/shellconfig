@@ -1,6 +1,6 @@
 # Yet another shell configuration repository
 
-[![Build Status](https://travis-ci.org/replicajune/shellconfig.svg?branch=master)](https://travis-ci.org/replicajune/shellconfig)
+[![Actions Status](https://github.com/replicajune/shellconfig/workflows/Shellcheck/badge.svg)](https://github.com/replicajune/shellconfig/actions)
 
 ## Install
 
@@ -17,6 +17,8 @@ if [ -f "/home/${SUDO_USER-$USER}/.shellconfig/.shellconfig.sh" ]; then
   . "/home/${SUDO_USER-$USER}/.shellconfig/.shellconfig.sh"
 fi
 ```
+
+> Using `${SUDO_USER-$USER}` allow to source that same file while you're root through sudo. Root will show as user in red in your PS1
 
 ## Notes
 
