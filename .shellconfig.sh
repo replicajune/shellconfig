@@ -104,7 +104,7 @@ case $ID in
     }
     ;;
 
-  fedora)
+  fedora|centos)
     alias upd="sudo dnf check-update --refresh --assumeno"
     alias updnow="sudo dnf update --assumeyes"
     alias ipkg="sudo dnf install -y"
@@ -113,18 +113,6 @@ case $ID in
     alias cleanpm="sudo dnf clean all"
     ilpkg () {
       sudo dnf install -y "./${1}"
-    }
-    ;;
-
-  centos)
-    alias upd="sudo yum update --assumeno"
-    alias updnow="sudo yum update -y"
-    alias ipkg="sudo yum install -y"
-    alias rpkg="sudo yum remove"
-    alias gpkg="rpm -qa | grep -i"
-    alias cleanpm="sudo yum clean all"
-    ilpkg () {
-      sudo yum install -y "./${1}"
     }
     ;;
 
