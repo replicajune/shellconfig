@@ -229,7 +229,7 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     fi
     printf \
       "Vagrant.configure('2') do |config|\n\tconfig.vm.box = '%s'\nend\n" \
-      "${IMAGE}" > Vagrantfile
+      "${IMAGE}" > "${TMP_DIR}/Vagrantfile"
     vagrant up
     vagrant ssh
     vagrant destroy -f
