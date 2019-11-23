@@ -211,7 +211,7 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     UUID=$(cat /proc/sys/kernel/random/uuid)
     TMP_DIR="/tmp/vmspan.$UUID"
     if mkdir "${TMP_DIR}"; then
-      cd "${TMP_DIR}"
+      cd "${TMP_DIR}" || return 1
     else
       return 1
     fi
