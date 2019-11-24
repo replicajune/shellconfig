@@ -385,8 +385,12 @@ PS_PROMPT='\n→  '
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
 PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SYSDS$PS_SYSDR$PS_SYSKR
-PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_PROMPT
-PS2='…  '
+
+# only tested with bash and ash ATM
+if [ -z "${0##*bash}" ] || [ -z "${0##*ash}" ] ; then
+  PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_PROMPT
+  PS2='…  '
+fi
 
 # --- for personnal or private aliases (things with contexts and stuff)
 if [ -f ~/.private.sh ]; then
