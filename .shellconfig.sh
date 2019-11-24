@@ -110,7 +110,12 @@ case $ID in
     alias ipkg="sudo dnf install -y"
     alias rpkg="sudo dnf remove --assumeyes"
     alias gpkg="rpm -qa | grep -i"
-    alias cleanpm="sudo dnf clean all"
+    cleanpm () {
+      echo 'remove orphans'
+      sudo dnf autoremove -y
+      echo 'clean dnf/rpmdb, remove cached packages'
+      sudo dnf clean all
+    }
     ilpkg () {
       sudo dnf install -y "./${1}"
     }
