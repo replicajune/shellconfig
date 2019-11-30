@@ -215,6 +215,14 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     IMAGE="${1:?'no image name given'}"
     UUID=$(cat /proc/sys/kernel/random/uuid)
     TMP_DIR="/tmp/vmspan.$UUID"
+    [ "$(curl -I -L -w '%{response_code}' -s -o /dev/null \
+      "https://vagrantcloud.com/${IMAGE}")" -eq "200" ] || {
+      echo "image not found, check connectivity or given name"
+      return 1
+    } || return 1
+    vagrant box add "${IMAGE}"\
+      --provider ${VAGRANT_DEFAULT_PROVIDER:-virtualbox} || return 1
+
     if mkdir "${TMP_DIR}"; then
       cd "${TMP_DIR}" || return 1
     else
@@ -237,6 +245,13 @@ alias gh='history|grep'
 alias vless="vim -M"
 alias datei="date --iso-8601=m"
 alias weather="curl wttr.in/?0"
+
+wof () {
+  # write on file ..
+  # usage : wof file.iso /dev/usbthing
+  sudo dd if="${1}" of="${2}" bs=32M status=progress
+  sync
+}
 
 # --- PS1
 
