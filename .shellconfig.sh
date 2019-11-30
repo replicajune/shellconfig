@@ -246,12 +246,12 @@ alias vless="vim -M"
 alias datei="date --iso-8601=m"
 alias weather="curl wttr.in/?0"
 
-#function wof () {
-#  # write on file ..
-#  # usage : wof file.iso /dev/usbthing
-#  sudo dd if="${1}" of="${2}" bs=32M status=progress
-#  sync
-#}
+function wof () {
+  # write on file ..
+  # usage : wof file.iso /dev/usbthing
+  sudo dd if="${1}" of="${2}" bs=32M status=progress
+  sync
+}
 
 # --- PS1
 
