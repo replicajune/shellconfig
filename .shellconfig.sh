@@ -340,15 +340,13 @@ _SCKRT () {
         | cut -d'.' -f-4)"
       ;;
     debian)
-      kernel_live_ver="$(uname -r | sed 's/\-[a-zA-Z]*[0-9]*[a-zA-Z]*$//')"
+      kernel_live_ver="$(uname -r)"
       kernel_pkg_ver="$(\
-        dpkg -s "$( \
-          dpkg -s linux-image-amd64 \
-          | grep '^Depends\:' \
-          | cut -d' ' -f2)" \
-        | grep '^Version\:' \
+        dpkg -s linux-image-amd64 \
+        | grep '^Depends\:' \
         | cut -d' ' -f2 \
-        | cut -d'+' -f1)"
+        | sed 's/^[a-zA-Z\-]*//'
+        )"
       ;;
     raspbian)
       kernel_pkg_ver="$(
