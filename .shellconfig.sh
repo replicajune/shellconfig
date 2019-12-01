@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # source distrib information; will use 'ID' variable
 # shellcheck source=/etc/os-release
@@ -171,6 +171,9 @@ if [ -x "$(whereis lxc |cut -d' ' -f2)" ]; then
   lxcspawn() {
     # usage : lxcspawn image_name shell_name
     # shell is opt, default to bash
+    local IMAGE
+    local SHELL
+    local CNT_NAME
     IMAGE="${1}"
     SHELL="${2:-bash}"
     CNT_NAME=$(head /dev/urandom | tr -dc '[:lower:]' | head -c 12 ; echo '')
@@ -199,6 +202,8 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
       rsync --help
       return 1
     else
+      local UUID
+      local CONF
       UUID=$(cat /proc/sys/kernel/random/uuid)
       CONF="/tmp/vagrant_ssh-config.${UUID}"
       vagrant ssh-config > "${CONF}"
@@ -211,6 +216,10 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     # go in a VM, do some test, leave. stop and destroy it automatically
     # usage : vmspan image_name
     # lookup names at https://app.vagrantup.com/boxes/search
+    local CWD
+    local IMAGE
+    local UUID
+    local TMP_DIR
     CWD="${PWD}"
     IMAGE="${1:?'no image name given'}"
     UUID=$(cat /proc/sys/kernel/random/uuid)
@@ -229,7 +238,7 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
       return 1
     fi
     printf \
-      "Vagrant.configure('2') do |config|\n\tconfig.vm.box = '%s'\nend\n" \
+      "Vagrant.configure('2') do |config|\\n\\tconfig.vm.box = '%s'\\nend\\n" \
       "${IMAGE}" > "${TMP_DIR}/Vagrantfile"
     vagrant up
     vagrant ssh
@@ -291,9 +300,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 
   # - show a blue dot if systemd needs to be restarted
   _SCSDRT () {
-    # shellcheck disable=SC2039
     local systemd_live_ver
-    # shellcheck disable=SC2039
     local systemd_pkg_ver
 
     systemd_live_ver="$(systemctl --version | grep '^systemd' | cut -d' ' -f2)"
@@ -351,7 +358,6 @@ _SCKRT () {
     raspbian)
       kernel_pkg_ver="$(
         for VER in /lib/modules/*; do
-          # shellcheck disable=SC2039
           local VERNUM
           VERNUM="${VER##*/}"
           if [ "${kernel_live_ver}" = "${VERNUM}" ]; then
