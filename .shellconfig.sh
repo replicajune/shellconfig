@@ -218,28 +218,46 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     # lookup names at https://app.vagrantup.com/boxes/search
     local CWD
     local IMAGE
+    local PROVIDER
     local UUID
     local TMP_DIR
     CWD="${PWD}"
     IMAGE="${1:?'no image name given'}"
+    PROVIDER="${VAGRANT_DEFAULT_PROVIDER:-virtualbox}"
     UUID=$(cat /proc/sys/kernel/random/uuid)
     TMP_DIR="/tmp/vmspan.$UUID"
-    [ "$(curl -I -L -w '%{response_code}' -s -o /dev/null \
-      "https://vagrantcloud.com/${IMAGE}")" -eq "200" ] || {
-      echo "image not found, check connectivity or given name"
+
+    # check if given image exists
+    [ "$(curl --silent --head --location \
+        --write-out '%{response_code}' --output /dev/null \
+        "https://vagrantcloud.com/${IMAGE}")" -eq "200" ] || {
+      echo "image not found, check connectivity or given box name"
       return 1
     } || return 1
-    vagrant box add "${IMAGE}"\
-      --provider ${VAGRANT_DEFAULT_PROVIDER:-virtualbox} || return 1
 
+    # download vagrant image unconditionally
+    if vagrant box list \
+        | grep --extended-regexp --silent "^${IMAGE}\\s\\(${PROVIDER}.*)$"; then
+      true
+    else
+      until vagrant box add "${IMAGE}" --provider ${PROVIDER}; do
+        sleep "$(shuf --input-range=20-40 --head-count=1)"
+      done
+    fi
+
+    # build a temporary folder to serve as working directory
     if mkdir "${TMP_DIR}"; then
       cd "${TMP_DIR}" || return 1
     else
       return 1
     fi
+
+    # build Vagrantfile
     printf \
       "Vagrant.configure('2') do |config|\\n\\tconfig.vm.box = '%s'\\nend\\n" \
       "${IMAGE}" > "${TMP_DIR}/Vagrantfile"
+
+    # start vagrant
     vagrant up
     vagrant ssh
     vagrant destroy -f
