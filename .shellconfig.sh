@@ -221,21 +221,50 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     local PROVIDER
     local UUID
     local TMP_DIR
+    local VENDOR
+    local BOX
+    local BOX_URL
+    local VERSION
+    local BOX_FILE_URL
     CWD="${PWD}"
     IMAGE="${1:?'no image name given'}"
     PROVIDER="${VAGRANT_DEFAULT_PROVIDER:-virtualbox}"
     UUID=$(cat /proc/sys/kernel/random/uuid)
     TMP_DIR="/tmp/vmspan.$UUID"
 
-    # check if given image exists
-    [ "$(curl --silent --head --location \
+    if ! echo "${IMAGE}" | grep -Eq '^[a-ZA-Z0-9]+/[a-ZA-Z0-9]+$'; then
+      echo 'wrong image name'
+      return 1
+    fi
+
+    VENDOR="${IMAGE%/*}"
+    BOX="${IMAGE#*/}"
+    BOX_URL="https://app.vagrantup.com/${VENDOR}/boxes/${BOX}"
+
+    echo 'check ressource availability'
+    if ! [ "$(curl --silent --head --location \
         --write-out '%{response_code}' --output /dev/null \
-        "https://vagrantcloud.com/${IMAGE}")" -eq "200" ] || {
+        "${BOX_URL}")" -eq "200" ]; then
       echo "image not found, check connectivity or given box name"
       return 1
-    } || return 1
+    fi
 
-    # download vagrant image unconditionally
+    # fetch latest version of given box
+    VERSION="$(
+      curl -L "https://vagrantcloud.com/${IMAGE}" -s \
+      | jq .versions[0].version | tr -d '"'
+    )"
+    BOX_FILE_URL="${BOX_URL}/versions/${VERSION}/providers/${PROVIDER}.box"
+
+    echo 'check box availability'
+    if ! [ "$(curl --silent --head --location \
+        --write-out '%{response_code}' --output /dev/null \
+        "${BOX_FILE_URL}")" -eq "200" ]; then
+      echo "box exists but might no be available for the configured provider"
+      return 1
+    fi
+
+    # download vagrant image unconditionally if it doesn't exists locally
     if vagrant box list \
         | grep --extended-regexp --silent "^${IMAGE}\\s\\(${PROVIDER}.*)$"; then
       true
