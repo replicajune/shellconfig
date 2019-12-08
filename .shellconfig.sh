@@ -12,8 +12,8 @@ if [ -n "${PATH##*/.local/bin*}" ]; then
 fi
 
 # user default python virtual env in ~/.venv
-if [ -n "${PATH##*/.venv/bin*}" ]; then
-  export PATH=$PATH:/home/${SUDO_USER-$USER}/.venv/bin
+if [ -n "${PATH##*/.venv/global/bin*}" ]; then
+  export PATH=$PATH:/home/${SUDO_USER-$USER}/.venv/global/bin
 fi
 
 # use vim if possible, nano otherwise
