@@ -266,9 +266,11 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
 
     # download vagrant image unconditionally if it doesn't exists locally
     if vagrant box list \
-        | grep --extended-regexp --silent "^${IMAGE}\\s\\(${PROVIDER}.*)$"; then
+        | grep --extended-regexp --silent \
+          "^${IMAGE}\\s+\\(${PROVIDER},\\s${VERSION})$"; then
       true
     else
+      echo "box doesn't exists or is out of date, fetching.."
       until vagrant box add "${IMAGE}" --provider ${PROVIDER}; do
         sleep "$(shuf --input-range=20-40 --head-count=1)"
       done
