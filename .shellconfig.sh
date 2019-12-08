@@ -12,8 +12,8 @@ if [ -n "${PATH##*/.local/bin*}" ]; then
 fi
 
 # user default python virtual env in ~/.venv
-if [ -n "${PATH##*/.venv/bin*}" ]; then
-  export PATH=$PATH:/home/${SUDO_USER-$USER}/.venv/bin
+if [ -n "${PATH##*/.venv/global/bin*}" ]; then
+  export PATH=$PATH:/home/${SUDO_USER-$USER}/.venv/global/bin
 fi
 
 # use vim if possible, nano otherwise
@@ -137,6 +137,25 @@ esac
 if [ -x "$(whereis most |cut -d' ' -f2)" ]; then
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
   alias man='PAGER=most man'
+fi
+
+# python
+if [ -x "$(whereis python |cut -d' ' -f2)" ]; then
+  venv() {
+    # spawn a virtual python env with a given name, usualy a package name.
+    # usage: venv package
+    local PKG
+    PKG="${1}"
+    if [ "x${VIRTUAL_ENV}" != "x" ]; then
+      deactivate
+    fi
+
+    # setup a new virtual env if it doesn't exists, and activate it
+    if ! [ -d "${HOME}/.venv/${PKG}" ]; then
+      python3 -m venv "${HOME}/.venv/${PKG}"
+    fi
+    . "${HOME}/.venv/${PKG}/bin/activate"
+  }
 fi
 
 # docker
