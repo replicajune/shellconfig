@@ -139,6 +139,23 @@ if [ -x "$(whereis most |cut -d' ' -f2)" ]; then
   alias man='PAGER=most man'
 fi
 
+# python
+if [ -x "$(whereis python |cut -d' ' -f2)" ]; then
+  venv() {
+    # spawn a virtual python env with a given name, usualy a package name.
+    # usage: venv package
+
+    local PKG
+    PKG="${1}"
+
+    # setup a new virtual env if it doesn't exists, and activate it
+    if ! [ -d "${HOME}/.venv/${PKG}" ]; then
+      python3 -m venv "${HOME}/.venv/${PKG}"
+    fi
+    . "${HOME}/.venv/${PKG}/bin/activate"
+  }
+fi
+
 # docker
 if [ -x "$(whereis docker |cut -d' ' -f2)" ]; then
   alias dk="docker"
