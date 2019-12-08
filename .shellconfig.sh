@@ -146,6 +146,9 @@ if [ -x "$(whereis python |cut -d' ' -f2)" ]; then
     # usage: venv package
     local PKG
     PKG="${1}"
+    if [ "x${VIRTUAL_ENV}" != "x" ]; then
+      deactivate
+    fi
 
     # setup a new virtual env if it doesn't exists, and activate it
     if ! [ -d "${HOME}/.venv/${PKG}" ]; then
