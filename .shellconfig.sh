@@ -144,7 +144,6 @@ if [ -x "$(whereis python |cut -d' ' -f2)" ]; then
   venv() {
     # spawn a virtual python env with a given name, usualy a package name.
     # usage: venv package
-
     local PKG
     PKG="${1}"
 
