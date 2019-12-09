@@ -303,9 +303,7 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     fi
 
     # build Vagrantfile
-    printf \
-      "Vagrant.configure('2') do |config|\\n\\tconfig.vm.box = '%s'\\nend\\n" \
-      "${IMAGE}" > "${TMP_DIR}/Vagrantfile"
+    vagrant init --minimal "${IMAGE}" --output "${TMP_DIR}/Vagrantfile"
 
     # start vagrant
     vagrant up
