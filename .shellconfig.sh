@@ -247,6 +247,7 @@ if command -v vagrant &> /dev/null; then
     local BOX_FILE_URL
     CWD="${PWD}"
     IMAGE="${1:?'no image name given'}"
+    VERSION="${2}"
     PROVIDER="${VAGRANT_DEFAULT_PROVIDER:-virtualbox}"
     UUID=$(cat /proc/sys/kernel/random/uuid)
     TMP_DIR="/tmp/vmspan.$UUID"
@@ -256,11 +257,17 @@ if command -v vagrant &> /dev/null; then
       return 1
     fi
 
+    if [ "x${VERISON}" != "x" ] &&\
+      ! echo "${VERSION}" | grep -Eq '^[0-9\.]+$'; then
+      echo 'wrong version given'
+      return 1
+    fi
+
     VENDOR="${IMAGE%/*}"
     BOX="${IMAGE#*/}"
     BOX_URL="https://app.vagrantup.com/${VENDOR}/boxes/${BOX}"
 
-    echo 'check ressource availability'
+    # check ressource availability
     if ! [ "$(curl --silent --head --location \
         --write-out '%{response_code}' --output /dev/null \
         "${BOX_URL}")" -eq "200" ]; then
@@ -269,17 +276,19 @@ if command -v vagrant &> /dev/null; then
     fi
 
     # fetch latest version of given box
-    VERSION="$(
-      curl -L "https://vagrantcloud.com/${IMAGE}" -s \
-      | jq .versions[0].version | tr -d '"'
-    )"
+    if [ "x${VERSION}" = "x" ]; then
+      VERSION="$(
+        curl --location "https://vagrantcloud.com/${IMAGE}" --silent \
+        | jq .versions[0].version | tr -d '"'
+      )"
+    fi
     BOX_FILE_URL="${BOX_URL}/versions/${VERSION}/providers/${PROVIDER}.box"
 
-    echo 'check box availability'
-    if ! [ "$(curl --silent --head --location \
+    # check box availability
+    if [ "$(curl --silent --head --location \
         --write-out '%{response_code}' --output /dev/null \
-        "${BOX_FILE_URL}")" -eq "200" ]; then
-      echo "box exists but might no be available for the configured provider"
+        "${BOX_FILE_URL}")" -ne "200" ]; then
+      echo "box exists but provider and/or version not available. "
       return 1
     fi
 
@@ -289,8 +298,10 @@ if command -v vagrant &> /dev/null; then
           "^${IMAGE}\\s+\\(${PROVIDER},\\s${VERSION})$"; then
       true
     else
-      echo "box doesn't exists or is out of date, fetching.."
-      until vagrant box add "${IMAGE}" --provider ${PROVIDER}; do
+      echo "box not available localy or is out of date, fetching.."
+      until vagrant box add "${IMAGE}" \
+        --provider ${PROVIDER}\
+        --box-version "${VERSION}"; do
         sleep "$(shuf --input-range=20-40 --head-count=1)"
       done
     fi
@@ -303,7 +314,9 @@ if command -v vagrant &> /dev/null; then
     fi
 
     # build Vagrantfile
-    vagrant init --minimal "${IMAGE}" --output "${TMP_DIR}/Vagrantfile"
+    vagrant init --minimal "${IMAGE}" \
+    --box-version "${VERSION}" \
+    --output "${TMP_DIR}/Vagrantfile"
 
     # start vagrant
     vagrant up
@@ -315,8 +328,8 @@ if command -v vagrant &> /dev/null; then
 fi
 
 # misc
-alias h="history |tail -20"
-alias gh='history|grep'
+alias h="history | tail -20"
+alias gh='history | grep'
 alias vless="vim -M"
 alias datei="date --iso-8601=m"
 alias weather="curl wttr.in/?0"
