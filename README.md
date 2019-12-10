@@ -4,21 +4,13 @@
 
 ## Install
 
-- clone the repo :
-
-``` sh
-git clone https://github.com/replicajune/shellconfig.git ~/.shellconfig
-```
-
-source `.shellconfig.sh` in your home shell config file (`~/.bashrc`) :
+- clone the repo and source `.shellconfig.sh` in your home shell config file (`~/.bashrc`). use the following block of code in both your user & root bashrc to have the same configs for both:
 
 ``` sh
 if [ -f "/home/${SUDO_USER-$USER}/.shellconfig/.shellconfig.sh" ]; then
   . "/home/${SUDO_USER-$USER}/.shellconfig/.shellconfig.sh"
 fi
 ```
-
-> Using `${SUDO_USER-$USER}` allow to source that same file while you're root through sudo. Root will show as user in red in your PS1
 
 ## Notes
 
