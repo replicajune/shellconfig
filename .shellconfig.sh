@@ -133,6 +133,16 @@ case $ID in
     ;;
 esac
 
+# systemd
+if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
+  alias status="systemctl status"
+  health() {
+    if ! sudo systemctl is-system-running; then
+      sudo systemctl --failed
+    fi
+  }
+fi
+
 # pager or mod of aliases using a pager. Using most, color friendly
 if command -v most &> /dev/null; then
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
@@ -215,7 +225,7 @@ if command -v vagrant &> /dev/null; then
   export VAGRANT_DEFAULT_PROVIDER=libvirt
 
   vagrant_rsync() {
-    # replace vagrant-scp
+    # replace vagrant-scp, basicly a fancy wrapper around '-e "ssh -F ${CONF}"'
     # usage : use it like rsync
     if [ $# -lt 2 ]; then
       rsync --help
@@ -225,7 +235,7 @@ if command -v vagrant &> /dev/null; then
       local CONF
       UUID=$(cat /proc/sys/kernel/random/uuid)
       CONF="/tmp/vagrant_ssh-config.${UUID}"
-      vagrant ssh-config > "${CONF}"
+      vagrant ssh-config > "${CONF}" &&\
       rsync -e "ssh -F ${CONF}" "${@}"
       rm -f "${CONF}"
     fi
