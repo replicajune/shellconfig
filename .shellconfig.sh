@@ -42,12 +42,8 @@ alias ll="ls -Flh"
 alias la="ls -Flha"
 alias lz="ls -FlhZ"
 alias lt='du -sh * | sort -h'
-
 alias rm="rm -i"
-alias rmr="rm -ri"
-
 alias vd="diff --side-by-side --suppress-common-lines"
-alias ltree="tree -a --prune --noreport -h -C -I '*.git' | less"
 
 if [ "${ID}" != 'alpine' ]; then
   # directory stack
@@ -69,12 +65,10 @@ if [ "${ID}" != 'alpine' ]; then
   alias topc="
     ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pcpu \
     | head -11"
-else
-  # ressources ; busybox based system(s) (only alpine atm)
-  alias topd="du -sc .[!.]* * |sort -rn |head -11"
 fi
 
 # ressources; all systems
+alias topd="du -sc .[!.]* * |sort -rn |head -11"
 alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
 
@@ -86,7 +80,6 @@ case $ID in
   ubuntu|debian|raspbian)
     alias upd="sudo apt update && apt list --upgradable"
     alias updnow="sudo apt update && sudo apt upgrade -y"
-    alias ipkg="sudo apt install -y"
     alias rpkg="sudo apt purge -y"
     alias gpkg="dpkg -l | grep -i"
     cleanpm () {
@@ -99,7 +92,7 @@ case $ID in
         sudo dpkg -P "${PKG}" > /dev/null
       done
     }
-    ilpkg () {
+    ipkg () {
       sudo apt install -y "./${1}"
     }
     ;;
@@ -107,7 +100,6 @@ case $ID in
   fedora|centos)
     alias upd="sudo dnf check-update --refresh --assumeno"
     alias updnow="sudo dnf update --assumeyes"
-    alias ipkg="sudo dnf install -y"
     alias rpkg="sudo dnf remove --assumeyes"
     alias gpkg="rpm -qa | grep -i"
     cleanpm () {
@@ -116,7 +108,7 @@ case $ID in
       echo 'clean dnf/rpmdb, remove cached packages'
       sudo dnf clean all
     }
-    ilpkg () {
+    ipkg () {
       sudo dnf install -y "./${1}"
     }
     ;;
