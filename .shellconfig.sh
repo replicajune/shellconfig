@@ -17,7 +17,7 @@ if [ -n "${PATH##*/.venv/global/bin*}" ]; then
 fi
 
 # use vim if possible, nano otherwise
-if [ -x "$(whereis vim |cut -d' ' -f2)" ]; then
+if command -v vim &> /dev/null; then
   export VISUAL="vim"
   export EDITOR="vim"
 else
@@ -134,13 +134,13 @@ case $ID in
 esac
 
 # pager or mod of aliases using a pager. Using most, color friendly
-if [ -x "$(whereis most |cut -d' ' -f2)" ]; then
+if command -v most &> /dev/null; then
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
   alias man='PAGER=most man'
 fi
 
 # python
-if [ -x "$(whereis python |cut -d' ' -f2)" ]; then
+if command -v python &> /dev/null; then
   venv() {
     # spawn a virtual python env with a given name, usualy a package name.
     # usage: venv package
@@ -159,7 +159,7 @@ if [ -x "$(whereis python |cut -d' ' -f2)" ]; then
 fi
 
 # docker
-if [ -x "$(whereis docker |cut -d' ' -f2)" ]; then
+if command -v docker &> /dev/null; then
   alias dk="docker"
   alias dkr="docker run -it"
   alias dklc="docker ps -a"
@@ -176,7 +176,7 @@ if [ -x "$(whereis docker |cut -d' ' -f2)" ]; then
   alias dki="docker system info"
 fi
 
-if [ -x "$(whereis docker-compose |cut -d' ' -f2)" ]; then
+if command -v docker-compose &> /dev/null; then
   alias dkc="docker-compose"
   alias dkcb="docker-compose build"
   alias dkcu="docker-compose up -d"
@@ -185,7 +185,7 @@ if [ -x "$(whereis docker-compose |cut -d' ' -f2)" ]; then
 fi
 
 # LXC
-if [ -x "$(whereis lxc |cut -d' ' -f2)" ]; then
+if command -v lxc &> /dev/null; then
   # go in a container, do some test, leave. stop and destroy it automatically
   lxcspawn() {
     # usage : lxcspawn image_name shell_name
@@ -204,12 +204,12 @@ if [ -x "$(whereis lxc |cut -d' ' -f2)" ]; then
 fi
 
 # lazygit
-if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
+if command -v lazygit &> /dev/null; then
   alias lgt=lazygit
 fi
 
 # vagrant
-if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
+if command -v vagrant &> /dev/null; then
 
   # use libvirt instead of default virtualbox : better perfs, less oracle stuff
   export VAGRANT_DEFAULT_PROVIDER=libvirt
@@ -489,7 +489,7 @@ if [ -f ~/.private.sh ]; then
 fi
 
 # --- TMUX : disable this using "export TMUX=disable" before loading shellconfig
-if command -v tmux > /dev/null 2> /dev/null &&\
+if command -v tmux &> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
