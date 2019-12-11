@@ -205,6 +205,24 @@ if command -v lxc &> /dev/null; then
   }
 fi
 
+# MicroK8s
+if command -v microk8s.status &> /dev/null; then
+  alias m.enable="microk8s.enable"
+  alias m.disable="microk8s.disable"
+  alias m.start="microk8s.start"
+  alias m.stop="microk8s.stop"
+  alias m.status="microk8s.status"
+
+  # common kube shortcuts if original tools doesn't exists already
+  if ! command -v kubectl &> /dev/null; then
+    alias kubectl="microk8s.kubectl"
+    alias k="microk8s.kubectl"
+  fi
+  if ! command -v helm &> /dev/null; then
+    alias helm="microk8s.helm"
+  fi
+fi
+
 # lazygit
 if command -v lazygit &> /dev/null; then
   alias lgt=lazygit
