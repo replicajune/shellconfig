@@ -252,7 +252,7 @@ if command -v vagrant &> /dev/null; then
     VERSION="${2}"
     PROVIDER="${VAGRANT_DEFAULT_PROVIDER:-virtualbox}"
     UUID=$(cat /proc/sys/kernel/random/uuid)
-    TMP_DIR="/tmp/vmspan.$UUID"
+    TMP_DIR="/tmp/vmspan.${UUID}"
 
     if ! echo "${IMAGE}" | grep -Eq '^[a-Z0-9]+/[a-Z0-9\.\-]+$'; then
       echo 'wrong image name'
