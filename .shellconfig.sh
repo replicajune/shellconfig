@@ -17,7 +17,7 @@ if [ -n "${PATH##*/.venv/global/bin*}" ]; then
 fi
 
 # use vim if possible, nano otherwise
-if [ -x "$(whereis vim |cut -d' ' -f2)" ]; then
+if command -v vim &> /dev/null; then
   export VISUAL="vim"
   export EDITOR="vim"
 else
@@ -42,12 +42,8 @@ alias ll="ls -Flh"
 alias la="ls -Flha"
 alias lz="ls -FlhZ"
 alias lt='du -sh * | sort -h'
-
 alias rm="rm -i"
-alias rmr="rm -ri"
-
 alias vd="diff --side-by-side --suppress-common-lines"
-alias ltree="tree -a --prune --noreport -h -C -I '*.git' | less"
 
 if [ "${ID}" != 'alpine' ]; then
   # directory stack
@@ -69,12 +65,10 @@ if [ "${ID}" != 'alpine' ]; then
   alias topc="
     ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pcpu \
     | head -11"
-else
-  # ressources ; busybox based system(s) (only alpine atm)
-  alias topd="du -sc .[!.]* * |sort -rn |head -11"
 fi
 
 # ressources; all systems
+alias topd="du -sc .[!.]* * |sort -rn |head -11"
 alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
 
@@ -86,7 +80,6 @@ case $ID in
   ubuntu|debian|raspbian)
     alias upd="sudo apt update && apt list --upgradable"
     alias updnow="sudo apt update && sudo apt upgrade -y"
-    alias ipkg="sudo apt install -y"
     alias rpkg="sudo apt purge -y"
     alias gpkg="dpkg -l | grep -i"
     cleanpm () {
@@ -99,7 +92,7 @@ case $ID in
         sudo dpkg -P "${PKG}" > /dev/null
       done
     }
-    ilpkg () {
+    ipkg () {
       sudo apt install -y "./${1}"
     }
     ;;
@@ -107,7 +100,6 @@ case $ID in
   fedora|centos)
     alias upd="sudo dnf check-update --refresh --assumeno"
     alias updnow="sudo dnf update --assumeyes"
-    alias ipkg="sudo dnf install -y"
     alias rpkg="sudo dnf remove --assumeyes"
     alias gpkg="rpm -qa | grep -i"
     cleanpm () {
@@ -116,7 +108,7 @@ case $ID in
       echo 'clean dnf/rpmdb, remove cached packages'
       sudo dnf clean all
     }
-    ilpkg () {
+    ipkg () {
       sudo dnf install -y "./${1}"
     }
     ;;
@@ -133,14 +125,24 @@ case $ID in
     ;;
 esac
 
+# systemd
+if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
+  alias status="systemctl status"
+  health() {
+    if ! sudo systemctl is-system-running; then
+      sudo systemctl --failed
+    fi
+  }
+fi
+
 # pager or mod of aliases using a pager. Using most, color friendly
-if [ -x "$(whereis most |cut -d' ' -f2)" ]; then
+if command -v most &> /dev/null; then
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
   alias man='PAGER=most man'
 fi
 
 # python
-if [ -x "$(whereis python |cut -d' ' -f2)" ]; then
+if command -v python &> /dev/null; then
   venv() {
     # spawn a virtual python env with a given name, usualy a package name.
     # usage: venv package
@@ -159,7 +161,7 @@ if [ -x "$(whereis python |cut -d' ' -f2)" ]; then
 fi
 
 # docker
-if [ -x "$(whereis docker |cut -d' ' -f2)" ]; then
+if command -v docker &> /dev/null; then
   alias dk="docker"
   alias dkr="docker run -it"
   alias dklc="docker ps -a"
@@ -176,7 +178,7 @@ if [ -x "$(whereis docker |cut -d' ' -f2)" ]; then
   alias dki="docker system info"
 fi
 
-if [ -x "$(whereis docker-compose |cut -d' ' -f2)" ]; then
+if command -v docker-compose &> /dev/null; then
   alias dkc="docker-compose"
   alias dkcb="docker-compose build"
   alias dkcu="docker-compose up -d"
@@ -185,7 +187,7 @@ if [ -x "$(whereis docker-compose |cut -d' ' -f2)" ]; then
 fi
 
 # LXC
-if [ -x "$(whereis lxc |cut -d' ' -f2)" ]; then
+if command -v lxc &> /dev/null; then
   # go in a container, do some test, leave. stop and destroy it automatically
   lxcspawn() {
     # usage : lxcspawn image_name shell_name
@@ -203,19 +205,37 @@ if [ -x "$(whereis lxc |cut -d' ' -f2)" ]; then
   }
 fi
 
+# MicroK8s
+if command -v microk8s.status &> /dev/null; then
+  alias m.enable="microk8s.enable"
+  alias m.disable="microk8s.disable"
+  alias m.start="microk8s.start"
+  alias m.stop="microk8s.stop"
+  alias m.status="microk8s.status"
+
+  # common kube shortcuts if original tools doesn't exists already
+  if ! command -v kubectl &> /dev/null; then
+    alias kubectl="microk8s.kubectl"
+    alias k="microk8s.kubectl"
+  fi
+  if ! command -v helm &> /dev/null; then
+    alias helm="microk8s.helm"
+  fi
+fi
+
 # lazygit
-if [ -x "$(whereis lazygit |cut -d' ' -f2)" ]; then
+if command -v lazygit &> /dev/null; then
   alias lgt=lazygit
 fi
 
 # vagrant
-if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
+if command -v vagrant &> /dev/null; then
 
   # use libvirt instead of default virtualbox : better perfs, less oracle stuff
   export VAGRANT_DEFAULT_PROVIDER=libvirt
 
   vagrant_rsync() {
-    # replace vagrant-scp
+    # replace vagrant-scp, basicly a fancy wrapper around '-e "ssh -F ${CONF}"'
     # usage : use it like rsync
     if [ $# -lt 2 ]; then
       rsync --help
@@ -225,7 +245,7 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
       local CONF
       UUID=$(cat /proc/sys/kernel/random/uuid)
       CONF="/tmp/vagrant_ssh-config.${UUID}"
-      vagrant ssh-config > "${CONF}"
+      vagrant ssh-config > "${CONF}" &&\
       rsync -e "ssh -F ${CONF}" "${@}"
       rm -f "${CONF}"
     fi
@@ -247,12 +267,19 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     local BOX_FILE_URL
     CWD="${PWD}"
     IMAGE="${1:?'no image name given'}"
+    VERSION="${2}"
     PROVIDER="${VAGRANT_DEFAULT_PROVIDER:-virtualbox}"
     UUID=$(cat /proc/sys/kernel/random/uuid)
-    TMP_DIR="/tmp/vmspan.$UUID"
+    TMP_DIR="/tmp/vmspan.${UUID}"
 
-    if ! echo "${IMAGE}" | grep -Eq '^[a-ZA-Z0-9]+/[a-ZA-Z0-9]+$'; then
+    if ! echo "${IMAGE}" | grep -Eq '^[a-Z0-9]+/[a-Z0-9\.\-]+$'; then
       echo 'wrong image name'
+      return 1
+    fi
+
+    if [ "x${VERISON}" != "x" ] &&\
+      ! echo "${VERSION}" | grep -Eq '^[0-9\.]+$'; then
+      echo 'wrong version given'
       return 1
     fi
 
@@ -260,7 +287,7 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     BOX="${IMAGE#*/}"
     BOX_URL="https://app.vagrantup.com/${VENDOR}/boxes/${BOX}"
 
-    echo 'check ressource availability'
+    # check ressource availability
     if ! [ "$(curl --silent --head --location \
         --write-out '%{response_code}' --output /dev/null \
         "${BOX_URL}")" -eq "200" ]; then
@@ -269,17 +296,19 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     fi
 
     # fetch latest version of given box
-    VERSION="$(
-      curl -L "https://vagrantcloud.com/${IMAGE}" -s \
-      | jq .versions[0].version | tr -d '"'
-    )"
+    if [ "x${VERSION}" = "x" ]; then
+      VERSION="$(
+        curl --location "https://vagrantcloud.com/${IMAGE}" --silent \
+        | jq .versions[0].version | tr -d '"'
+      )"
+    fi
     BOX_FILE_URL="${BOX_URL}/versions/${VERSION}/providers/${PROVIDER}.box"
 
-    echo 'check box availability'
-    if ! [ "$(curl --silent --head --location \
+    # check box availability
+    if [ "$(curl --silent --head --location \
         --write-out '%{response_code}' --output /dev/null \
-        "${BOX_FILE_URL}")" -eq "200" ]; then
-      echo "box exists but might no be available for the configured provider"
+        "${BOX_FILE_URL}")" -ne "200" ]; then
+      echo "box exists but provider and/or version not available. "
       return 1
     fi
 
@@ -289,8 +318,10 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
           "^${IMAGE}\\s+\\(${PROVIDER},\\s${VERSION})$"; then
       true
     else
-      echo "box doesn't exists or is out of date, fetching.."
-      until vagrant box add "${IMAGE}" --provider ${PROVIDER}; do
+      echo "box not available localy or is out of date, fetching.."
+      until vagrant box add "${IMAGE}" \
+        --provider ${PROVIDER}\
+        --box-version "${VERSION}"; do
         sleep "$(shuf --input-range=20-40 --head-count=1)"
       done
     fi
@@ -303,9 +334,9 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
     fi
 
     # build Vagrantfile
-    printf \
-      "Vagrant.configure('2') do |config|\\n\\tconfig.vm.box = '%s'\\nend\\n" \
-      "${IMAGE}" > "${TMP_DIR}/Vagrantfile"
+    vagrant init --minimal "${IMAGE}" \
+    --box-version "${VERSION}" \
+    --output "${TMP_DIR}/Vagrantfile"
 
     # start vagrant
     vagrant up
@@ -317,8 +348,8 @@ if [ -x "$(whereis vagrant |cut -d' ' -f2)" ]; then
 fi
 
 # misc
-alias h="history |tail -20"
-alias gh='history|grep'
+alias h="history | tail -20"
+alias gh='history | grep'
 alias vless="vim -M"
 alias datei="date --iso-8601=m"
 alias weather="curl wttr.in/?0"
@@ -407,9 +438,16 @@ _SCKRT () {
   kernel_live_ver="$(uname -r)"
   case $ID in
     ubuntu)
+      local KERNEL_FLAVOR
+      if [ "$(uname -r | cut -d'-' -f3)" = 'raspi2' ]; then
+        # raspberry pi flavor of ubuntu is not using generic kernel
+        KERNEL_FLAVOR=raspi2
+      else
+        KERNEL_FLAVOR=generic
+      fi
       kernel_live_ver="$(uname -r | cut -d'-' -f1-2 | tr '-' '.')"
       kernel_pkg_ver="$(
-        dpkg -s linux-generic \
+        dpkg -s linux-${KERNEL_FLAVOR} \
         | grep '^Version\:\s.*$' \
         | cut -d' ' -f2 \
         | cut -d'.' -f-4)"
@@ -491,7 +529,7 @@ if [ -f ~/.private.sh ]; then
 fi
 
 # --- TMUX : disable this using "export TMUX=disable" before loading shellconfig
-if command -v tmux > /dev/null 2> /dev/null &&\
+if command -v tmux &> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
