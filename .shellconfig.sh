@@ -489,6 +489,13 @@ _SCKRT () {
 # shellcheck disable=SC2016
 _SCKRTS='$(_SCKRT)'
 
+# show temperature of a physical system
+if ! lscpu | grep -q Hypervisor &&\
+   [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
+  # shellcheck disable=SC2016
+  _SCTMP='$(($(</sys/class/thermal/thermal_zone0/temp)/1000))°'
+fi
+
 # load average
 # shellcheck disable=SC2016
 _SCLDAVG='[$(echo -n $(cat /proc/loadavg | cut -d" " -f1-3 ))]'
@@ -507,6 +514,7 @@ PS_DIR=$_CC_dark_grey' \W'$_CC_reset
 PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
 PS_ST_HIST=$_CC_dark_grey'$?'$_SCPS1HISTNB$_CC_reset
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
+PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
 PS_SYSDR=$_CC_dark_grey$_SCSDRTS$_CC_reset
 PS_SYSKR=$_CC_dark_grey$_SCKRTS$_CC_reset
@@ -514,11 +522,12 @@ PS_PROMPT='\n→  '
 
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
-PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SYSDS$PS_SYSDR$PS_SYSKR
+PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SCTMP' '
+PS_SYSD_BLOCK=$PS_SYSDS$PS_SYSDR$PS_SYSKR
 
 # only tested with bash and ash ATM
 if [ -z "${0##*bash}" ] || [ -z "${0##*ash}" ] ; then
-  PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_PROMPT
+  PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_SYSD_BLOCK$PS_PROMPT
   PS2='…  '
 fi
 
