@@ -438,9 +438,16 @@ _SCKRT () {
   kernel_live_ver="$(uname -r)"
   case $ID in
     ubuntu)
+      local KERNEL_FLAVOR
+      if [ "$(uname -r | cut -d'-' -f3)" = 'raspi2' ]; then
+        # raspberry pi flavor of ubuntu is not using generic kernel
+        KERNEL_FLAVOR=raspi2
+      else
+        KERNEL_FLAVOR=generic
+      fi
       kernel_live_ver="$(uname -r | cut -d'-' -f1-2 | tr '-' '.')"
       kernel_pkg_ver="$(
-        dpkg -s linux-generic \
+        dpkg -s linux-${KERNEL_FLAVOR} \
         | grep '^Version\:\s.*$' \
         | cut -d' ' -f2 \
         | cut -d'.' -f-4)"
