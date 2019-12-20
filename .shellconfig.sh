@@ -195,7 +195,7 @@ if command -v lxc &> /dev/null; then
     local IMAGE
     local SHELL
     local CNT_NAME
-    IMAGE="${1}"
+    IMAGE="${1:?image to run not provided}"
     SHELL="${2:-bash}"
     CNT_NAME=$(head /dev/urandom | tr -dc '[:lower:]' | head -c 12 ; echo '')
     lxc launch "images:${IMAGE}" "$CNT_NAME"
