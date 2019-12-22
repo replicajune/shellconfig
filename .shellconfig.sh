@@ -387,12 +387,37 @@ fi
 # a restart
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 
-  # - show a red flag if systemd isn't healthy
+  # - show various icons for systemd status
+  # https://www.freedesktop.org/software/systemd/man/systemctl.html#is-system-running
   # skipped shellcheck rules : usually systems with systemd run with bash
   _SCSDST () {
-    systemctl is-system-running > /dev/null 2> /dev/null && return 0
-    # shellcheck disable=SC2039
-    echo -ne '\e[31m⚑\e[0m '
+    case "$(systemctl is-system-running)" in
+      running)
+        return 0
+      ;;
+      starting)
+        # shellcheck disable=SC2039
+        echo -ne '\e[32m↑\e[0m ' # green up arrow, system's booting
+      ;;
+      stopping)
+        # shellcheck disable=SC2039
+        echo -ne '\e[34m↓\e[0m ' # blue down arrow, system shuting down
+      ;;
+      degraded)
+        # shellcheck disable=SC2039
+        echo -ne '\e[33m⚑\e[0m ' # orange flag, system's mostly ok but a unit
+        # is in failed state
+      ;;
+      maintenance)
+        # shellcheck disable=SC2039
+        echo -ne '\e[5m\e[31mx\e[0m ' # blinking red 'x', rescue or emergency
+        # mode is one
+      ;;
+      *)
+        # shellcheck disable=SC2039
+        echo -ne '\e[31m⚑\e[0m ' # red flag, something's fishy
+      ;;
+    esac
   }
   # shellcheck disable=SC2016
   _SCSDSTS='$(_SCSDST)'
