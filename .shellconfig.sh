@@ -195,7 +195,7 @@ if command -v lxc &> /dev/null; then
     local IMAGE
     local SHELL
     local CNT_NAME
-    IMAGE="${1}"
+    IMAGE="${1:?image to run not provided}"
     SHELL="${2:-bash}"
     CNT_NAME=$(head /dev/urandom | tr -dc '[:lower:]' | head -c 12 ; echo '')
     lxc launch "images:${IMAGE}" "$CNT_NAME"
@@ -363,10 +363,16 @@ wof () {
 
 # --- PS1
 
+# colors
+_CC_dark_grey='\[\e[2;2m\]'
+_CC_cyan='\[\e[0;36m\]'
+_CC_orange='\[\e[0;33m\]'
+_CC_reset='\[\e[0m\]'
+
 # is it a bash shell ?
 if echo "${0}" | grep -q bash; then
   # show history number
-  _SCPS1HISTNB='|\!\[\e[2;2m\]'
+  _SCPS1HISTNB='|\!'
 fi
 
 # is git installed ?
@@ -387,12 +393,37 @@ fi
 # a restart
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 
-  # - show a red flag if systemd isn't healthy
+  # - show various icons for systemd system's status
+  # https://www.freedesktop.org/software/systemd/man/systemctl.html#is-system-running
   # skipped shellcheck rules : usually systems with systemd run with bash
   _SCSDST () {
-    systemctl is-system-running > /dev/null 2> /dev/null && return 0
-    # shellcheck disable=SC2039
-    echo -ne '\e[31m⚑\e[0m '
+    case "$(systemctl is-system-running)" in
+      running)
+        return 0
+      ;;
+      starting)
+        # shellcheck disable=SC2039
+        echo -ne '\e[32m↑\e[0m ' # green up arrow, system's booting
+      ;;
+      stopping)
+        # shellcheck disable=SC2039
+        echo -ne '\e[34m↓\e[0m ' # blue down arrow, system shuting down
+      ;;
+      degraded)
+        # shellcheck disable=SC2039
+        echo -ne '\e[33m⚑\e[0m ' # orange flag, system's mostly ok but a unit
+        # is in failed state
+      ;;
+      maintenance)
+        # shellcheck disable=SC2039
+        echo -ne '\e[5m\e[31mx\e[0m ' # blinking red 'x', rescue or emergency
+        # mode is one
+      ;;
+      *)
+        # shellcheck disable=SC2039
+        echo -ne '\e[31m⚑\e[0m ' # red flag, something's fishy
+      ;;
+    esac
   }
   # shellcheck disable=SC2016
   _SCSDSTS='$(_SCSDST)'
@@ -489,6 +520,18 @@ _SCKRT () {
 # shellcheck disable=SC2016
 _SCKRTS='$(_SCKRT)'
 
+# exit status in red if != 0
+_SCES () {
+  if [ "${1}" -ne 0 ]; then
+    # shellcheck disable=SC2016
+    echo -ne '\e[31m'"${1}"'\e[0m'
+  else
+    echo -ne '\e[2m'"${1}"'\e[0m'
+  fi
+}
+# shellcheck disable=SC2016
+_SCESS='$(_SCES $?)'
+
 # show temperature of a physical system
 if ! lscpu | grep -q Hypervisor &&\
    [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
@@ -500,11 +543,7 @@ fi
 # shellcheck disable=SC2016
 _SCLDAVG='[$(echo -n $(cat /proc/loadavg | cut -d" " -f1-3 ))]'
 
-# color & special codes
-_CC_dark_grey='\[\e[2;2m\]'
-_CC_cyan='\[\e[0;36m\]'
-_CC_orange='\[\e[0;33m\]'
-_CC_reset='\[\e[0m\]'
+# use red if root, green otherwise
 _CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "31" || echo '32')"'m\]'
 
 # blocks definition for ps1
@@ -512,7 +551,9 @@ PS_DATE=$_CC_dark_grey'\t '$_CC_reset
 PS_LOCATION=$_CC_user'\u'$_CC_reset'@'$_CC_cyan'\h'$_CC_reset
 PS_DIR=$_CC_dark_grey' \W'$_CC_reset
 PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
-PS_ST_HIST=$_CC_dark_grey'$?'$_SCPS1HISTNB$_CC_reset
+PS_ST=$_SCESS
+PSHIST=$_CC_dark_grey$_SCPS1HISTNB$_CC_reset
+PS_ST_HIST=$PS_ST$PSHIST
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
 PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
