@@ -363,10 +363,16 @@ wof () {
 
 # --- PS1
 
+# colors
+_CC_dark_grey='\[\e[2;2m\]'
+_CC_cyan='\[\e[0;36m\]'
+_CC_orange='\[\e[0;33m\]'
+_CC_reset='\[\e[0m\]'
+
 # is it a bash shell ?
 if echo "${0}" | grep -q bash; then
   # show history number
-  _SCPS1HISTNB='|\!\[\e[2;2m\]'
+  _SCPS1HISTNB='|\!'
 fi
 
 # is git installed ?
@@ -514,6 +520,18 @@ _SCKRT () {
 # shellcheck disable=SC2016
 _SCKRTS='$(_SCKRT)'
 
+# exit status in red if != 0
+_SCES () {
+  if [ "${1}" -ne 0 ]; then
+    # shellcheck disable=SC2016
+    echo -ne '\e[31m'"${1}"'\e[0m'
+  else
+    echo -ne '\e[2m'"${1}"'\e[0m'
+  fi
+}
+# shellcheck disable=SC2016
+_SCESS='$(_SCES $?)'
+
 # show temperature of a physical system
 if ! lscpu | grep -q Hypervisor &&\
    [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
@@ -525,11 +543,7 @@ fi
 # shellcheck disable=SC2016
 _SCLDAVG='[$(echo -n $(cat /proc/loadavg | cut -d" " -f1-3 ))]'
 
-# color & special codes
-_CC_dark_grey='\[\e[2;2m\]'
-_CC_cyan='\[\e[0;36m\]'
-_CC_orange='\[\e[0;33m\]'
-_CC_reset='\[\e[0m\]'
+# use red if root, green otherwise
 _CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "31" || echo '32')"'m\]'
 
 # blocks definition for ps1
@@ -537,7 +551,9 @@ PS_DATE=$_CC_dark_grey'\t '$_CC_reset
 PS_LOCATION=$_CC_user'\u'$_CC_reset'@'$_CC_cyan'\h'$_CC_reset
 PS_DIR=$_CC_dark_grey' \W'$_CC_reset
 PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
-PS_ST_HIST=$_CC_dark_grey'$?'$_SCPS1HISTNB$_CC_reset
+PS_ST=$_SCESS
+PSHIST=$_CC_dark_grey$_SCPS1HISTNB$_CC_reset
+PS_ST_HIST=$PS_ST$PSHIST
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
 PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
