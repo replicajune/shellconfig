@@ -387,7 +387,7 @@ fi
 # a restart
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 
-  # - show various icons for systemd status
+  # - show various icons for systemd system's status
   # https://www.freedesktop.org/software/systemd/man/systemctl.html#is-system-running
   # skipped shellcheck rules : usually systems with systemd run with bash
   _SCSDST () {
