@@ -559,8 +559,35 @@ if ! lscpu | grep -q Hypervisor &&\
 fi
 
 # load average
+_SCLDAVGF () {
+  local LDAVG
+  local NLOAD
+  local NBPROC
+  # shellcheck disable=SC2016
+  LDAVG="[$(echo -n "$(cut -d" " -f1-3 /proc/loadavg)")]"
+  if ! grep -q siblings /proc/cpuinfo; then
+    FACTOR=0 # no color if I cannot compute load per cores
+  else
+    NBPROC="$(grep siblings /proc/cpuinfo | head -1 | awk '{ print $3 }')"
+    NLOAD="$(cut -f1 -d' ' /proc/loadavg | tr -d '.')"
+    FACTOR="$(($(sed 's/^0*//' <<< "$NLOAD")/NBPROC))"
+  fi
+
+  if [ "${FACTOR}" -ge 200 ]; then
+    echo -ne '\e[31m'"${LDAVG}"'\e[0m'
+    # return
+  elif [[ "${FACTOR}" -ge 100 ]]; then
+    echo -ne '\e[33m'"${LDAVG}"'\e[0m'
+    # return
+  elif [[ "${FACTOR}" -ge 50 ]]; then
+    echo -ne '\e[32m'"${LDAVG}"'\e[0m'
+    # return
+  else
+    echo -n "${LDAVG}"
+  fi
+}
 # shellcheck disable=SC2016
-_SCLDAVG='[$(echo -n $(cat /proc/loadavg | cut -d" " -f1-3 ))]'
+_SCLDAVG='$(_SCLDAVGF)'
 
 # use red if root, green otherwise
 _CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "31" || echo '32')"'m\]'
