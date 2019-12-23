@@ -352,7 +352,31 @@ alias h="history | tail -20"
 alias gh='history | grep'
 alias vless="vim -M"
 alias datei="date --iso-8601=m"
-alias weather="curl wttr.in/?0"
+alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
+alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
+alias wtth="curl wttr.in/?qF3n" # 3 days forcast
+
+d () { # a couple of city I like to know the time of
+  local EMPH
+  local RST
+  for LOC in Asia/Tokyo       \
+             Asia/Shanghai    \
+             Europe/Bucharest \
+             Europe/Paris     \
+             Europe/GMT       \
+             America/Montreal \
+             America/Los_Angeles; do
+    if [ -f '/etc/timezone' ] && [ "$(cat /etc/timezone)" = "$LOC" ]; then
+      EMPH='\e[36m'
+      RST='\e[0m'
+    else
+      unset EMPH
+      unset RST
+    fi
+    echo -ne "${EMPH}" "${LOC##*/}:|" | tr '_' ' ' ;
+    TZ=${LOC} date '+%R - %d %B %:::z %Z'; echo -ne "${RST}"
+  done | column -t -s '|'
+}
 
 wof () {
   # write on file ..
