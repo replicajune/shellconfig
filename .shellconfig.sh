@@ -564,7 +564,7 @@ _SCLDAVGF () {
   local NLOAD
   local NBPROC
   # shellcheck disable=SC2016
-  LDAVG="[$(echo -n "$(cut -d" " -f1-3 /proc/loadavg)")]"
+  LDAVG="$(echo -n "$(cut -d" " -f1-3 /proc/loadavg)")"
   if ! grep -q siblings /proc/cpuinfo; then
     FACTOR=0 # no color if I cannot compute load per cores
   else
@@ -574,16 +574,16 @@ _SCLDAVGF () {
   fi
 
   if [ "${FACTOR}" -ge 200 ]; then
-    echo -ne '\e[31m'"${LDAVG}"'\e[0m'
+    echo -ne '[\e[31m'"${LDAVG}"'\e[0m]'
     # return
   elif [[ "${FACTOR}" -ge 100 ]]; then
-    echo -ne '\e[33m'"${LDAVG}"'\e[0m'
+    echo -ne '[\e[33m'"${LDAVG}"'\e[0m]'
     # return
   elif [[ "${FACTOR}" -ge 50 ]]; then
-    echo -ne '\e[32m'"${LDAVG}"'\e[0m'
+    echo -ne '[\e[32m'"${LDAVG}"'\e[0m]'
     # return
   else
-    echo -n "${LDAVG}"
+    echo -n "[${LDAVG}]"
   fi
 }
 # shellcheck disable=SC2016
