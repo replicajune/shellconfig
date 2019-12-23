@@ -574,20 +574,20 @@ _SCLDAVGF () {
   fi
 
   if [ "${FACTOR}" -ge 200 ]; then
-    echo -ne '[\e[31m'"${LDAVG}"'\e[0m]'
+    echo -ne '\e[31m'"${LDAVG}"
     # return
   elif [[ "${FACTOR}" -ge 100 ]]; then
-    echo -ne '[\e[33m'"${LDAVG}"'\e[0m]'
+    echo -ne '\e[33m'"${LDAVG}"
     # return
   elif [[ "${FACTOR}" -ge 50 ]]; then
-    echo -ne '[\e[32m'"${LDAVG}"'\e[0m]'
+    echo -ne '\e[32m'"${LDAVG}"
     # return
   else
-    echo -n "[${LDAVG}]"
+    echo -n "${LDAVG}"
   fi
 }
 # shellcheck disable=SC2016
-_SCLDAVG='$(_SCLDAVGF)'
+_SCLDAVG='[$(_SCLDAVGF)'$_CC_reset$_CC_dark_grey']'
 
 # use red if root, green otherwise
 _CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "31" || echo '32')"'m\]'
