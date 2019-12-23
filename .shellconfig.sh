@@ -393,11 +393,6 @@ _CC_cyan='\[\e[0;36m\]'
 _CC_orange='\[\e[0;33m\]'
 _CC_reset='\[\e[0m\]'
 
-# is it a bash shell ?
-if echo "${0}" | grep -q bash; then
-  # show history number
-  _SCPS1HISTNB='|\!'
-fi
 
 # is git installed ?
 # type works on both bash and ash
@@ -576,8 +571,6 @@ PS_LOCATION=$_CC_user'\u'$_CC_reset'@'$_CC_cyan'\h'$_CC_reset
 PS_DIR=$_CC_dark_grey' \W'$_CC_reset
 PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
 PS_ST=$_SCESS
-PSHIST=$_CC_dark_grey$_SCPS1HISTNB$_CC_reset
-PS_ST_HIST=$PS_ST$PSHIST
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
 PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
@@ -587,7 +580,7 @@ PS_PROMPT='\n→  '
 
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
-PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SCTMP' '
+PS_EXTRA_BLOCK=$PS_ST' '$PS_LOAD' '$PS_SCTMP' '
 PS_SYSD_BLOCK=$PS_SYSDS$PS_SYSDR$PS_SYSKR
 
 # only tested with bash and ash ATM
