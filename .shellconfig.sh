@@ -574,7 +574,6 @@ _SCLDAVGF () {
     if [ -z "${NLOADNRM}" ]; then
       NLOADNRM=0
     fi
-    echo $NLOADNRM
     FACTOR="$((NLOADNRM/NBPROC))"
   fi
 
