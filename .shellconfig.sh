@@ -570,7 +570,12 @@ _SCLDAVGF () {
   else
     NBPROC="$(grep siblings /proc/cpuinfo | head -1 | awk '{ print $3 }')"
     NLOAD="$(cut -f1 -d' ' /proc/loadavg | tr -d '.')"
-    FACTOR="$(($(sed 's/^0*//' <<< "$NLOAD")/NBPROC))"
+    NLOADNRM="$(sed 's/^0*//' <<< "$NLOAD")"
+    if [ -z "${NLOADNRM}" ]; then
+      NLOADNRM=0
+    fi
+    echo $NLOADNRM
+    FACTOR="$((NLOADNRM/NBPROC))"
   fi
 
   if [ "${FACTOR}" -ge 200 ]; then
