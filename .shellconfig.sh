@@ -158,6 +158,9 @@ if command -v python &> /dev/null; then
     fi
     . "${HOME}/.venv/${PKG}/bin/activate"
   }
+  if command -v ipython &> /dev/null; then
+    alias ipy=ipython
+  fi
 fi
 
 # docker
