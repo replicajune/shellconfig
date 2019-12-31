@@ -71,6 +71,7 @@ fi
 alias topd="du -sc .[!.]* * |sort -rn |head -11"
 alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
+alias drop_caches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 
 # network
 alias lsn="sudo ss -lpnt |column -t"
@@ -158,6 +159,9 @@ if command -v python &> /dev/null; then
     fi
     . "${HOME}/.venv/${PKG}/bin/activate"
   }
+  if command -v ipython &> /dev/null; then
+    alias ipy=ipython
+  fi
 fi
 
 # docker
@@ -352,7 +356,31 @@ alias h="history | tail -20"
 alias gh='history | grep'
 alias vless="vim -M"
 alias datei="date --iso-8601=m"
-alias weather="curl wttr.in/?0"
+alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
+alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
+alias wtth="curl wttr.in/?qF3n" # 3 days forcast
+
+d () { # a couple of city I like to know the time of
+  local EMPH
+  local RST
+  for LOC in Asia/Tokyo       \
+             Asia/Shanghai    \
+             Europe/Bucharest \
+             Europe/Paris     \
+             Europe/GMT       \
+             America/Montreal \
+             America/Los_Angeles; do
+    if [ -f '/etc/timezone' ] && [ "$(cat /etc/timezone)" = "$LOC" ]; then
+      EMPH='\e[36m'
+      RST='\e[0m'
+    else
+      unset EMPH
+      unset RST
+    fi
+    echo -ne "${EMPH}" "${LOC##*/}:|" | tr '_' ' ' ;
+    TZ=${LOC} date '+%R - %d %B %:::z %Z'; echo -ne "${RST}"
+  done | column -t -s '|'
+}
 
 wof () {
   # write on file ..
@@ -369,11 +397,6 @@ _CC_cyan='\[\e[0;36m\]'
 _CC_orange='\[\e[0;33m\]'
 _CC_reset='\[\e[0m\]'
 
-# is it a bash shell ?
-if echo "${0}" | grep -q bash; then
-  # show history number
-  _SCPS1HISTNB='|\!'
-fi
 
 # is git installed ?
 # type works on both bash and ash
@@ -540,8 +563,39 @@ if ! lscpu | grep -q Hypervisor &&\
 fi
 
 # load average
+_SCLDAVGF () {
+  local LDAVG
+  local NLOAD
+  local NBPROC
+  # shellcheck disable=SC2016
+  LDAVG="$(echo -n "$(cut -d" " -f1-3 /proc/loadavg)")"
+  if ! grep -q siblings /proc/cpuinfo; then
+    FACTOR=0 # no color if I cannot compute load per cores
+  else
+    NBPROC="$(grep siblings /proc/cpuinfo | head -1 | awk '{ print $3 }')"
+    NLOAD="$(cut -f1 -d' ' /proc/loadavg | tr -d '.')"
+    NLOADNRM="$(sed 's/^0*//' <<< "$NLOAD")"
+    if [ -z "${NLOADNRM}" ]; then
+      NLOADNRM=0
+    fi
+    FACTOR="$((NLOADNRM/NBPROC))"
+  fi
+
+  if [ "${FACTOR}" -ge 200 ]; then
+    echo -ne '\e[31m'"${LDAVG}"
+    # return
+  elif [[ "${FACTOR}" -ge 100 ]]; then
+    echo -ne '\e[33m'"${LDAVG}"
+    # return
+  elif [[ "${FACTOR}" -ge 50 ]]; then
+    echo -ne '\e[32m'"${LDAVG}"
+    # return
+  else
+    echo -n "${LDAVG}"
+  fi
+}
 # shellcheck disable=SC2016
-_SCLDAVG='[$(echo -n $(cat /proc/loadavg | cut -d" " -f1-3 ))]'
+_SCLDAVG='[$(_SCLDAVGF)'$_CC_reset$_CC_dark_grey']'
 
 # use red if root, green otherwise
 _CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "31" || echo '32')"'m\]'
@@ -552,8 +606,6 @@ PS_LOCATION=$_CC_user'\u'$_CC_reset'@'$_CC_cyan'\h'$_CC_reset
 PS_DIR=$_CC_dark_grey' \W'$_CC_reset
 PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
 PS_ST=$_SCESS
-PSHIST=$_CC_dark_grey$_SCPS1HISTNB$_CC_reset
-PS_ST_HIST=$PS_ST$PSHIST
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
 PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
@@ -563,7 +615,7 @@ PS_PROMPT='\n→  '
 
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
-PS_EXTRA_BLOCK=$PS_ST_HIST' '$PS_LOAD' '$PS_SCTMP' '
+PS_EXTRA_BLOCK=$PS_ST' '$PS_LOAD' '$PS_SCTMP' '
 PS_SYSD_BLOCK=$PS_SYSDS$PS_SYSDR$PS_SYSKR
 
 # only tested with bash and ash ATM
