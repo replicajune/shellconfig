@@ -71,6 +71,7 @@ fi
 alias topd="du -sc .[!.]* * |sort -rn |head -11"
 alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
+alias drop_caches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 
 # network
 alias lsn="sudo ss -lpnt |column -t"
