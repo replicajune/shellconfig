@@ -23,7 +23,6 @@ if command -v vim &> /dev/null; then
 else
   export VISUAL="nano"
   export EDITOR="nano"
-
 fi
 
 # history with date, no size limit
@@ -32,7 +31,13 @@ export HISTSIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
 
 # https://github.com/atom/atom/issues/17452
-export ELECTRON_TRASH=gio
+
+if command -v gio &> /dev/null; then
+  export ELECTRON_TRASH=gio
+  alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
+  
+fi
+
 
 # --- ALIASES
 
