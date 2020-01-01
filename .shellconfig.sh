@@ -35,9 +35,7 @@ export HISTTIMEFORMAT="[%d/%m/%y %T] "
 if command -v gio &> /dev/null; then
   export ELECTRON_TRASH=gio
   alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
-  
 fi
-
 
 # --- ALIASES
 
@@ -574,10 +572,10 @@ _SCLDAVGF () {
   local NBPROC
   # shellcheck disable=SC2016
   LDAVG="$(echo -n "$(cut -d" " -f1-3 /proc/loadavg)")"
-  if ! grep -q siblings /proc/cpuinfo; then
+  if ! grep -Eq "^processor\\s+:\\s[0-9]$" /proc/cpuinfo; then
     FACTOR=0 # no color if I cannot compute load per cores
   else
-    NBPROC="$(grep siblings /proc/cpuinfo | head -1 | awk '{ print $3 }')"
+    NBPROC="$(grep -Ec "^processor\\s+:\\s[0-9]$" /proc/cpuinfo)"
     NLOAD="$(cut -f1 -d' ' /proc/loadavg | tr -d '.')"
     NLOADNRM="$(sed 's/^0*//' <<< "$NLOAD")"
     if [ -z "${NLOADNRM}" ]; then
