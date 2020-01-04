@@ -370,19 +370,23 @@ d () { # a couple of city I like to know the time of
              Asia/Shanghai    \
              Europe/Bucharest \
              Europe/Paris     \
-             Europe/GMT       \
+             UTC              \
              America/Montreal \
              America/Los_Angeles; do
-    if [ -f '/etc/timezone' ] && [ "$(cat /etc/timezone)" = "$LOC" ]; then
+    if { [ -f '/etc/timezone' ] && [ "$(cat /etc/timezone)" = "$LOC" ]; } || \
+       { [ -L '/etc/localtime' ] &&\
+        [ "$(readlink /etc/localtime | sed 's%../usr/share/zoneinfo/%%')" \
+        = "$LOC" ]; }; then
       EMPH='\e[36m'
       RST='\e[0m'
     else
       unset EMPH
       unset RST
     fi
-    echo -ne "${EMPH}" "${LOC##*/}:|" | tr '_' ' ' ;
-    TZ=${LOC} date '+%R - %d %B %:::z %Z'; echo -ne "${RST}"
-  done | column -t -s '|'
+    echo -ne "${LOC##*/}:%" | tr '_' ' ' ;
+    echo -ne "${EMPH}";
+    TZ=${LOC} date '+%R - %d %B %:::z %Z' | tr -d '\n'; echo -e "${RST}"
+  done | column -x -t -s '%'
 }
 
 wof () {
