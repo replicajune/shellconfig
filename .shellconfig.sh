@@ -354,6 +354,11 @@ if command -v vagrant &> /dev/null; then
   }
 fi
 
+# protonvpn
+if command -v protonvpn &> /dev/null; then
+  alias pvpn=protonvpn
+fi
+
 # misc
 alias h="history | tail -20"
 alias gh='history | grep'
