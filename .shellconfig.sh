@@ -391,7 +391,7 @@ d () { # a couple of city I like to know the time of
     echo -ne "${LOC##*/}:%" | tr '_' ' ' ;
     echo -ne "${EMPH}";
     TZ=${LOC} date '+%R - %d %B %:::z %Z' | tr -d '\n'; echo -e "${RST}"
-  done | column -x -t -s '%'
+  done | column -t -s '%'
 }
 
 wof () {
