@@ -132,6 +132,7 @@ esac
 # systemd
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   alias status="systemctl status"
+  alias sctl="sudo systemctl"
   health() {
     if ! sudo systemctl is-system-running; then
       sudo systemctl --failed
