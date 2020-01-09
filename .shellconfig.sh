@@ -155,6 +155,7 @@ if command -v python &> /dev/null; then
     PKG="${1}"
     if [ "x${VIRTUAL_ENV}" != "x" ]; then
       deactivate
+      return
     fi
 
     # setup a new virtual env if it doesn't exists, and activate it
