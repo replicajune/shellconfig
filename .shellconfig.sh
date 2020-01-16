@@ -2,7 +2,9 @@
 
 # source distrib information; will use 'ID' variable
 # shellcheck source=/etc/os-release
-. '/etc/os-release'
+if [ -f '/etc/os-release' ]; then
+  source '/etc/os-release'
+fi
 
 # --- ENVIRONMENTS VARIABLES
 
