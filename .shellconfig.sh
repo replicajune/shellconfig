@@ -133,6 +133,9 @@ esac
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   alias status="systemctl status"
   alias sctl="sudo systemctl"
+  alias j="sudo journalctl --since '7 days ago'"
+  alias jf="sudo journalctl -f"
+  alias jg="sudo journalctl --since '7 days ago' --no-pager | grep"
   health() {
     if ! sudo systemctl is-system-running; then
       sudo systemctl --failed
