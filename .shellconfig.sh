@@ -292,7 +292,7 @@ if command -v vagrant &> /dev/null; then
     UUID=$(cat /proc/sys/kernel/random/uuid)
     TMP_DIR="/tmp/vmspan.${UUID}"
 
-    if ! echo "${IMAGE}" | grep -Eq '^[a-Z0-9]+/[a-Z0-9\.\-]+$'; then
+    if ! echo "${IMAGE}" | grep -Eq '^[a-Z0-9]+/[a-Z0-9\.\-\_]+$'; then
       echo 'wrong image name'
       return 1
     fi
