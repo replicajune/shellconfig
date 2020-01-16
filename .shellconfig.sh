@@ -229,9 +229,12 @@ if command -v microk8s.status &> /dev/null; then
   # common kube shortcuts if original tools doesn't exists already
   if ! command -v kubectl &> /dev/null; then
     alias kubectl="microk8s.kubectl"
-    source <(microk8s.kubectl completion bash)
     alias k="microk8s.kubectl"
-    source <(microk8s.kubectl completion bash | sed 's/kubectl/k/g')
+    if grep "${USER}" /etc/group | grep -q microk8s \
+    || [ "${USER}" = "root" ]; then
+      source <(microk8s.kubectl completion bash)
+      source <(microk8s.kubectl completion bash | sed 's/kubectl/k/g')
+    fi
   fi
   if ! command -v helm &> /dev/null; then
     alias helm="microk8s.helm"
