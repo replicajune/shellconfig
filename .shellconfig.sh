@@ -42,7 +42,8 @@ fi
 # files managment
 alias l='ls -CF'
 alias ll="ls -Flh"
-alias la="ls -Flha"
+alias lll="ls -FlhZi"
+alias la="ls -FlhA"
 alias lz="ls -FlhZ"
 alias lt='du -sh * | sort -h'
 alias rm="rm -i"
