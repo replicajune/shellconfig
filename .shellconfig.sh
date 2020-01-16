@@ -414,6 +414,7 @@ wof () {
 _CC_dark_grey='\[\e[2;2m\]'
 _CC_cyan='\[\e[0;36m\]'
 _CC_orange='\[\e[0;33m\]'
+_CC_red='\[\e[0;31m\]'
 _CC_reset='\[\e[0m\]'
 
 
@@ -630,7 +631,13 @@ PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
 PS_SYSDR=$_CC_dark_grey$_SCSDRTS$_CC_reset
 PS_SYSKR=$_CC_dark_grey$_SCKRTS$_CC_reset
-PS_PROMPT='\n→  '
+
+if env | grep -Eq "^SSH_CONNECTION=.*$"; then
+  # you're not home, be careful - root may be standard, you're on your own!
+  PS_PROMPT=$_CC_red'\n→  '$_CC_reset
+else
+  PS_PROMPT='\n→  '
+fi
 
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
