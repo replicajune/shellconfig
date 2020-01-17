@@ -640,7 +640,7 @@ PS_SYSKR=$_CC_dark_grey$_SCKRTS$_CC_reset
 
 if env | grep -Eq "^SSH_CONNECTION=.*$"; then
   # you're not home, be careful - root may be standard, you're on your own!
-  PS_PROMPT=$_CC_red'\n→  '$_CC_reset
+  PS_PROMPT=$_CC_orange'\n→  '$_CC_reset
 else
   PS_PROMPT='\n→  '
 fi
