@@ -420,7 +420,6 @@ wof () {
 _CC_dark_grey='\[\e[2;2m\]'
 _CC_cyan='\[\e[0;36m\]'
 _CC_orange='\[\e[0;33m\]'
-_CC_red='\[\e[0;31m\]'
 _CC_reset='\[\e[0m\]'
 
 
