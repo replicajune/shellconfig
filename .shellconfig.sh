@@ -2,7 +2,9 @@
 
 # source distrib information; will use 'ID' variable
 # shellcheck source=/etc/os-release
-. '/etc/os-release'
+if [ -f '/etc/os-release' ]; then
+  source '/etc/os-release'
+fi
 
 # --- ENVIRONMENTS VARIABLES
 
@@ -11,7 +13,7 @@ if [ -n "${PATH##*/.local/bin*}" ]; then
   export PATH=$PATH:/home/${SUDO_USER-$USER}/.local/bin
 fi
 
-# user default python virtual env in ~/.venv
+# user default python virtual env in ~/.venv/global
 if [ -n "${PATH##*/.venv/global/bin*}" ]; then
   export PATH=$PATH:/home/${SUDO_USER-$USER}/.venv/global/bin
 fi
@@ -41,14 +43,15 @@ fi
 
 # files managment
 alias l='ls -CF'
-alias ll="ls -Flh"
-alias la="ls -Flha"
-alias lz="ls -FlhZ"
-alias lt='du -sh * | sort -h'
+alias ll='ls -Flh'
+alias lll='ls -FlhZi'
+alias la='ls -FlhA'
+alias lz='ls -FlhZ'
+alias lt='ls -lrt'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 
-if [ "${ID}" != 'alpine' ]; then
+if [ "x${ID}" != 'xalpine' ]; then
   # directory stack
   alias lsd="dirs -v" # list stack directory
   alias pdir="pushd ./ > /dev/null; dirs -v"
@@ -74,7 +77,7 @@ fi
 alias topd="du -sc .[!.]* * |sort -rn |head -11"
 alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
-alias drop_caches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
+alias dropcaches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 
 # network
 alias lsn="sudo ss -lpnt |column -t"
@@ -86,6 +89,7 @@ case $ID in
     alias updnow="sudo apt update && sudo apt upgrade -y"
     alias rpkg="sudo apt purge -y"
     alias gpkg="dpkg -l | grep -i"
+    alias spkg="apt-cache search -qq"
     cleanpm () {
       echo "remove orphans"
       sudo apt-get autoremove -y > /dev/null;
@@ -106,6 +110,7 @@ case $ID in
     alias updnow="sudo dnf update --assumeyes"
     alias rpkg="sudo dnf remove --assumeyes"
     alias gpkg="rpm -qa | grep -i"
+    alias spkg="dnf search"
     cleanpm () {
       echo 'remove orphans'
       sudo dnf autoremove -y
@@ -122,16 +127,22 @@ case $ID in
     alias updnow="sudo apk update && sudo apk upgrade"
     alias rpkg="sudo apk del"
     alias gpkg="apk list -I | grep -i"
+    alias spkg="apk search"
     alias cleanpm="sudo apk -v cache clean"
     ;;
 
   *)
+    echo 'package manager aliases not found, system unsupported ?'
     ;;
 esac
 
 # systemd
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   alias status="systemctl status"
+  alias sctl="sudo systemctl"
+  alias j="sudo journalctl --since '7 days ago'"
+  alias jf="sudo journalctl -f"
+  alias jg="sudo journalctl --since '7 days ago' --no-pager | grep"
   health() {
     if ! sudo systemctl is-system-running; then
       sudo systemctl --failed
@@ -142,11 +153,14 @@ fi
 # pager or mod of aliases using a pager. Using most, color friendly
 if command -v most &> /dev/null; then
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
-  alias man='PAGER=most man'
+  alias man='man --pager=most --no-hyphenation --no-justification'
 fi
 
 # python
 if command -v python &> /dev/null; then
+  if command -v ipython &> /dev/null; then
+    alias ipy=ipython
+  fi
   venv() {
     # spawn a virtual python env with a given name, usualy a package name.
     # usage: venv package
@@ -154,6 +168,7 @@ if command -v python &> /dev/null; then
     PKG="${1}"
     if [ "x${VIRTUAL_ENV}" != "x" ]; then
       deactivate
+      return
     fi
 
     # setup a new virtual env if it doesn't exists, and activate it
@@ -162,9 +177,6 @@ if command -v python &> /dev/null; then
     fi
     . "${HOME}/.venv/${PKG}/bin/activate"
   }
-  if command -v ipython &> /dev/null; then
-    alias ipy=ipython
-  fi
 fi
 
 # docker
@@ -187,9 +199,7 @@ fi
 
 if command -v docker-compose &> /dev/null; then
   alias dkc="docker-compose"
-  alias dkcb="docker-compose build"
   alias dkcu="docker-compose up -d"
-  alias dkcbu="docker-compose up -d --build"
   alias dkcd="docker-compose down"
 fi
 
@@ -202,9 +212,13 @@ if command -v lxc &> /dev/null; then
     local IMAGE
     local SHELL
     local CNT_NAME
-    IMAGE="${1:?image to run not provided}"
+    IMAGE="${1}"
     SHELL="${2:-bash}"
     CNT_NAME=$(head /dev/urandom | tr -dc '[:lower:]' | head -c 12 ; echo '')
+    if [ "x${IMAGE}" = "x" ]; then # no image given
+      lxc image list images: --columns ldu # show list of available ones
+      return 0
+    fi
     lxc launch "images:${IMAGE}" "$CNT_NAME"
     lxc exec "$CNT_NAME" "${SHELL}"
     lxc stop "$CNT_NAME"
@@ -224,6 +238,11 @@ if command -v microk8s.status &> /dev/null; then
   if ! command -v kubectl &> /dev/null; then
     alias kubectl="microk8s.kubectl"
     alias k="microk8s.kubectl"
+    if grep "${USER}" /etc/group | grep -q microk8s \
+    || [ "${USER}" = "root" ]; then
+      source <(microk8s.kubectl completion bash)
+      source <(microk8s.kubectl completion bash | sed 's/kubectl/k/g')
+    fi
   fi
   if ! command -v helm &> /dev/null; then
     alias helm="microk8s.helm"
@@ -279,7 +298,7 @@ if command -v vagrant &> /dev/null; then
     UUID=$(cat /proc/sys/kernel/random/uuid)
     TMP_DIR="/tmp/vmspan.${UUID}"
 
-    if ! echo "${IMAGE}" | grep -Eq '^[a-Z0-9]+/[a-Z0-9\.\-]+$'; then
+    if ! echo "${IMAGE}" | grep -Eq '^[a-Z0-9]+/[a-Z0-9\.\-\_]+$'; then
       echo 'wrong image name'
       return 1
     fi
@@ -363,6 +382,7 @@ fi
 alias h="history | tail -20"
 alias gh='history | grep'
 alias vless="vim -M"
+alias seeconf="grep -Ev '(^$)|(^#.*$)|(^;.*$)'"
 alias datei="date --iso-8601=m"
 alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
@@ -391,7 +411,7 @@ d () { # a couple of city I like to know the time of
     echo -ne "${LOC##*/}:%" | tr '_' ' ' ;
     echo -ne "${EMPH}";
     TZ=${LOC} date '+%R - %d %B %:::z %Z' | tr -d '\n'; echo -e "${RST}"
-  done | column -x -t -s '%'
+  done | column -t -s '%'
 }
 
 wof () {
@@ -408,7 +428,6 @@ _CC_dark_grey='\[\e[2;2m\]'
 _CC_cyan='\[\e[0;36m\]'
 _CC_orange='\[\e[0;33m\]'
 _CC_reset='\[\e[0m\]'
-
 
 # is git installed ?
 # type works on both bash and ash
@@ -623,7 +642,13 @@ PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
 PS_SYSDR=$_CC_dark_grey$_SCSDRTS$_CC_reset
 PS_SYSKR=$_CC_dark_grey$_SCKRTS$_CC_reset
-PS_PROMPT='\n→  '
+
+if env | grep -Eq "^SSH_CONNECTION=.*$"; then
+  # you're not home, be careful - root may be standard, you're on your own!
+  PS_PROMPT=$_CC_orange'\n→  '$_CC_reset
+else
+  PS_PROMPT='\n→  '
+fi
 
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
