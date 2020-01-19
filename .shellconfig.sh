@@ -43,10 +43,10 @@ fi
 
 # files managment
 alias l='ls -CF'
-alias ll='ls -Flh'
-alias lll='ls -FlhZi'
-alias la='ls -FlhA'
-alias lz='ls -FlhZ'
+alias ll='ls -gGFh --group-directories-first'
+alias lll='ls -FlhZi --author --group-directories-first'
+alias la='ls -FlhA --group-directories-first'
+alias lz='ls -ZgGF --group-directories-first'
 alias lt='ls -lrt'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
