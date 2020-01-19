@@ -238,8 +238,9 @@ if command -v microk8s.status &> /dev/null; then
   if ! command -v kubectl &> /dev/null; then
     alias kubectl="microk8s.kubectl"
     alias k="microk8s.kubectl"
-    if grep "${USER}" /etc/group | grep -q microk8s \
-    || [ "${USER}" = "root" ]; then
+    if microk8s.status &> /dev/null &&\
+      (grep "${USER}" /etc/group | grep -q microk8s || [ "${USER}" = "root" ]);
+    then
       source <(microk8s.kubectl completion bash)
       source <(microk8s.kubectl completion bash | sed 's/kubectl/k/g')
     fi
