@@ -13,7 +13,7 @@ if [ -n "${PATH##*/.local/bin*}" ]; then
   export PATH=$PATH:/home/${SUDO_USER-$USER}/.local/bin
 fi
 
-# user default python virtual env in ~/.venv
+# user default python virtual env in ~/.venv/global
 if [ -n "${PATH##*/.venv/global/bin*}" ]; then
   export PATH=$PATH:/home/${SUDO_USER-$USER}/.venv/global/bin
 fi
@@ -43,15 +43,15 @@ fi
 
 # files managment
 alias l='ls -CF'
-alias ll="ls -Flh"
-alias lll="ls -FlhZi"
-alias la="ls -FlhA"
-alias lz="ls -FlhZ"
-alias lt='du -sh * | sort -h'
+alias ll='ls -Flh'
+alias lll='ls -FlhZi'
+alias la='ls -FlhA'
+alias lz='ls -FlhZ'
+alias lt='ls -lrt'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 
-if [ "${ID}" != 'alpine' ]; then
+if [ "x${ID}" != 'xalpine' ]; then
   # directory stack
   alias lsd="dirs -v" # list stack directory
   alias pdir="pushd ./ > /dev/null; dirs -v"
@@ -77,7 +77,7 @@ fi
 alias topd="du -sc .[!.]* * |sort -rn |head -11"
 alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
-alias drop_caches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
+alias dropcaches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 
 # network
 alias lsn="sudo ss -lpnt |column -t"
@@ -132,6 +132,7 @@ case $ID in
     ;;
 
   *)
+    echo 'package manager aliases not found, system unsupported ?'
     ;;
 esac
 
@@ -152,11 +153,14 @@ fi
 # pager or mod of aliases using a pager. Using most, color friendly
 if command -v most &> /dev/null; then
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
-  alias man='PAGER=most man'
+  alias man='man --pager=most --no-hyphenation --no-justification'
 fi
 
 # python
 if command -v python &> /dev/null; then
+  if command -v ipython &> /dev/null; then
+    alias ipy=ipython
+  fi
   venv() {
     # spawn a virtual python env with a given name, usualy a package name.
     # usage: venv package
@@ -173,9 +177,6 @@ if command -v python &> /dev/null; then
     fi
     . "${HOME}/.venv/${PKG}/bin/activate"
   }
-  if command -v ipython &> /dev/null; then
-    alias ipy=ipython
-  fi
 fi
 
 # docker
@@ -198,9 +199,7 @@ fi
 
 if command -v docker-compose &> /dev/null; then
   alias dkc="docker-compose"
-  alias dkcb="docker-compose build"
   alias dkcu="docker-compose up -d"
-  alias dkcbu="docker-compose up -d --build"
   alias dkcd="docker-compose down"
 fi
 
@@ -213,9 +212,13 @@ if command -v lxc &> /dev/null; then
     local IMAGE
     local SHELL
     local CNT_NAME
-    IMAGE="${1:?image to run not provided}"
+    IMAGE="${1}"
     SHELL="${2:-bash}"
     CNT_NAME=$(head /dev/urandom | tr -dc '[:lower:]' | head -c 12 ; echo '')
+    if [ "x${IMAGE}" = "x" ]; then # no image given
+      lxc image list images: --columns ldu # show list of available ones
+      return 0
+    fi
     lxc launch "images:${IMAGE}" "$CNT_NAME"
     lxc exec "$CNT_NAME" "${SHELL}"
     lxc stop "$CNT_NAME"
@@ -425,7 +428,6 @@ _CC_dark_grey='\[\e[2;2m\]'
 _CC_cyan='\[\e[0;36m\]'
 _CC_orange='\[\e[0;33m\]'
 _CC_reset='\[\e[0m\]'
-
 
 # is git installed ?
 # type works on both bash and ash
