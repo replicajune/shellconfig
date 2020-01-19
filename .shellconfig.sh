@@ -89,6 +89,7 @@ case $ID in
     alias updnow="sudo apt update && sudo apt upgrade -y"
     alias rpkg="sudo apt purge -y"
     alias gpkg="dpkg -l | grep -i"
+    alias spkg="apt-cache search -qq"
     cleanpm () {
       echo "remove orphans"
       sudo apt-get autoremove -y > /dev/null;
@@ -109,6 +110,7 @@ case $ID in
     alias updnow="sudo dnf update --assumeyes"
     alias rpkg="sudo dnf remove --assumeyes"
     alias gpkg="rpm -qa | grep -i"
+    alias spkg="dnf search"
     cleanpm () {
       echo 'remove orphans'
       sudo dnf autoremove -y
@@ -125,6 +127,7 @@ case $ID in
     alias updnow="sudo apk update && sudo apk upgrade"
     alias rpkg="sudo apk del"
     alias gpkg="apk list -I | grep -i"
+    alias spkg="apk search"
     alias cleanpm="sudo apk -v cache clean"
     ;;
 
@@ -376,7 +379,7 @@ fi
 alias h="history | tail -20"
 alias gh='history | grep'
 alias vless="vim -M"
-alias seeconf="grep -Ev '(^$)|(^#.*$)|(^;.*$)' "
+alias seeconf="grep -Ev '(^$)|(^#.*$)|(^;.*$)'"
 alias datei="date --iso-8601=m"
 alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
