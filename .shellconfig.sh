@@ -658,11 +658,15 @@ if [ -z "${0##*bash}" ] || [ -z "${0##*ash}" ] ; then
   PS2='…  '
 fi
 
-# --- for personnal or private aliases (things with contexts and stuff)
-if [ -f ~/.private.sh ]; then
-  # shellcheck source=/dev/null
-  . ~/.private.sh
-fi
+# --- include extra config files :
+# - ~/.offline.sh: for local configs (machine dependent)
+# - ~/.online.sh:  cross-system sharing configs (bluetooth, lan dependend, etc)
+for INCLUDE in ~/.local.sh ~/.offline.sh; do
+  if [ -f "${INCLUDE}" ]; then
+    # shellcheck source=/dev/null
+    . "${INCLUDE}"
+  fi
+done
 
 # --- TMUX : disable this using "export TMUX=disable" before loading shellconfig
 if command -v tmux &> /dev/null &&\
