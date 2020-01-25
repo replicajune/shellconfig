@@ -462,6 +462,26 @@ if command -v vagrant &> /dev/null; then
   }
 fi
 
+# download a file using wget and auto resume if failing
+download () {
+  local DEST
+  command -v xdg-user-dir &> /dev/null &&\
+    DEST="$(xdg-user-dir DOWNLOAD)"
+  DEST="${DEST:=~/}"
+  if [ -d "${DEST}" ] &&\
+     [ "$(curl -XGET -IsLw '%{response_code}' -o /dev/null "${@}")" -eq '200' ];
+  then
+    until wget \
+      --continue --random-wait --directory-prefix="${DEST}" \
+      --progress=bar:scroll --no-verbose --show-progress "${@}"; do
+      true;
+    done
+    sync
+  else
+    return 1
+  fi
+}
+
 # protonvpn
 if command -v protonvpn &> /dev/null; then
   alias pvpn=protonvpn
