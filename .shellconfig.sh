@@ -233,7 +233,7 @@ health() {
     echo -e '\e[34m♻\e[0m systemd needs to be recycled'
   fi
   if [ "${kernel_live_ver}" != "${kernel_pkg_ver}" ]; then
-    echo -ne '\e[33m↻\e[0m system needs to be rebooted, a new kernel '\
+    echo -ne '\e[33m↻\e[0m system needs to be rebooted, a new kernel ' \
       'is available'
   fi
 }
