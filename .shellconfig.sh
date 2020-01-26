@@ -146,39 +146,77 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 fi
 
 health() {
+  local systemd_status
   local systemd_live_ver
   local systemd_pkg_ver
   local kernel_live_ver
   local kernel_pkg_ver
-  # return status health for systemd, show failed units if system isn't healthy
-  if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
-    if ! sudo systemctl is-system-running; then
-      sudo systemctl --failed
-    fi
+  local distribution
+
+  if [ -f '/etc/os-release' ]; then
+    distribution="$(
+      grep '^ID=.*$' '/etc/os-release' \
+      | tr -d '"' \
+      | cut -f 2 -d'=')"
+  else
+    distribution=''
   fi
 
+  # return status health for systemd, show failed units if system isn't healthy
+  if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
+
+    systemd_status="$(sudo systemctl is-system-running | tr -d '\n')"
+    case "${systemd_status}" in
+      running)
+        echo -e '\e[32m●\e[0m system running' # green circle
+      ;;
+      starting)
+        # shellcheck disable=SC2039
+        echo -e '\e[32m↑\e[0m System currently booting up' # green up arrow
+      ;;
+      stopping)
+        # shellcheck disable=SC2039
+        echo -e '\e[34m↓\e[0m µSystem shuting down' # blue down arrow
+      ;;
+      degraded)
+        # shellcheck disable=SC2039
+        echo -e '\e[33m⚑\e[0m System in degraded mode:' # orange flag
+        # is in failed state
+        sudo systemctl --failed
+      ;;
+      maintenance)
+        # shellcheck disable=SC2039
+        echo -e '\e[5m\e[31mx\e[0m System currently in maintenance' # blk red
+      ;;
+      *)
+        # shellcheck disable=SC2039
+        echo -e '\e[31m⚑\e[0m Unexpected state !' # red flag
+      ;;
+    esac
+
   # is the running systemd process uses the last version available ?
-  systemd_live_ver="$(systemctl --version | grep '^systemd' | cut -d' ' -f2)"
-  case $ID in
-    ubuntu|debian|raspbian)
-      systemd_pkg_ver="$(
-        dpkg -s systemd \
-        | grep '^Version\:\s.*$' \
-        | cut -d' ' -f2 \
-        | cut -d'-' -f1)"
-      ;;
-    centos|fedora)
-      # shellcheck disable=SC1117
-      systemd_pkg_ver="$(
-        rpm -qi systemd \
-        | grep -E "^Version\s+\:\s[0-9]+$" \
-        | cut -d':' -f2 \
-        | tr -d ' ')"
-      ;;
-    *)
-      return 0 # non supported system
-      ;;
-  esac
+    systemd_live_ver="$(systemctl --version | grep '^systemd' | cut -d' ' -f2)"
+    case "${distribution}" in
+      ubuntu|debian|raspbian)
+        systemd_pkg_ver="$(
+          dpkg -s systemd \
+          | grep '^Version\:\s.*$' \
+          | cut -d' ' -f2 \
+          | cut -d'-' -f1)"
+        ;;
+      centos|fedora)
+        # shellcheck disable=SC1117
+        systemd_pkg_ver="$(
+          rpm -qi systemd \
+          | grep -E "^Version\s+\:\s[0-9]+$" \
+          | cut -d':' -f2 \
+          | tr -d ' ')"
+        ;;
+      *)
+        return 0 # non supported system
+        ;;
+    esac
+  fi
 
   # querying the current kernel version used and fetch the last available one
   # message the user if a newer version is available
@@ -233,7 +271,7 @@ health() {
     echo -e '\e[34m♻\e[0m systemd needs to be recycled'
   fi
   if [ "${kernel_live_ver}" != "${kernel_pkg_ver}" ]; then
-    echo -ne '\e[33m↻\e[0m system needs to be rebooted, a new kernel ' \
+    echo -e '\e[33m↻\e[0m system needs to be rebooted, a new kernel' \
       'is available'
   fi
 }
@@ -557,37 +595,12 @@ fi
 # a restart
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 
-  # - show various icons for systemd system's status
+  # - show various icons for systemd system's status, along with description
   # https://www.freedesktop.org/software/systemd/man/systemctl.html#is-system-running
   # skipped shellcheck rules : usually systems with systemd run with bash
   _SCSDST () {
-    case "$(systemctl is-system-running)" in
-      running)
-        return 0
-      ;;
-      starting)
-        # shellcheck disable=SC2039
-        echo -ne '\e[32m↑\e[0m ' # green up arrow, system's booting
-      ;;
-      stopping)
-        # shellcheck disable=SC2039
-        echo -ne '\e[34m↓\e[0m ' # blue down arrow, system shuting down
-      ;;
-      degraded)
-        # shellcheck disable=SC2039
-        echo -ne '\e[33m⚑\e[0m ' # orange flag, system's mostly ok but a unit
-        # is in failed state
-      ;;
-      maintenance)
-        # shellcheck disable=SC2039
-        echo -ne '\e[5m\e[31mx\e[0m ' # blinking red 'x', rescue or emergency
-        # mode is one
-      ;;
-      *)
-        # shellcheck disable=SC2039
-        echo -ne '\e[31m⚑\e[0m ' # red flag, something's fishy
-      ;;
-    esac
+    systemctl is-system-running &> /dev/null \
+    || echo -ne '\e[33m●\e[0m '
   }
   # shellcheck disable=SC2016
   _SCSDSTS='$(_SCSDST)'
