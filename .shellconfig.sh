@@ -43,10 +43,10 @@ fi
 
 # files managment
 alias l='ls -CF'
-alias ll='ls -Flh'
-alias lll='ls -FlhZi'
-alias la='ls -FlhA'
-alias lz='ls -FlhZ'
+alias ll='ls -gGFh --group-directories-first'
+alias lll='ls -FlhZi --author --group-directories-first'
+alias la='ls -FlhA --group-directories-first'
+alias lz='ls -ZgGF --group-directories-first'
 alias lt='ls -lrt'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
@@ -143,12 +143,100 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   alias j="sudo journalctl --since '7 days ago'"
   alias jf="sudo journalctl -f"
   alias jg="sudo journalctl --since '7 days ago' --no-pager | grep"
-  health() {
+fi
+
+health() {
+  local systemd_live_ver
+  local systemd_pkg_ver
+  local kernel_live_ver
+  local kernel_pkg_ver
+  # return status health for systemd, show failed units if system isn't healthy
+  if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
     if ! sudo systemctl is-system-running; then
       sudo systemctl --failed
     fi
-  }
-fi
+  fi
+
+  # is the running systemd process uses the last version available ?
+  systemd_live_ver="$(systemctl --version | grep '^systemd' | cut -d' ' -f2)"
+  case $ID in
+    ubuntu|debian|raspbian)
+      systemd_pkg_ver="$(
+        dpkg -s systemd \
+        | grep '^Version\:\s.*$' \
+        | cut -d' ' -f2 \
+        | cut -d'-' -f1)"
+      ;;
+    centos|fedora)
+      # shellcheck disable=SC1117
+      systemd_pkg_ver="$(
+        rpm -qi systemd \
+        | grep -E "^Version\s+\:\s[0-9]+$" \
+        | cut -d':' -f2 \
+        | tr -d ' ')"
+      ;;
+    *)
+      return 0 # non supported system
+      ;;
+  esac
+
+  # querying the current kernel version used and fetch the last available one
+  # message the user if a newer version is available
+  kernel_live_ver="$(uname -r)"
+  case $ID in
+    ubuntu)
+      local KERNEL_FLAVOR
+      if [ "$(uname -r | cut -d'-' -f3)" = 'raspi2' ]; then
+        # raspberry pi flavor of ubuntu is not using generic kernel
+        KERNEL_FLAVOR=raspi2
+      else
+        KERNEL_FLAVOR=generic
+      fi
+      kernel_live_ver="$(uname -r | cut -d'-' -f1-2 | tr '-' '.')"
+      kernel_pkg_ver="$(
+        dpkg -s linux-${KERNEL_FLAVOR} \
+        | grep '^Version\:\s.*$' \
+        | cut -d' ' -f2 \
+        | cut -d'.' -f-4)"
+      ;;
+    debian)
+      kernel_live_ver="$(uname -r)"
+      kernel_pkg_ver="$(\
+        dpkg -s linux-image-amd64 \
+        | grep '^Depends\:' \
+        | cut -d' ' -f2 \
+        | sed 's/^[a-zA-Z\-]*//'
+        )"
+      ;;
+    raspbian)
+      kernel_pkg_ver="$(
+        for VER in /lib/modules/*; do
+          local VERNUM
+          VERNUM="${VER##*/}"
+          if [ "${kernel_live_ver}" = "${VERNUM}" ]; then
+            echo "${VERNUM}"
+            break
+          fi
+        done
+        )"
+      ;;
+    centos|fedora)
+      kernel_pkg_ver="$(rpm -q kernel | sort -Vr | head -1 | cut -d'-' -f2-)"
+      ;;
+    *)
+      return 0 # non supported system
+      ;;
+  esac
+
+  # message the user
+  if [ "${systemd_live_ver}" != "${systemd_pkg_ver}" ]; then
+    echo -e '\e[34m♻\e[0m systemd needs to be recycled'
+  fi
+  if [ "${kernel_live_ver}" != "${kernel_pkg_ver}" ]; then
+    echo -ne '\e[33m↻\e[0m system needs to be rebooted, a new kernel ' \
+      'is available'
+  fi
+}
 
 # pager or mod of aliases using a pager. Using most, color friendly
 if command -v most &> /dev/null; then
@@ -238,8 +326,9 @@ if command -v microk8s.status &> /dev/null; then
   if ! command -v kubectl &> /dev/null; then
     alias kubectl="microk8s.kubectl"
     alias k="microk8s.kubectl"
-    if grep "${USER}" /etc/group | grep -q microk8s \
-    || [ "${USER}" = "root" ]; then
+    if microk8s.status &> /dev/null &&\
+      (grep "${USER}" /etc/group | grep -q microk8s || [ "${USER}" = "root" ]);
+    then
       source <(microk8s.kubectl completion bash)
       source <(microk8s.kubectl completion bash | sed 's/kubectl/k/g')
     fi
@@ -373,6 +462,26 @@ if command -v vagrant &> /dev/null; then
   }
 fi
 
+# download a file using wget and auto resume if failing
+download () {
+  local DEST
+  command -v xdg-user-dir &> /dev/null &&\
+    DEST="$(xdg-user-dir DOWNLOAD)"
+  DEST="${DEST:=~/}"
+  if [ -d "${DEST}" ] &&\
+     [ "$(curl -XGET -IsLw '%{response_code}' -o /dev/null "${@}")" -eq '200' ];
+  then
+    until wget \
+      --continue --random-wait --directory-prefix="${DEST}" \
+      --progress=bar:scroll --no-verbose --show-progress "${@}"; do
+      true;
+    done
+    sync
+  else
+    return 1
+  fi
+}
+
 # protonvpn
 if command -v protonvpn &> /dev/null; then
   alias pvpn=protonvpn
@@ -387,6 +496,7 @@ alias datei="date --iso-8601=m"
 alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
 alias wtth="curl wttr.in/?qF3n" # 3 days forcast
+alias bt='bluetoothctl'
 
 d () { # a couple of city I like to know the time of
   local EMPH
@@ -481,98 +591,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   }
   # shellcheck disable=SC2016
   _SCSDSTS='$(_SCSDST)'
-
-  # - show a blue dot if systemd needs to be restarted
-  _SCSDRT () {
-    local systemd_live_ver
-    local systemd_pkg_ver
-
-    systemd_live_ver="$(systemctl --version | grep '^systemd' | cut -d' ' -f2)"
-    case $ID in
-      ubuntu|debian|raspbian)
-        systemd_pkg_ver="$(
-          dpkg -s systemd \
-          | grep '^Version\:\s.*$' \
-          | cut -d' ' -f2 \
-          | cut -d'-' -f1)"
-        ;;
-      centos|fedora)
-        # shellcheck disable=SC1117
-        systemd_pkg_ver="$(
-          rpm -qi systemd \
-          | grep -E "^Version\s+\:\s[0-9]+$" \
-          | cut -d':' -f2 \
-          | tr -d ' ')"
-        ;;
-      *)
-        return 0 # non supported system
-        ;;
-    esac
-
-    if [ "${systemd_live_ver}" != "${systemd_pkg_ver}" ]; then
-      # shellcheck disable=SC2039
-      echo -ne '\e[34m♻\e[0m '
-    fi
-  }
-  # shellcheck disable=SC2016
-  _SCSDRTS='$(_SCSDRT)'
 fi
-
-# am I using the last kernel available on my system ?
-_SCKRT () {
-  kernel_live_ver="$(uname -r)"
-  case $ID in
-    ubuntu)
-      local KERNEL_FLAVOR
-      if [ "$(uname -r | cut -d'-' -f3)" = 'raspi2' ]; then
-        # raspberry pi flavor of ubuntu is not using generic kernel
-        KERNEL_FLAVOR=raspi2
-      else
-        KERNEL_FLAVOR=generic
-      fi
-      kernel_live_ver="$(uname -r | cut -d'-' -f1-2 | tr '-' '.')"
-      kernel_pkg_ver="$(
-        dpkg -s linux-${KERNEL_FLAVOR} \
-        | grep '^Version\:\s.*$' \
-        | cut -d' ' -f2 \
-        | cut -d'.' -f-4)"
-      ;;
-    debian)
-      kernel_live_ver="$(uname -r)"
-      kernel_pkg_ver="$(\
-        dpkg -s linux-image-amd64 \
-        | grep '^Depends\:' \
-        | cut -d' ' -f2 \
-        | sed 's/^[a-zA-Z\-]*//'
-        )"
-      ;;
-    raspbian)
-      kernel_pkg_ver="$(
-        for VER in /lib/modules/*; do
-          local VERNUM
-          VERNUM="${VER##*/}"
-          if [ "${kernel_live_ver}" = "${VERNUM}" ]; then
-            echo "${VERNUM}"
-            break
-          fi
-        done
-        )"
-      ;;
-    centos|fedora)
-      kernel_pkg_ver="$(rpm -q kernel | sort -Vr | head -1 | cut -d'-' -f2-)"
-      ;;
-    *)
-      return 0 # non supported system
-      ;;
-  esac
-
-  if [ "${kernel_live_ver}" != "${kernel_pkg_ver}" ]; then
-    # shellcheck disable=SC2039
-    echo -ne '\e[33m↻\e[0m'
-  fi
-}
-# shellcheck disable=SC2016
-_SCKRTS='$(_SCKRT)'
 
 # exit status in red if != 0
 _SCES () {
@@ -600,10 +619,10 @@ _SCLDAVGF () {
   local NBPROC
   # shellcheck disable=SC2016
   LDAVG="$(echo -n "$(cut -d" " -f1-3 /proc/loadavg)")"
-  if ! grep -Eq "^processor\\s+:\\s[0-9]$" /proc/cpuinfo; then
+  if ! command -v protonvpn &> /dev/null; then
     FACTOR=0 # no color if I cannot compute load per cores
   else
-    NBPROC="$(grep -Ec "^processor\\s+:\\s[0-9]$" /proc/cpuinfo)"
+    NBPROC="$(nproc)"
     NLOAD="$(cut -f1 -d' ' /proc/loadavg | tr -d '.')"
     NLOADNRM="$(sed 's/^0*//' <<< "$NLOAD")"
     if [ -z "${NLOADNRM}" ]; then
@@ -640,8 +659,6 @@ PS_ST=$_SCESS
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
 PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
-PS_SYSDR=$_CC_dark_grey$_SCSDRTS$_CC_reset
-PS_SYSKR=$_CC_dark_grey$_SCKRTS$_CC_reset
 
 if env | grep -Eq "^SSH_CONNECTION=.*$"; then
   # you're not home, be careful - root may be standard, you're on your own!
@@ -653,7 +670,7 @@ fi
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
 PS_EXTRA_BLOCK=$PS_ST' '$PS_LOAD' '$PS_SCTMP' '
-PS_SYSD_BLOCK=$PS_SYSDS$PS_SYSDR$PS_SYSKR
+PS_SYSD_BLOCK=$PS_SYSDS
 
 # only tested with bash and ash ATM
 if [ -z "${0##*bash}" ] || [ -z "${0##*ash}" ] ; then
@@ -661,11 +678,15 @@ if [ -z "${0##*bash}" ] || [ -z "${0##*ash}" ] ; then
   PS2='…  '
 fi
 
-# --- for personnal or private aliases (things with contexts and stuff)
-if [ -f ~/.private.sh ]; then
-  # shellcheck source=/dev/null
-  . ~/.private.sh
-fi
+# --- include extra config files :
+# - ~/.offline.sh: for local configs (machine dependent)
+# - ~/.online.sh:  cross-system sharing configs (bluetooth, lan dependend, etc)
+for INCLUDE in ~/.local.sh ~/.offline.sh; do
+  if [ -f "${INCLUDE}" ]; then
+    # shellcheck source=/dev/null
+    . "${INCLUDE}"
+  fi
+done
 
 # --- TMUX : disable this using "export TMUX=disable" before loading shellconfig
 if command -v tmux &> /dev/null &&\
