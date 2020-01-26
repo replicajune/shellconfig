@@ -622,7 +622,8 @@ _SCESS='$(_SCES $?)'
 if ! lscpu | grep -q Hypervisor &&\
    [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
   # shellcheck disable=SC2016
-  _SCTMP='$(($(</sys/class/thermal/thermal_zone0/temp)/1000))°'
+  _SCTMP='$(($(</sys/class/thermal/thermal_zone0/temp)/1000))° '
+  PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 fi
 
 # load average
@@ -670,7 +671,6 @@ PS_DIR=$_CC_dark_grey' \W'$_CC_reset
 PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
 PS_ST=$_SCESS
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
-PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
 
 if env | grep -Eq "^SSH_CONNECTION=.*$"; then
