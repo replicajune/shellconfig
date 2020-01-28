@@ -82,6 +82,13 @@ alias dropcaches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 # network
 alias lsn="sudo ss -lpnt |column -t"
 
+# virt type of host
+vtype () {
+  # will give yout the type of node you're on
+  _vtype=$(lscpu | grep "^Hypervisor vendor" |cut -d':' -f2 | sed "s/\s*//")
+  [ -z "${_vtype}" ] && echo "none" || echo "${_vtype}"
+}
+
 # package managment
 case $ID in
   ubuntu|debian|raspbian)
