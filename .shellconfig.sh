@@ -600,7 +600,7 @@ fi
 # --- include extra config files :
 # - ~/.offline.sh: for local configs (machine dependent)
 # - ~/.online.sh:  cross-system sharing configs (bluetooth, lan dependend, etc)
-for INCLUDE in ~/.local.sh ~/.offline.sh; do
+for INCLUDE in ~/.local.sh ~/.offline.sh ~/.global.sh; do
   if [ -f "${INCLUDE}" ]; then
     # shellcheck source=/dev/null
     . "${INCLUDE}"
