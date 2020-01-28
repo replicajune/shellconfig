@@ -39,7 +39,7 @@ if command -v gio &> /dev/null; then
   alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
 fi
 
-# --- ALIASES
+# --- ALIASES & FUNCTIONS
 
 # files managment
 alias l='ls -CF'
@@ -150,30 +150,9 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   alias j="sudo journalctl --since '7 days ago'"
   alias jf="sudo journalctl -f"
   alias jg="sudo journalctl --since '7 days ago' --no-pager | grep"
-fi
-
-health() {
-  local systemd_status
-  local systemd_live_ver
-  local systemd_pkg_ver
-  local kernel_live_ver
-  local kernel_pkg_ver
-  local distribution
-
-  if [ -f '/etc/os-release' ]; then
-    distribution="$(
-      grep '^ID=.*$' '/etc/os-release' \
-      | tr -d '"' \
-      | cut -f 2 -d'=')"
-  else
-    distribution=''
-  fi
-
-  # return status health for systemd, show failed units if system isn't healthy
-  if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
-
-    systemd_status="$(sudo systemctl is-system-running | tr -d '\n')"
-    case "${systemd_status}" in
+  health() {
+    # return status health for systemd, show failed units if system isn't healthy
+    case "$(sudo systemctl is-system-running | tr -d '\n')" in
       running)
         echo -e '\e[32m●\e[0m system running' # green circle
       ;;
@@ -200,88 +179,8 @@ health() {
         echo -e '\e[31m⚑\e[0m Unexpected state !' # red flag
       ;;
     esac
-
-  # is the running systemd process uses the last version available ?
-    systemd_live_ver="$(systemctl --version | grep '^systemd' | cut -d' ' -f2)"
-    case "${distribution}" in
-      ubuntu|debian|raspbian)
-        systemd_pkg_ver="$(
-          dpkg -s systemd \
-          | grep '^Version\:\s.*$' \
-          | cut -d' ' -f2 \
-          | cut -d'-' -f1)"
-        ;;
-      centos|fedora)
-        # shellcheck disable=SC1117
-        systemd_pkg_ver="$(
-          rpm -qi systemd \
-          | grep -E "^Version\s+\:\s[0-9]+$" \
-          | cut -d':' -f2 \
-          | tr -d ' ')"
-        ;;
-      *)
-        return 0 # non supported system
-        ;;
-    esac
-  fi
-
-  # querying the current kernel version used and fetch the last available one
-  # message the user if a newer version is available
-  kernel_live_ver="$(uname -r)"
-  case $ID in
-    ubuntu)
-      local KERNEL_FLAVOR
-      if [ "$(uname -r | cut -d'-' -f3)" = 'raspi2' ]; then
-        # raspberry pi flavor of ubuntu is not using generic kernel
-        KERNEL_FLAVOR=raspi2
-      else
-        KERNEL_FLAVOR=generic
-      fi
-      kernel_live_ver="$(uname -r | cut -d'-' -f1-2 | tr '-' '.')"
-      kernel_pkg_ver="$(
-        dpkg -s linux-${KERNEL_FLAVOR} \
-        | grep '^Version\:\s.*$' \
-        | cut -d' ' -f2 \
-        | cut -d'.' -f-4)"
-      ;;
-    debian)
-      kernel_live_ver="$(uname -r)"
-      kernel_pkg_ver="$(\
-        dpkg -s linux-image-amd64 \
-        | grep '^Depends\:' \
-        | cut -d' ' -f2 \
-        | sed 's/^[a-zA-Z\-]*//'
-        )"
-      ;;
-    raspbian)
-      kernel_pkg_ver="$(
-        for VER in /lib/modules/*; do
-          local VERNUM
-          VERNUM="${VER##*/}"
-          if [ "${kernel_live_ver}" = "${VERNUM}" ]; then
-            echo "${VERNUM}"
-            break
-          fi
-        done
-        )"
-      ;;
-    centos|fedora)
-      kernel_pkg_ver="$(rpm -q kernel | sort -Vr | head -1 | cut -d'-' -f2-)"
-      ;;
-    *)
-      return 0 # non supported system
-      ;;
-  esac
-
-  # message the user
-  if [ "${systemd_live_ver}" != "${systemd_pkg_ver}" ]; then
-    echo -e '\e[34m♻\e[0m systemd needs to be recycled'
-  fi
-  if [ "${kernel_live_ver}" != "${kernel_pkg_ver}" ]; then
-    echo -e '\e[33m↻\e[0m system needs to be rebooted, a new kernel' \
-      'is available'
-  fi
-}
+  }
+fi
 
 # pager or mod of aliases using a pager. Using most, color friendly
 if command -v most &> /dev/null; then
