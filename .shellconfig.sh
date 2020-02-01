@@ -537,9 +537,12 @@ _SCLDAVGF () {
   local LDAVG
   local NLOAD
   local NBPROC
+  local FACTOR
+  local NLOADNRM
+
   # shellcheck disable=SC2016
   LDAVG="$(echo -n "$(cut -d" " -f1-3 /proc/loadavg)")"
-  if ! command -v protonvpn &> /dev/null; then
+  if ! command -v nproc &> /dev/null; then
     FACTOR=0 # no color if I cannot compute load per cores
   else
     NBPROC="$(nproc)"
