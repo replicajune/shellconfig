@@ -601,9 +601,10 @@ if [ -z "${0##*bash}" ] || [ -z "${0##*ash}" ] ; then
 fi
 
 # --- include extra config files :
-# - ~/.offline.sh: for local configs (machine dependent)
 # - ~/.online.sh:  cross-system sharing configs (bluetooth, lan dependend, etc)
-for INCLUDE in ~/.local.sh ~/.offline.sh ~/.global.sh; do
+# - ~/.offline.sh: for machine dependent configs
+# - ~/.local.sh: for local configs involving secrets, pass, etc.
+for INCLUDE in ~/.local.sh ~/.offline.sh ~/.online.sh; do
   if [ -f "${INCLUDE}" ]; then
     # shellcheck source=/dev/null
     . "${INCLUDE}"
