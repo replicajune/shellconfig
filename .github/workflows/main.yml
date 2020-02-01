@@ -18,14 +18,4 @@ jobs:
             parallel &> /dev/null
           echo | parallel --will-cite  &> /dev/null;
       - name: lint
-        run: |
-          IILOGFILE='/tmp/logfile'
-          find . \( -name '*.sh' -or -name '*.bash' \) \
-            -type f -print0 2> /dev/null \
-          | parallel --null -I% -j 8 --max-args 1 --joblog "${IILOGFILE}" -- \
-            shellcheck -x %
-          EXIT_STATUS="${?}"
-          if [ ${EXIT_STATUS} -ne 0 ]; then
-            [ -f "${IILOGFILE}" ] && cat "${IILOGFILE}";
-            exit ${EXIT_STATUS}
-          fi
+        run: shellcheck -x .shellconfig.sh
