@@ -42,12 +42,12 @@ fi
 # --- ALIASES & FUNCTIONS
 
 # files managment
-alias l='ls -CF'
+alias l='ls -CF --group-directories-first'
 alias ll='ls -gGFh --group-directories-first'
 alias lll='ls -FlhZi --author --group-directories-first'
 alias la='ls -FlhA --group-directories-first'
 alias lz='ls -ZgGF --group-directories-first'
-alias lt='ls -lrt'
+alias lt='ls -gGFhrt'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 
