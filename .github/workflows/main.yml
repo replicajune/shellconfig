@@ -13,19 +13,6 @@ jobs:
       - name: install
         run: |
           sudo apt-get -qqq update &> /dev/null
-          sudo apt-get -qqq -y install \
-            shellcheck \
-            parallel &> /dev/null
-          echo | parallel --will-cite  &> /dev/null;
+          sudo apt-get -qqq -y install --no-install-recommends shellcheck
       - name: lint
-        run: |
-          IILOGFILE='/tmp/logfile'
-          find . \( -name '*.sh' -or -name '*.bash' \) \
-            -type f -print0 2> /dev/null \
-          | parallel --null -I% -j 8 --max-args 1 --joblog "${IILOGFILE}" -- \
-            shellcheck -x %
-          EXIT_STATUS="${?}"
-          if [ ${EXIT_STATUS} -ne 0 ]; then
-            [ -f "${IILOGFILE}" ] && cat "${IILOGFILE}";
-            exit ${EXIT_STATUS}
-          fi
+        run: shellcheck -x .shellconfig.sh

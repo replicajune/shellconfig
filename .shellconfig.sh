@@ -39,15 +39,15 @@ if command -v gio &> /dev/null; then
   alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
 fi
 
-# --- ALIASES
+# --- ALIASES & FUNCTIONS
 
 # files managment
-alias l='ls -CF'
+alias l='ls -CF --group-directories-first'
 alias ll='ls -gGFh --group-directories-first'
 alias lll='ls -FlhZi --author --group-directories-first'
 alias la='ls -FlhA --group-directories-first'
 alias lz='ls -ZgGF --group-directories-first'
-alias lt='ls -lrt'
+alias lt='ls -gGFhrt'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 
@@ -74,13 +74,20 @@ if [ "x${ID}" != 'xalpine' ]; then
 fi
 
 # ressources; all systems
-alias topd="du -sc .[!.]* * |sort -rn |head -11"
+alias topd='sudo sh -c "du -shc .[!.]* * |sort -rh |head -11" 2> /dev/null'
 alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
 alias dropcaches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 
 # network
 alias lsn="sudo ss -lpnt |column -t"
+
+# virt type of host
+vtype () {
+  # will give yout the type of node you're on
+  _vtype=$(lscpu | grep "^Hypervisor vendor" |cut -d':' -f2 | sed "s/\s*//")
+  [ -z "${_vtype}" ] && echo "none" || echo "${_vtype}"
+}
 
 # package managment
 case $ID in
@@ -143,100 +150,37 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   alias j="sudo journalctl --since '7 days ago'"
   alias jf="sudo journalctl -f"
   alias jg="sudo journalctl --since '7 days ago' --no-pager | grep"
+  health() {
+    # return status health for systemd, show failed units if system isn't healthy
+    case "$(sudo systemctl is-system-running | tr -d '\n')" in
+      running)
+        echo -e '\e[32m●\e[0m system running' # green circle
+      ;;
+      starting)
+        # shellcheck disable=SC2039
+        echo -e '\e[32m↑\e[0m System currently booting up' # green up arrow
+      ;;
+      stopping)
+        # shellcheck disable=SC2039
+        echo -e '\e[34m↓\e[0m µSystem shuting down' # blue down arrow
+      ;;
+      degraded)
+        # shellcheck disable=SC2039
+        echo -e '\e[33m⚑\e[0m System in degraded mode:' # orange flag
+        # is in failed state
+        sudo systemctl --failed
+      ;;
+      maintenance)
+        # shellcheck disable=SC2039
+        echo -e '\e[5m\e[31mx\e[0m System currently in maintenance' # blk red
+      ;;
+      *)
+        # shellcheck disable=SC2039
+        echo -e '\e[31m⚑\e[0m Unexpected state !' # red flag
+      ;;
+    esac
+  }
 fi
-
-health() {
-  local systemd_live_ver
-  local systemd_pkg_ver
-  local kernel_live_ver
-  local kernel_pkg_ver
-  # return status health for systemd, show failed units if system isn't healthy
-  if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
-    if ! sudo systemctl is-system-running; then
-      sudo systemctl --failed
-    fi
-  fi
-
-  # is the running systemd process uses the last version available ?
-  systemd_live_ver="$(systemctl --version | grep '^systemd' | cut -d' ' -f2)"
-  case $ID in
-    ubuntu|debian|raspbian)
-      systemd_pkg_ver="$(
-        dpkg -s systemd \
-        | grep '^Version\:\s.*$' \
-        | cut -d' ' -f2 \
-        | cut -d'-' -f1)"
-      ;;
-    centos|fedora)
-      # shellcheck disable=SC1117
-      systemd_pkg_ver="$(
-        rpm -qi systemd \
-        | grep -E "^Version\s+\:\s[0-9]+$" \
-        | cut -d':' -f2 \
-        | tr -d ' ')"
-      ;;
-    *)
-      return 0 # non supported system
-      ;;
-  esac
-
-  # querying the current kernel version used and fetch the last available one
-  # message the user if a newer version is available
-  kernel_live_ver="$(uname -r)"
-  case $ID in
-    ubuntu)
-      local KERNEL_FLAVOR
-      if [ "$(uname -r | cut -d'-' -f3)" = 'raspi2' ]; then
-        # raspberry pi flavor of ubuntu is not using generic kernel
-        KERNEL_FLAVOR=raspi2
-      else
-        KERNEL_FLAVOR=generic
-      fi
-      kernel_live_ver="$(uname -r | cut -d'-' -f1-2 | tr '-' '.')"
-      kernel_pkg_ver="$(
-        dpkg -s linux-${KERNEL_FLAVOR} \
-        | grep '^Version\:\s.*$' \
-        | cut -d' ' -f2 \
-        | cut -d'.' -f-4)"
-      ;;
-    debian)
-      kernel_live_ver="$(uname -r)"
-      kernel_pkg_ver="$(\
-        dpkg -s linux-image-amd64 \
-        | grep '^Depends\:' \
-        | cut -d' ' -f2 \
-        | sed 's/^[a-zA-Z\-]*//'
-        )"
-      ;;
-    raspbian)
-      kernel_pkg_ver="$(
-        for VER in /lib/modules/*; do
-          local VERNUM
-          VERNUM="${VER##*/}"
-          if [ "${kernel_live_ver}" = "${VERNUM}" ]; then
-            echo "${VERNUM}"
-            break
-          fi
-        done
-        )"
-      ;;
-    centos|fedora)
-      kernel_pkg_ver="$(rpm -q kernel | sort -Vr | head -1 | cut -d'-' -f2-)"
-      ;;
-    *)
-      return 0 # non supported system
-      ;;
-  esac
-
-  # message the user
-  if [ "${systemd_live_ver}" != "${systemd_pkg_ver}" ]; then
-    echo -e '\e[34m♻\e[0m systemd needs to be recycled'
-  fi
-  if [ "${kernel_live_ver}" != "${kernel_pkg_ver}" ]; then
-    echo -ne '\e[33m↻\e[0m system needs to be rebooted, a new kernel ' \
-      'is available'
-  fi
-}
 
 # pager or mod of aliases using a pager. Using most, color friendly
 if command -v most &> /dev/null; then
@@ -491,7 +435,7 @@ fi
 alias h="history | tail -20"
 alias gh='history | grep'
 alias vless="vim -M"
-alias seeconf="grep -Ev '(^$)|(^#.*$)|(^;.*$)'"
+alias see="grep -Ev '(^$)|(^#.*$)|(^;.*$)'"
 alias datei="date --iso-8601=m"
 alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
@@ -557,37 +501,12 @@ fi
 # a restart
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 
-  # - show various icons for systemd system's status
+  # - show various icons for systemd system's status, along with description
   # https://www.freedesktop.org/software/systemd/man/systemctl.html#is-system-running
   # skipped shellcheck rules : usually systems with systemd run with bash
   _SCSDST () {
-    case "$(systemctl is-system-running)" in
-      running)
-        return 0
-      ;;
-      starting)
-        # shellcheck disable=SC2039
-        echo -ne '\e[32m↑\e[0m ' # green up arrow, system's booting
-      ;;
-      stopping)
-        # shellcheck disable=SC2039
-        echo -ne '\e[34m↓\e[0m ' # blue down arrow, system shuting down
-      ;;
-      degraded)
-        # shellcheck disable=SC2039
-        echo -ne '\e[33m⚑\e[0m ' # orange flag, system's mostly ok but a unit
-        # is in failed state
-      ;;
-      maintenance)
-        # shellcheck disable=SC2039
-        echo -ne '\e[5m\e[31mx\e[0m ' # blinking red 'x', rescue or emergency
-        # mode is one
-      ;;
-      *)
-        # shellcheck disable=SC2039
-        echo -ne '\e[31m⚑\e[0m ' # red flag, something's fishy
-      ;;
-    esac
+    systemctl is-system-running &> /dev/null \
+    || echo -ne '\e[33m●\e[0m '
   }
   # shellcheck disable=SC2016
   _SCSDSTS='$(_SCSDST)'
@@ -609,7 +528,8 @@ _SCESS='$(_SCES $?)'
 if ! lscpu | grep -q Hypervisor &&\
    [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
   # shellcheck disable=SC2016
-  _SCTMP='$(($(</sys/class/thermal/thermal_zone0/temp)/1000))°'
+  _SCTMP='$(($(</sys/class/thermal/thermal_zone0/temp)/1000))° '
+  PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 fi
 
 # load average
@@ -617,9 +537,12 @@ _SCLDAVGF () {
   local LDAVG
   local NLOAD
   local NBPROC
+  local FACTOR
+  local NLOADNRM
+
   # shellcheck disable=SC2016
   LDAVG="$(echo -n "$(cut -d" " -f1-3 /proc/loadavg)")"
-  if ! command -v protonvpn &> /dev/null; then
+  if ! command -v nproc &> /dev/null; then
     FACTOR=0 # no color if I cannot compute load per cores
   else
     NBPROC="$(nproc)"
@@ -657,7 +580,6 @@ PS_DIR=$_CC_dark_grey' \W'$_CC_reset
 PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
 PS_ST=$_SCESS
 PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
-PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
 PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
 
 if env | grep -Eq "^SSH_CONNECTION=.*$"; then
@@ -679,9 +601,10 @@ if [ -z "${0##*bash}" ] || [ -z "${0##*ash}" ] ; then
 fi
 
 # --- include extra config files :
-# - ~/.offline.sh: for local configs (machine dependent)
 # - ~/.online.sh:  cross-system sharing configs (bluetooth, lan dependend, etc)
-for INCLUDE in ~/.local.sh ~/.offline.sh; do
+# - ~/.offline.sh: for machine dependent configs
+# - ~/.local.sh: for local configs involving secrets, pass, etc.
+for INCLUDE in ~/.local.sh ~/.offline.sh ~/.online.sh; do
   if [ -f "${INCLUDE}" ]; then
     # shellcheck source=/dev/null
     . "${INCLUDE}"
