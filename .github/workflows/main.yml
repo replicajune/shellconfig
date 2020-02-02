@@ -13,9 +13,6 @@ jobs:
       - name: install
         run: |
           sudo apt-get -qqq update &> /dev/null
-          sudo apt-get -qqq -y install \
-            shellcheck \
-            parallel &> /dev/null
-          echo | parallel --will-cite  &> /dev/null;
+          sudo apt-get -qqq -y install --no-install-recommends shellcheck
       - name: lint
         run: shellcheck -x .shellconfig.sh
