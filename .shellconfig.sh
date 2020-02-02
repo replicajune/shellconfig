@@ -58,7 +58,6 @@ if [ "x${ID}" != 'xalpine' ]; then
   alias cdp="pushd" # not doing the cd="pushd", but having the option is nice
 
   # ressources; regular systems
-  alias topd="du -sch .[!.]* * |sort -rh |head -11"
   alias psf="
     ps --ppid 2 -p 2 --deselect \
     --format user,pid,ppid,pcpu,pmem,time,stat,cmd --forest"
