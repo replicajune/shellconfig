@@ -42,12 +42,12 @@ fi
 # --- ALIASES & FUNCTIONS
 
 # files managment
-alias l='ls -CF --group-directories-first'
-alias ll='ls -gGFh --group-directories-first'
-alias lll='ls -FlhZi --author --group-directories-first'
-alias la='ls -FlhA --group-directories-first'
-alias lz='ls -ZgGF --group-directories-first'
-alias lt='ls -gGFhrt'
+alias l='ls -C --classify --group-directories-first'
+alias ll='ls -g --classify --group-directories-first --human-readable --no-group'
+alias la='ls -l --classify --group-directories-first --human-readable --no-group --almost-all'
+alias lll='ls -l --classify --group-directories-first --human-readable --context --inode  --author'
+alias lz='ls -g --classify --group-directories-first --human-readable --context --no-group'
+alias lt='ls -gt --classify --reverse --human-readable --no-group'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 
@@ -58,7 +58,6 @@ if [ "x${ID}" != 'xalpine' ]; then
   alias cdp="pushd" # not doing the cd="pushd", but having the option is nice
 
   # ressources; regular systems
-  alias topd="du -sch .[!.]* * |sort -rh |head -11"
   alias psf="
     ps --ppid 2 -p 2 --deselect \
     --format user,pid,ppid,pcpu,pmem,time,stat,cmd --forest"
@@ -78,6 +77,10 @@ alias topd='sudo sh -c "du -shc .[!.]* * |sort -rh |head -11" 2> /dev/null'
 alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
 alias dropcaches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
+
+if command -v htop &> /dev/null; then
+  alias top='htop'
+fi
 
 # network
 alias lsn="sudo ss -lpnt |column -t"
@@ -113,20 +116,22 @@ case $ID in
     ;;
 
   fedora|centos)
-    alias upd="sudo dnf check-update --refresh --assumeno"
-    alias updnow="sudo dnf update --assumeyes"
-    alias rpkg="sudo dnf remove --assumeyes"
+    if command -v dnf &> /dev/null; then
+      alias upd="sudo dnf check-update --refresh --assumeno"
+      alias updnow="sudo dnf update --assumeyes"
+      alias rpkg="sudo dnf remove --assumeyes"
+      alias spkg="dnf search"
+      cleanpm () {
+        echo 'remove orphans'
+        sudo dnf autoremove -y
+        echo 'clean dnf/rpmdb, remove cached packages'
+        sudo dnf clean all
+      }
+      ipkg () {
+        sudo dnf install -y "./${1}"
+      }
+    fi
     alias gpkg="rpm -qa | grep -i"
-    alias spkg="dnf search"
-    cleanpm () {
-      echo 'remove orphans'
-      sudo dnf autoremove -y
-      echo 'clean dnf/rpmdb, remove cached packages'
-      sudo dnf clean all
-    }
-    ipkg () {
-      sudo dnf install -y "./${1}"
-    }
     ;;
 
   alpine)
@@ -302,7 +307,7 @@ if command -v vagrant &> /dev/null; then
     else
       local UUID
       local CONF
-      UUID=$(cat /proc/sys/kernel/random/uuid)
+      UUID="$(cat /proc/sys/kernel/random/uuid)"
       CONF="/tmp/vagrant_ssh-config.${UUID}"
       vagrant ssh-config > "${CONF}" &&\
       rsync -e "ssh -F ${CONF}" "${@}"
@@ -435,7 +440,7 @@ fi
 alias h="history | tail -20"
 alias gh='history | grep'
 alias vless="vim -M"
-alias see="grep -Ev '(^$)|(^#.*$)|(^;.*$)'"
+alias see="grep -Ev '(^$)|(^#\s.*$)|(^#$)|(^;.*$)|(^\s+#\s.*$)'"
 alias datei="date --iso-8601=m"
 alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
@@ -516,17 +521,14 @@ fi
 _SCES () {
   if [ "${1}" -ne 0 ]; then
     # shellcheck disable=SC2016
-    echo -ne '\e[31m'"${1}"'\e[0m'
-  else
-    echo -ne '\e[2m'"${1}"'\e[0m'
+    echo -ne '\e[31m'
   fi
 }
 # shellcheck disable=SC2016
-_SCESS='$(_SCES $?)'
+_SCESS=$_CC_dark_grey'$(_SCES $?)'"${?}"'\e[0m'
 
-# show temperature of a physical system
-if ! lscpu | grep -q Hypervisor &&\
-   [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
+# show temperature
+if [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
   # shellcheck disable=SC2016
   _SCTMP='$(($(</sys/class/thermal/thermal_zone0/temp)/1000))° '
   PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
@@ -571,7 +573,7 @@ _SCLDAVGF () {
 _SCLDAVG='[$(_SCLDAVGF)'$_CC_reset$_CC_dark_grey']'
 
 # use red if root, green otherwise
-_CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "31" || echo '32')"'m\]'
+_CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "33" || echo '32')"'m\]'
 
 # blocks definition for ps1
 PS_DATE=$_CC_dark_grey'\t '$_CC_reset
@@ -591,7 +593,7 @@ fi
 
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
-PS_EXTRA_BLOCK=$PS_ST' '$PS_LOAD' '$PS_SCTMP' '
+PS_EXTRA_BLOCK=$PS_ST' '$PS_LOAD' '$PS_SCTMP
 PS_SYSD_BLOCK=$PS_SYSDS
 
 # only tested with bash and ash ATM
@@ -602,8 +604,8 @@ fi
 
 # --- include extra config files :
 # - ~/.online.sh:  cross-system sharing configs (bluetooth, lan dependend, etc)
-# - ~/.offline.sh: for machine dependent configs
-# - ~/.local.sh: for local configs involving secrets, pass, etc.
+# - ~/.offline.sh: for machine dependent configs or secrets (pass, tokens)
+# - ~/.local.sh: for local configs worth an external sync
 for INCLUDE in ~/.local.sh ~/.offline.sh ~/.online.sh; do
   if [ -f "${INCLUDE}" ]; then
     # shellcheck source=/dev/null
@@ -614,7 +616,8 @@ done
 # --- TMUX : disable this using "export TMUX=disable" before loading shellconfig
 if command -v tmux &> /dev/null &&\
    [ -z "$TMUX" ] &&\
-   [ -z "$SUDO_USER" ]; then
+   [ -z "$SUDO_USER" ] &&\
+   [ "x${TERM_PROGRAM}" != "xvscode" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
   exit
 fi
