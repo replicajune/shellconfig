@@ -521,17 +521,14 @@ fi
 _SCES () {
   if [ "${1}" -ne 0 ]; then
     # shellcheck disable=SC2016
-    echo -ne '\e[31m'"${1}"'\e[0m'
-  else
-    echo -ne '\e[2m'"${1}"'\e[0m'
+    echo -ne '\e[31m'
   fi
 }
 # shellcheck disable=SC2016
-_SCESS='$(_SCES $?)'
+_SCESS=$_CC_dark_grey'$(_SCES $?)'"${?}"'\e[0m'
 
-# show temperature of a physical system
-if ! lscpu | grep -q Hypervisor &&\
-   [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
+# show temperature
+if [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
   # shellcheck disable=SC2016
   _SCTMP='$(($(</sys/class/thermal/thermal_zone0/temp)/1000))° '
   PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
@@ -576,7 +573,7 @@ _SCLDAVGF () {
 _SCLDAVG='[$(_SCLDAVGF)'$_CC_reset$_CC_dark_grey']'
 
 # use red if root, green otherwise
-_CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "31" || echo '32')"'m\]'
+_CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "33" || echo '32')"'m\]'
 
 # blocks definition for ps1
 PS_DATE=$_CC_dark_grey'\t '$_CC_reset
@@ -596,7 +593,7 @@ fi
 
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
-PS_EXTRA_BLOCK=$PS_ST' '$PS_LOAD' '$PS_SCTMP' '
+PS_EXTRA_BLOCK=$PS_ST' '$PS_LOAD' '$PS_SCTMP
 PS_SYSD_BLOCK=$PS_SYSDS
 
 # only tested with bash and ash ATM
@@ -607,8 +604,8 @@ fi
 
 # --- include extra config files :
 # - ~/.online.sh:  cross-system sharing configs (bluetooth, lan dependend, etc)
-# - ~/.offline.sh: for machine dependent configs
-# - ~/.local.sh: for local configs involving secrets, pass, etc.
+# - ~/.offline.sh: for machine dependent configs or secrets (pass, tokens)
+# - ~/.local.sh: for local configs worth an external sync
 for INCLUDE in ~/.local.sh ~/.offline.sh ~/.online.sh; do
   if [ -f "${INCLUDE}" ]; then
     # shellcheck source=/dev/null
