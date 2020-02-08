@@ -120,20 +120,22 @@ case $ID in
     ;;
 
   fedora|centos)
-    alias upd="sudo dnf check-update --refresh --assumeno"
-    alias updnow="sudo dnf update --assumeyes"
-    alias rpkg="sudo dnf remove --assumeyes"
+    if command -v dnf &> /dev/null; then
+      alias upd="sudo dnf check-update --refresh --assumeno"
+      alias updnow="sudo dnf update --assumeyes"
+      alias rpkg="sudo dnf remove --assumeyes"
+      alias spkg="dnf search"
+      cleanpm () {
+        echo 'remove orphans'
+        sudo dnf autoremove -y
+        echo 'clean dnf/rpmdb, remove cached packages'
+        sudo dnf clean all
+      }
+      ipkg () {
+        sudo dnf install -y "./${1}"
+      }
+    fi
     alias gpkg="rpm -qa | grep -i"
-    alias spkg="dnf search"
-    cleanpm () {
-      echo 'remove orphans'
-      sudo dnf autoremove -y
-      echo 'clean dnf/rpmdb, remove cached packages'
-      sudo dnf clean all
-    }
-    ipkg () {
-      sudo dnf install -y "./${1}"
-    }
     ;;
 
   alpine)
