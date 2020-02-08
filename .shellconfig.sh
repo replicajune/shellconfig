@@ -42,12 +42,16 @@ fi
 # --- ALIASES & FUNCTIONS
 
 # files managment
-alias l='ls -CF --group-directories-first'
-alias ll='ls -gGFh --group-directories-first'
-alias lll='ls -FlhZi --author --group-directories-first'
-alias la='ls -FlhA --group-directories-first'
-alias lz='ls -ZgGF --group-directories-first'
-alias lt='ls -gGFhrt'
+alias l='ls -C --classify --group-directories-first'
+alias ll='ls -g --classify --group-directories-first --human-readable \
+          --no-group'
+alias la='ls -l --classify --group-directories-first --human-readable \
+          --no-group --almost-all'
+alias lll='ls -l --classify --group-directories-first --human-readable \
+          --context --inode  --author'
+alias lz='ls -g --classify --group-directories-first --human-readable \
+          --context --no-group'
+alias lt='ls -gt --classify --reverse --human-readable --no-group'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 
@@ -305,7 +309,7 @@ if command -v vagrant &> /dev/null; then
     else
       local UUID
       local CONF
-      UUID=$(cat /proc/sys/kernel/random/uuid)
+      UUID="$(cat /proc/sys/kernel/random/uuid)"
       CONF="/tmp/vagrant_ssh-config.${UUID}"
       vagrant ssh-config > "${CONF}" &&\
       rsync -e "ssh -F ${CONF}" "${@}"
