@@ -434,7 +434,7 @@ fi
 alias h="history | tail -20"
 alias gh='history | grep'
 alias vless="vim -M"
-alias see="grep -Ev '(^$)|(^#.*$)|(^;.*$)'"
+alias see="grep -Ev '(^$)|(^#.*$)|(^;.*$)|(^\s+#.*$)'"
 alias datei="date --iso-8601=m"
 alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
