@@ -78,6 +78,10 @@ alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
 alias dropcaches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 
+if command -v htop &> /dev/null; then
+  alias top='htop'
+fi
+
 # network
 alias lsn="sudo ss -lpnt |column -t"
 
