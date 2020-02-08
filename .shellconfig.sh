@@ -43,14 +43,10 @@ fi
 
 # files managment
 alias l='ls -C --classify --group-directories-first'
-alias ll='ls -g --classify --group-directories-first --human-readable \
-          --no-group'
-alias la='ls -l --classify --group-directories-first --human-readable \
-          --no-group --almost-all'
-alias lll='ls -l --classify --group-directories-first --human-readable \
-          --context --inode  --author'
-alias lz='ls -g --classify --group-directories-first --human-readable \
-          --context --no-group'
+alias ll='ls -g --classify --group-directories-first --human-readable --no-group'
+alias la='ls -l --classify --group-directories-first --human-readable --no-group --almost-all'
+alias lll='ls -l --classify --group-directories-first --human-readable --context --inode  --author'
+alias lz='ls -g --classify --group-directories-first --human-readable --context --no-group'
 alias lt='ls -gt --classify --reverse --human-readable --no-group'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
