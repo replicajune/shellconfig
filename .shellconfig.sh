@@ -518,14 +518,17 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 fi
 
 # exit status in red if != 0
-_SCES () {
+_SCCLR () {
   if [ "${1}" -ne 0 ]; then
     # shellcheck disable=SC2016
     echo -ne '\e[31m'
   fi
 }
+_SCES () {
+  echo "$(_SCCLR "${1}")${1}"
+}
 # shellcheck disable=SC2016
-_SCESS=$_CC_dark_grey'$(_SCES $?)'"${?}"'\e[0m'
+_SCESS=$_CC_dark_grey'$(_SCES $?)\e[0m'
 
 # show temperature
 if [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
@@ -588,7 +591,7 @@ if env | grep -Eq "^SSH_CONNECTION=.*$"; then
   # you're not home, be careful - root may be standard, you're on your own!
   PS_PROMPT=$_CC_orange'\n→  '$_CC_reset
 else
-  PS_PROMPT='\n→  '
+  PS_PROMPT='\n→ '
 fi
 
 # PS1/2 definition
