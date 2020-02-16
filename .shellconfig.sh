@@ -32,8 +32,10 @@ export HISTCONTROL=ignoredups
 export HISTSIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
 
-# https://github.com/atom/atom/issues/17452
+# automaric multithreading for xz (implicit for tar)
+export XZ_DEFAULTS="-T 0"
 
+# https://github.com/atom/atom/issues/17452
 if command -v gio &> /dev/null; then
   export ELECTRON_TRASH=gio
   alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
@@ -83,7 +85,15 @@ if command -v htop &> /dev/null; then
 fi
 
 # network
-alias lsn="sudo ss -lpnt |column -t"
+alias lsn="sudo ss -lpntu |column -t"
+alias lsn4="sudo ss -lpntu4 |column -t"
+alias lsn6="sudo ss -lpntu6 |column -t"
+alias lsnt="sudo ss -lpnt |column -t"
+alias lsnt4="sudo ss -lpnt4 |column -t"
+alias lsnt6="sudo ss -lpnt6 |column -t"
+alias lsnu="sudo ss -lpnu |column -t"
+alias lsnu4="sudo ss -lpnu4 |column -t"
+alias lsnu6="sudo ss -lpnu6 |column -t"
 
 # virt type of host
 vtype () {
