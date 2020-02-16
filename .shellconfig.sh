@@ -32,8 +32,10 @@ export HISTCONTROL=ignoredups
 export HISTSIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
 
-# https://github.com/atom/atom/issues/17452
+# automaric multithreading for xz (implicit for tar)
+export XZ_DEFAULTS="-T 0"
 
+# https://github.com/atom/atom/issues/17452
 if command -v gio &> /dev/null; then
   export ELECTRON_TRASH=gio
   alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
