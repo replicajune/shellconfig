@@ -243,6 +243,15 @@ if command -v docker &> /dev/null; then
   alias dkpurgeall="docker system prune -af; docker volume prune -f"
   alias dkdf="docker system df"
   alias dki="docker system info"
+
+  # other aliases involving docker images
+  if ! command -v shellcheck &> /dev/null; then
+    alias shellcheck="docker run \
+            --rm -i \
+            -v "${PWD}:/mnt:ro" \
+            -v "/etc:/etc:ro" \
+          koalaman/shellcheck -x"
+  fi
 fi
 
 if command -v docker-compose &> /dev/null; then
