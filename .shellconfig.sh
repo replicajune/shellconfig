@@ -243,6 +243,11 @@ if command -v docker &> /dev/null; then
   alias dkpurgeall="docker system prune -af; docker volume prune -f"
   alias dkdf="docker system df"
   alias dki="docker system info"
+
+  # other aliases involving docker images
+  if ! command -v shellcheck &> /dev/null; then
+    alias shellcheck='docker run --rm -i -v "${PWD}:/mnt:ro" -v "/etc:/etc:ro" koalaman/shellcheck -x'
+  fi
 fi
 
 if command -v docker-compose &> /dev/null; then
@@ -563,6 +568,8 @@ _SCLDAVGF () {
   else
     NBPROC="$(nproc)"
     NLOAD="$(cut -f1 -d' ' /proc/loadavg | tr -d '.')"
+    # complex regex required
+    # shellcheck disable=SC2001
     NLOADNRM="$(sed 's/^0*//' <<< "$NLOAD")"
     if [ -z "${NLOADNRM}" ]; then
       NLOADNRM=0
