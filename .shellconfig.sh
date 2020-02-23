@@ -246,11 +246,7 @@ if command -v docker &> /dev/null; then
 
   # other aliases involving docker images
   if ! command -v shellcheck &> /dev/null; then
-    alias shellcheck="docker run \
-            --rm -i \
-            -v "${PWD}:/mnt:ro" \
-            -v "/etc:/etc:ro" \
-          koalaman/shellcheck -x"
+    alias shellcheck='docker run --rm -i -v "${PWD}:/mnt:ro" -v "/etc:/etc:ro" koalaman/shellcheck -x'
   fi
 fi
 
@@ -572,6 +568,8 @@ _SCLDAVGF () {
   else
     NBPROC="$(nproc)"
     NLOAD="$(cut -f1 -d' ' /proc/loadavg | tr -d '.')"
+    # complex regex required
+    # shellcheck disable=SC2001
     NLOADNRM="$(sed 's/^0*//' <<< "$NLOAD")"
     if [ -z "${NLOADNRM}" ]; then
       NLOADNRM=0
