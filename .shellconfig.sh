@@ -419,8 +419,8 @@ if command -v vagrant &> /dev/null; then
 
     # build Vagrantfile
     vagrant init --minimal "${IMAGE}" \
-    --box-version "${VERSION}" \
-    --output "${TMP_DIR}/Vagrantfile"
+      --box-version "${VERSION}" \
+      --output "${TMP_DIR}/Vagrantfile"
 
     # start vagrant
     vagrant up
