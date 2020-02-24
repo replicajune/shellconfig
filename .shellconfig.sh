@@ -228,7 +228,11 @@ if command -v python &> /dev/null; then
 fi
 
 # docker
-if command -v docker &> /dev/null; then
+if command -v podman &> /dev/null; then
+  alias docker='podman'
+fi
+
+if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   alias dk="docker"
   alias dkr="docker run -it"
   alias dklc="docker ps -a"
