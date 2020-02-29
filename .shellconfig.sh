@@ -107,10 +107,16 @@ vtype () {
 case $ID in
   ubuntu|debian|raspbian)
     alias upd="sudo apt update && apt list --upgradable"
-    alias updnow="sudo apt update && sudo apt upgrade -y"
     alias rpkg="sudo apt purge -y"
     alias gpkg="dpkg -l | grep -i"
     alias spkg="apt-cache search -qq"
+    updnow () {
+      sudo apt update &&\
+      sudo apt upgrade -y
+      if command -v snap &> /dev/null; then
+        sudo snap refresh
+      fi
+    }
     cleanpm () {
       echo "remove orphans"
       sudo apt-get autoremove -y > /dev/null;
@@ -129,9 +135,14 @@ case $ID in
   fedora|centos)
     if command -v dnf &> /dev/null; then
       alias upd="sudo dnf check-update --refresh --assumeno"
-      alias updnow="sudo dnf update --assumeyes"
       alias rpkg="sudo dnf remove --assumeyes"
       alias spkg="dnf search"
+      updnow () {
+        sudo dnf update --refresh --assumeyes
+        if command -v snap &> /dev/null; then
+          sudo snap refresh
+        fi
+      }
       cleanpm () {
         echo 'remove orphans'
         sudo dnf autoremove -y
