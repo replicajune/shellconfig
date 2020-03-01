@@ -107,10 +107,16 @@ vtype () {
 case $ID in
   ubuntu|debian|raspbian)
     alias upd="sudo apt update && apt list --upgradable"
-    alias updnow="sudo apt update && sudo apt upgrade -y"
     alias rpkg="sudo apt purge -y"
     alias gpkg="dpkg -l | grep -i"
     alias spkg="apt-cache search -qq"
+    updnow () {
+      sudo apt update &&\
+      sudo apt upgrade -y
+      if command -v snap &> /dev/null; then
+        sudo snap refresh
+      fi
+    }
     cleanpm () {
       echo "remove orphans"
       sudo apt-get autoremove -y > /dev/null;
@@ -129,9 +135,14 @@ case $ID in
   fedora|centos)
     if command -v dnf &> /dev/null; then
       alias upd="sudo dnf check-update --refresh --assumeno"
-      alias updnow="sudo dnf update --assumeyes"
       alias rpkg="sudo dnf remove --assumeyes"
       alias spkg="dnf search"
+      updnow () {
+        sudo dnf update --refresh --assumeyes
+        if command -v snap &> /dev/null; then
+          sudo snap refresh
+        fi
+      }
       cleanpm () {
         echo 'remove orphans'
         sudo dnf autoremove -y
@@ -228,7 +239,11 @@ if command -v python &> /dev/null; then
 fi
 
 # docker
-if command -v docker &> /dev/null; then
+if command -v podman &> /dev/null; then
+  alias docker='podman'
+fi
+
+if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   alias dk="docker"
   alias dkr="docker run -it"
   alias dklc="docker ps -a"
@@ -415,8 +430,8 @@ if command -v vagrant &> /dev/null; then
 
     # build Vagrantfile
     vagrant init --minimal "${IMAGE}" \
-    --box-version "${VERSION}" \
-    --output "${TMP_DIR}/Vagrantfile"
+      --box-version "${VERSION}" \
+      --output "${TMP_DIR}/Vagrantfile"
 
     # start vagrant
     vagrant up
