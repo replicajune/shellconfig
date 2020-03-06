@@ -145,9 +145,12 @@ case $ID in
       }
       cleanpm () {
         echo 'remove orphans'
-        sudo dnf autoremove -y
+        sudo dnf remove -y &> /dev/null
+        echo 'remove older kernel packages'
+        sudo dnf remove -y \
+          "$(dnf repoquery --installonly --latest-limit=-2 -q)" &> /dev/null
         echo 'clean dnf/rpmdb, remove cached packages'
-        sudo dnf clean all
+        sudo dnf clean all &> /dev/null
       }
       ipkg () {
         sudo dnf install -y "./${1}"
