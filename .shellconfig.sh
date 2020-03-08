@@ -35,9 +35,8 @@ export HISTTIMEFORMAT="[%d/%m/%y %T] "
 # automaric multithreading for xz (implicit for tar)
 export XZ_DEFAULTS="-T 0"
 
-# https://github.com/atom/atom/issues/17452
 if command -v gio &> /dev/null; then
-  export ELECTRON_TRASH=gio
+  export ELECTRON_TRASH=gio # https://github.com/atom/atom/issues/17452
   alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
 fi
 
@@ -59,7 +58,6 @@ if [ "x${ID}" != 'xalpine' ]; then
   # directory stack
   alias lsd="dirs -v" # list stack directory
   alias pdir="pushd ./ > /dev/null; dirs -v"
-  alias cdp="pushd" # not doing the cd="pushd", but having the option is nice
 
   # ressources; regular systems
   alias psf="
@@ -82,6 +80,7 @@ alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
 alias dropcaches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 
+# replace top for htop
 if command -v htop &> /dev/null; then
   alias top='htop'
 fi
@@ -235,7 +234,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   }
 fi
 
-# pager or mod of aliases using a pager. Using most, color friendly
+# pager or mod of aliases using a pager. Using most if possible, color friendly
 if command -v most &> /dev/null; then
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
   alias man='man --pager=most --no-hyphenation --no-justification'
