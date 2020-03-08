@@ -52,7 +52,7 @@ alias lz='ls -g --classify --group-directories-first --human-readable --context 
 alias lt='ls -gt --classify --reverse --human-readable --no-group'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
-alias send="rsync --archive --info=progress2 --human-readable --compress --delete"
+alias send="rsync --archive --info=progress2 --human-readable --compress"
 
 if [ "x${ID}" != 'xalpine' ]; then
   # directory stack
