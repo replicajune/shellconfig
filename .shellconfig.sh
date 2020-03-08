@@ -86,15 +86,37 @@ if command -v htop &> /dev/null; then
 fi
 
 # network
-alias lsn="sudo ss -lpntu |column -t"
-alias lsn4="sudo ss -lpntu4 |column -t"
-alias lsn6="sudo ss -lpntu6 |column -t"
-alias lsnt="sudo ss -lpnt |column -t"
-alias lsnt4="sudo ss -lpnt4 |column -t"
-alias lsnt6="sudo ss -lpnt6 |column -t"
-alias lsnu="sudo ss -lpnu |column -t"
-alias lsnu4="sudo ss -lpnu4 |column -t"
-alias lsnu6="sudo ss -lpnu6 |column -t"
+lsn () {
+  case "${1}" in
+    4)
+      sudo ss -lpntu4 |column -t
+    ;;
+    6)
+      sudo ss -lpntu6 |column -t
+    ;;
+    t)
+      sudo ss -lpnt |column -t
+    ;;
+    t4)
+      sudo ss -lpnt4 |column -t
+    ;;
+    t6)
+      sudo ss -lpnt6 |column -t
+    ;;
+    u)
+      sudo ss -lpnu |column -t
+    ;;
+    u4)
+      sudo ss -lpnu4 |column -t
+    ;;
+    u6)
+      sudo ss -lpnu6 |column -t
+    ;;
+    *)
+      sudo ss -lpntu |column -t
+    ;;
+  esac
+}
 
 # virt type of host
 vtype () {
