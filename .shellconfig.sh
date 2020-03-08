@@ -465,6 +465,24 @@ download () {
   fi
 }
 
+wof () {
+  # write on file ..
+  # usage : wof file.iso /dev/usbthing
+  sudo dd if="${1}" of="${2}" bs=32M status=progress
+  sync
+}
+
+terminate () {
+  # cycle on pkill to make sure all process related to a command end.
+  if [ "x$(pidof "${1}")" != "x" ]; then
+    until ! pkill "${1}"; do
+      sleep 2
+    done
+  else
+    echo 'process given is not currently running'
+  fi
+}
+
 # protonvpn
 if command -v protonvpn &> /dev/null; then
   alias pvpn=protonvpn
@@ -507,12 +525,6 @@ d () { # a couple of city I like to know the time of
   done | column -t -s '%'
 }
 
-wof () {
-  # write on file ..
-  # usage : wof file.iso /dev/usbthing
-  sudo dd if="${1}" of="${2}" bs=32M status=progress
-  sync
-}
 
 # --- PS1
 
