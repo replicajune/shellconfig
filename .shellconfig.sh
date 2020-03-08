@@ -145,9 +145,12 @@ case $ID in
       }
       cleanpm () {
         echo 'remove orphans'
-        sudo dnf autoremove -y
+        sudo dnf remove -y &> /dev/null
+        echo 'remove older kernel packages'
+        sudo dnf remove -y \
+          "$(dnf repoquery --installonly --latest-limit=-2 -q)" &> /dev/null
         echo 'clean dnf/rpmdb, remove cached packages'
-        sudo dnf clean all
+        sudo dnf clean all &> /dev/null
       }
       ipkg () {
         sudo dnf install -y "./${1}"
@@ -462,6 +465,24 @@ download () {
   fi
 }
 
+wof () {
+  # write on file ..
+  # usage : wof file.iso /dev/usbthing
+  sudo dd if="${1}" of="${2}" bs=32M status=progress
+  sync
+}
+
+terminate () {
+  # cycle on pkill to make sure all process related to a command end.
+  if [ "x$(pidof "${1}")" != "x" ]; then
+    until ! pkill "${1}"; do
+      sleep 2
+    done
+  else
+    echo 'process given is not currently running'
+  fi
+}
+
 # protonvpn
 if command -v protonvpn &> /dev/null; then
   alias pvpn=protonvpn
@@ -504,12 +525,6 @@ d () { # a couple of city I like to know the time of
   done | column -t -s '%'
 }
 
-wof () {
-  # write on file ..
-  # usage : wof file.iso /dev/usbthing
-  sudo dd if="${1}" of="${2}" bs=32M status=progress
-  sync
-}
 
 # --- PS1
 
