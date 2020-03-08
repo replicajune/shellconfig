@@ -54,6 +54,17 @@ alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 
+duplicates () {
+  # find duplicates in the current directory recursively
+  while IFS= read -r -d '' DUPLICATE; do
+    echo 'duplicate found:' "${DUPLICATE}"
+    find "${1:-$PWD}" -name "${DUPLICATE}" -type f
+  done  < <(find "${1:-$PWD}" -type f -exec sh -c 'echo ${1##*/}' _ {} \; \
+            | sort \
+            | uniq -d \
+            | tr '\n' '\0')
+}
+
 if [ "x${ID}" != 'xalpine' ]; then
   # directory stack
   alias lsd="dirs -v" # list stack directory
