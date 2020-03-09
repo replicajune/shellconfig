@@ -55,11 +55,15 @@ alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 
 duplicates () {
-  # find duplicates in the current directory recursively
+  # find duplicates in the current directory recursively by names (not
+  # reliable for real duplicates)
+  local DIRECTORY
+  DIRECTORY="${1:-$PWD}"
   while IFS= read -r -d '' DUPLICATE; do
     echo 'duplicate found:' "${DUPLICATE}"
-    find "${1:-$PWD}" -name "${DUPLICATE}" -type f
-  done  < <(find "${1:-$PWD}" -type f -exec sh -c 'echo ${1##*/}' _ {} \; \
+    find "${DIRECTORY}" -name "${DUPLICATE}" -type f
+    echo
+  done  < <(find "${DIRECTORY}" -type f -exec sh -c 'echo ${1##*/}' _ {} \; \
             | sort \
             | uniq -d \
             | tr '\n' '\0')
