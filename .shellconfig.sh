@@ -241,10 +241,15 @@ if command -v most &> /dev/null; then
 fi
 
 # python
-if command -v python &> /dev/null; then
+if command -v python &> /dev/null || command -v python3 &> /dev/null; then
+  if command -v python3 &> /dev/null; then
+    alias python='python3'
+    alias pip='pip3'
+  fi
   if command -v ipython &> /dev/null; then
     alias ipy=ipython
   fi
+
   venv() {
     # spawn a virtual python env with a given name, usualy a package name.
     # usage: venv package
@@ -257,7 +262,7 @@ if command -v python &> /dev/null; then
 
     # setup a new virtual env if it doesn't exists, and activate it
     if ! [ -d "${HOME}/.venv/${PKG}" ]; then
-      python3 -m venv "${HOME}/.venv/${PKG}"
+      python -m venv "${HOME}/.venv/${PKG}"
     fi
     . "${HOME}/.venv/${PKG}/bin/activate"
   }
