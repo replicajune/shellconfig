@@ -118,6 +118,34 @@ lsn () {
   esac
 }
 
+if command -v nc &> /dev/null; then
+  sping () {
+    # socket ping, leverage nc to check if a tcp port is open on a given host
+    local HOST_NAME
+    local PORT
+    HOST_NAME="${1}"
+    PORT="${2}"
+
+    # sanity checks
+    if ! grep -Eq \
+      '^([a-zA-Z0-9\-]+\.)+([a-zA-Z0-9]+){2,}$' <(echo "${HOST_NAME}"); then
+      echo 'wrong hostname'
+      return 1
+    elif ! grep -Eq '^[0-9]+$' <(echo "${PORT}"); then
+      echo 'wrong port'
+      return 1
+    fi
+
+    # test
+    printf 'tcp socket:'
+    if nc -z "${HOST_NAME}" "${PORT}" &> /dev/null; then
+      echo 'open'
+    else
+      echo 'closed'
+    fi
+  }
+fi
+
 # virt type of host
 vtype () {
   # will give yout the type of node you're on
