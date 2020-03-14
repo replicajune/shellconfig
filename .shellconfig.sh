@@ -720,7 +720,9 @@ for INCLUDE in ~/.local.sh ~/.offline.sh ~/.online.sh; do
   fi
 done
 
-# --- TMUX : disable this using "export TMUX=disable" before loading shellconfig
+# --- TMUX : disable 
+# - inclide  "export TMUX=disable" before loading shellconfig
+# uninstall tmux
 if command -v tmux &> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ] &&\
