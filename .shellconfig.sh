@@ -507,7 +507,7 @@ download () {
   command -v xdg-user-dir &> /dev/null &&\
     DEST="$(xdg-user-dir DOWNLOAD)"
   DEST="${DEST:=~/}"
-  if [ -d "${DEST}" ] &&\
+  if [ "x${*}" != 'x' ] && [ -d "${DEST}" ] &&\
      [ "$(curl -XGET -IsLw '%{response_code}' -o /dev/null "${@}")" -eq '200' ];
   then
     until wget \
