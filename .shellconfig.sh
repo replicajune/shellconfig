@@ -35,9 +35,8 @@ export HISTTIMEFORMAT="[%d/%m/%y %T] "
 # automaric multithreading for xz (implicit for tar)
 export XZ_DEFAULTS="-T 0"
 
-# https://github.com/atom/atom/issues/17452
 if command -v gio &> /dev/null; then
-  export ELECTRON_TRASH=gio
+  export ELECTRON_TRASH=gio # https://github.com/atom/atom/issues/17452
   alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
 fi
 
@@ -45,20 +44,20 @@ fi
 
 # files managment
 alias l='ls -C --classify --group-directories-first'
-alias ll='ls -g --classify --group-directories-first --human-readable --no-group'
-alias la='ls -l --classify --group-directories-first --human-readable --no-group --almost-all'
-alias lll='ls -l --classify --group-directories-first --human-readable --context --inode  --author'
-alias lz='ls -g --classify --group-directories-first --human-readable --context --no-group'
-alias lt='ls -gt --classify --reverse --human-readable --no-group'
+alias ll='ls -l --classify --group-directories-first --human-readable'
+alias la='ls -l --classify --group-directories-first --human-readable --all'
+alias lll='ls -l --classify --group-directories-first --human-readable --context  --author'
+alias lla='ls -l --classify --group-directories-first --human-readable --context  --author --all'
+alias lz='ls -g --classify --group-directories-first --human-readable --context --no-group --all'
+alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
-alias send="rsync --archive --info=progress2 --human-readable --compress --delete"
+alias send="rsync --archive --info=progress2 --human-readable --compress"
 
 if [ "x${ID}" != 'xalpine' ]; then
   # directory stack
   alias lsd="dirs -v" # list stack directory
   alias pdir="pushd ./ > /dev/null; dirs -v"
-  alias cdp="pushd" # not doing the cd="pushd", but having the option is nice
 
   # ressources; regular systems
   alias psf="
@@ -81,20 +80,72 @@ alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
 alias dropcaches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 
+# replace top for htop
 if command -v htop &> /dev/null; then
   alias top='htop'
 fi
 
 # network
-alias lsn="sudo ss -lpntu |column -t"
-alias lsn4="sudo ss -lpntu4 |column -t"
-alias lsn6="sudo ss -lpntu6 |column -t"
-alias lsnt="sudo ss -lpnt |column -t"
-alias lsnt4="sudo ss -lpnt4 |column -t"
-alias lsnt6="sudo ss -lpnt6 |column -t"
-alias lsnu="sudo ss -lpnu |column -t"
-alias lsnu4="sudo ss -lpnu4 |column -t"
-alias lsnu6="sudo ss -lpnu6 |column -t"
+lsn () {
+  case "${1}" in
+    4)
+      sudo ss -lpntu4 |column -t
+    ;;
+    6)
+      sudo ss -lpntu6 |column -t
+    ;;
+    t)
+      sudo ss -lpnt |column -t
+    ;;
+    t4)
+      sudo ss -lpnt4 |column -t
+    ;;
+    t6)
+      sudo ss -lpnt6 |column -t
+    ;;
+    u)
+      sudo ss -lpnu |column -t
+    ;;
+    u4)
+      sudo ss -lpnu4 |column -t
+    ;;
+    u6)
+      sudo ss -lpnu6 |column -t
+    ;;
+    *)
+      sudo ss -lpntu |column -t
+    ;;
+  esac
+}
+
+if command -v nc &> /dev/null && ! command -v tcping &> /dev/null; then
+  sping () {
+    # socket ping, leverage nc to check if a tcp port is open on a given host
+    # this function act as a tcping alternative
+    local HOST_NAME
+    local PORT
+    HOST_NAME="${1}"
+    PORT="${2}"
+
+    # sanity checks
+    if ! grep -Eq \
+      '^([a-zA-Z0-9\-]+\.)+([a-zA-Z0-9]+){2,}$' <(echo "${HOST_NAME}"); then
+      echo 'wrong hostname'
+      return 1
+    elif ! grep -Eq '^[0-9]+$' <(echo "${PORT}"); then
+      echo 'wrong port'
+      return 1
+    fi
+
+    # test
+    printf 'tcp socket: '
+    if nc -z "${HOST_NAME}" "${PORT}" &> /dev/null; then
+      echo 'open'
+    else
+      echo 'closed'
+    fi
+  }
+fi
 
 # virt type of host
 vtype () {
@@ -212,17 +263,22 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   }
 fi
 
-# pager or mod of aliases using a pager. Using most, color friendly
+# pager or mod of aliases using a pager. Using most if possible, color friendly
 if command -v most &> /dev/null; then
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
   alias man='man --pager=most --no-hyphenation --no-justification'
 fi
 
 # python
-if command -v python &> /dev/null; then
+if command -v python &> /dev/null || command -v python3 &> /dev/null; then
+  if command -v python3 &> /dev/null; then
+    alias python='python3'
+    alias pip='pip3'
+  fi
   if command -v ipython &> /dev/null; then
     alias ipy=ipython
   fi
+
   venv() {
     # spawn a virtual python env with a given name, usualy a package name.
     # usage: venv package
@@ -235,7 +291,7 @@ if command -v python &> /dev/null; then
 
     # setup a new virtual env if it doesn't exists, and activate it
     if ! [ -d "${HOME}/.venv/${PKG}" ]; then
-      python3 -m venv "${HOME}/.venv/${PKG}"
+      python -m venv "${HOME}/.venv/${PKG}"
     fi
     . "${HOME}/.venv/${PKG}/bin/activate"
   }
@@ -451,7 +507,7 @@ download () {
   command -v xdg-user-dir &> /dev/null &&\
     DEST="$(xdg-user-dir DOWNLOAD)"
   DEST="${DEST:=~/}"
-  if [ -d "${DEST}" ] &&\
+  if [ "x${*}" != 'x' ] && [ -d "${DEST}" ] &&\
      [ "$(curl -XGET -IsLw '%{response_code}' -o /dev/null "${@}")" -eq '200' ];
   then
     until wget \
@@ -664,7 +720,9 @@ for INCLUDE in ~/.local.sh ~/.offline.sh ~/.online.sh; do
   fi
 done
 
-# --- TMUX : disable this using "export TMUX=disable" before loading shellconfig
+# --- TMUX : disable 
+# - inclide  "export TMUX=disable" before loading shellconfig
+# uninstall tmux
 if command -v tmux &> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ] &&\

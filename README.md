@@ -14,6 +14,6 @@ fi
 
 ## Notes
 
-- Overall, this repo is super opinionated, and stuff changes from time to time. Be aware of that :)
-- rendering of emojis in terminal might require fonts-noto-color-emoji or the equivalent package in a non-debian distribution
+- Overall, this repo is super opinionated, and stuff changes from time to time, be aware of that :)
+- rendering of emojis in terminal might require `fonts-noto-color-emoji` package on debian systems (or the equivalent package in a non-debian distribution)
 - Any feedbacks, recomendations always welcomed ! :)
