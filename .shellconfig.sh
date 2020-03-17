@@ -734,3 +734,15 @@ if command -v tmux &> /dev/null &&\
   tmux attach -t default 2> /dev/null || tmux new -s default
   exit
 fi
+
+# ---
+# Shellcheck deactivations :
+# - SC2139 / https://github.com/koalaman/shellcheck/wiki/SC2139
+#   A variable need to be expended at sourcing. this check propose variables
+#   to be escaped when it's not the expected behavior
+# - SC2016 / https://github.com/koalaman/shellcheck/wiki/SC2016
+#   I explicitly want to define a variable and use it as is to be processed
+#   later and on in this shell config
+# - SC2001 / https://github.com/koalaman/shellcheck/wiki/SC2001
+#   Used pattern is not transposable in the form of ${variable//search/replace}
+# 
