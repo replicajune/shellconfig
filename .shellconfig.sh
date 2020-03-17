@@ -238,25 +238,20 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
         echo -e '\e[32m●\e[0m system running' # green circle
       ;;
       starting)
-        # shellcheck disable=SC2039
         echo -e '\e[32m↑\e[0m System currently booting up' # green up arrow
       ;;
       stopping)
-        # shellcheck disable=SC2039
         echo -e '\e[34m↓\e[0m µSystem shuting down' # blue down arrow
       ;;
       degraded)
-        # shellcheck disable=SC2039
         echo -e '\e[33m⚑\e[0m System in degraded mode:' # orange flag
         # is in failed state
         sudo systemctl --failed
       ;;
       maintenance)
-        # shellcheck disable=SC2039
         echo -e '\e[5m\e[31mx\e[0m System currently in maintenance' # blk red
       ;;
       *)
-        # shellcheck disable=SC2039
         echo -e '\e[31m⚑\e[0m Unexpected state !' # red flag
       ;;
     esac
@@ -592,7 +587,6 @@ _CC_reset='\[\e[0m\]'
 
 # is git installed ?
 # type works on both bash and ash
-# shellcheck disable=SC2039
 if type __git_ps1 2> /dev/null | grep -q '()'; then
 
   # show more git stuff
