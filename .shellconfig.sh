@@ -147,6 +147,21 @@ if command -v nc &> /dev/null && ! command -v tcping &> /dev/null; then
   }
 fi
 
+# protonvpn
+if command -v protonvpn &> /dev/null; then
+  # protonvpn required to be run as root most of the time but is installed
+  # in a user homefolder (through a global venv). calling an non PATHed bin
+  # fails so I need another strategy.
+  PVPN="$(whereis -b protonvpn | head -1 | cut -f2 -d" ")"
+  if [ -x "${PVPN}" ]; then
+    # shellcheck disable=SC2139
+    alias protonvpn="${PVPN}"
+    # shellcheck disable=SC2139
+    alias pvpn="${PVPN}"
+  fi
+fi
+
+
 # virt type of host
 vtype () {
   # will give yout the type of node you're on
@@ -533,11 +548,6 @@ terminate () {
     echo 'process given is not currently running'
   fi
 }
-
-# protonvpn
-if command -v protonvpn &> /dev/null; then
-  alias pvpn=protonvpn
-fi
 
 # misc
 alias h="history | tail -20"
