@@ -147,6 +147,21 @@ if command -v nc &> /dev/null && ! command -v tcping &> /dev/null; then
   }
 fi
 
+# protonvpn
+if command -v protonvpn &> /dev/null; then
+  # protonvpn required to be run as root most of the time but is installed
+  # in a user homefolder (through a global venv). calling an non PATHed bin
+  # fails so I need another strategy.
+  PVPN="$(whereis -b protonvpn | head -1 | cut -f2 -d" ")"
+  if [ -x "${PVPN}" ]; then
+    # shellcheck disable=SC2139
+    alias protonvpn="${PVPN}"
+    # shellcheck disable=SC2139
+    alias pvpn="${PVPN}"
+  fi
+fi
+
+
 # virt type of host
 vtype () {
   # will give yout the type of node you're on
@@ -238,25 +253,20 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
         echo -e '\e[32m●\e[0m system running' # green circle
       ;;
       starting)
-        # shellcheck disable=SC2039
         echo -e '\e[32m↑\e[0m System currently booting up' # green up arrow
       ;;
       stopping)
-        # shellcheck disable=SC2039
         echo -e '\e[34m↓\e[0m µSystem shuting down' # blue down arrow
       ;;
       degraded)
-        # shellcheck disable=SC2039
         echo -e '\e[33m⚑\e[0m System in degraded mode:' # orange flag
         # is in failed state
         sudo systemctl --failed
       ;;
       maintenance)
-        # shellcheck disable=SC2039
         echo -e '\e[5m\e[31mx\e[0m System currently in maintenance' # blk red
       ;;
       *)
-        # shellcheck disable=SC2039
         echo -e '\e[31m⚑\e[0m Unexpected state !' # red flag
       ;;
     esac
@@ -539,11 +549,6 @@ terminate () {
   fi
 }
 
-# protonvpn
-if command -v protonvpn &> /dev/null; then
-  alias pvpn=protonvpn
-fi
-
 # misc
 alias h="history | tail -20"
 alias gh='history | grep'
@@ -592,7 +597,6 @@ _CC_reset='\[\e[0m\]'
 
 # is git installed ?
 # type works on both bash and ash
-# shellcheck disable=SC2039
 if type __git_ps1 2> /dev/null | grep -q '()'; then
 
   # show more git stuff
@@ -730,3 +734,15 @@ if command -v tmux &> /dev/null &&\
   tmux attach -t default 2> /dev/null || tmux new -s default
   exit
 fi
+
+# ---
+# Shellcheck deactivations :
+# - SC2139 / https://github.com/koalaman/shellcheck/wiki/SC2139
+#   A variable need to be expended at sourcing. this check propose variables
+#   to be escaped when it's not the expected behavior
+# - SC2016 / https://github.com/koalaman/shellcheck/wiki/SC2016
+#   I explicitly want to define a variable and use it as is to be processed
+#   later and on in this shell config
+# - SC2001 / https://github.com/koalaman/shellcheck/wiki/SC2001
+#   Used pattern is not transposable in the form of ${variable//search/replace}
+# 
