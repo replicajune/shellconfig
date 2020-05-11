@@ -14,6 +14,6 @@ fi
 
 ## Notes
 
-- Overall, this repo is super opinionated, and stuff changes from time to time, be aware of that :)
-- rendering of emojis in terminal might require `fonts-noto-color-emoji` package on debian systems (or the equivalent package in a non-debian distribution)
+- Overall, this repo is super opinionated, and stuff changes from time to time, be aware of that.
+- Rendering of emojis in a terminal might require `fonts-noto-color-emoji` package on debian systems (or the equivalent package in a non-debian distribution). this is needed for the weathers functions
 - Any feedbacks, recomendations always welcomed ! :)
