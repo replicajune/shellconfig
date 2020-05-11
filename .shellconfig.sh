@@ -28,17 +28,13 @@ else
 fi
 
 # history with date, no size limit
-export HISTCONTROL=ignoredups
+export HISTCONTROL=ignoreboth
 export HISTSIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
+export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
 
 # automaric multithreading for xz (implicit for tar)
 export XZ_DEFAULTS="-T 0"
-
-if command -v gio &> /dev/null; then
-  export ELECTRON_TRASH=gio # https://github.com/atom/atom/issues/17452
-  alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
-fi
 
 # --- ALIASES & FUNCTIONS
 
@@ -53,6 +49,11 @@ alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
+alias e="${EDITOR}"
+
+# compress, decompress
+alias cpx="tar -capfv" # cpx archname.tar.xz dir
+alias dpx="tar -xpfv" # dpx archname.tar.xz
 
 if [ "x${ID}" != 'xalpine' ]; then
   # directory stack
@@ -83,6 +84,11 @@ alias dropcaches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 # replace top for htop
 if command -v htop &> /dev/null; then
   alias top='htop'
+fi
+
+if command -v gio &> /dev/null; then
+  export ELECTRON_TRASH=gio # https://github.com/atom/atom/issues/17452
+  alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
 fi
 
 # network
@@ -155,9 +161,10 @@ vtype () {
 }
 
 # package managment
-case $ID in
+case "${ID}" in
   ubuntu|debian|raspbian)
     alias upd="sudo apt update && apt list --upgradable"
+    alias updl="apt list --upgradable"
     alias rpkg="sudo apt purge -y"
     alias gpkg="dpkg -l | grep -i"
     alias spkg="apt-cache search -qq"
@@ -186,6 +193,7 @@ case $ID in
   fedora|centos)
     if command -v dnf &> /dev/null; then
       alias upd="sudo dnf check-update --refresh --assumeno"
+      alias updl="dnf list --cacheonly --upgrades --assumeno"
       alias rpkg="sudo dnf remove --assumeyes"
       alias spkg="dnf search"
       updnow () {
@@ -212,6 +220,7 @@ case $ID in
 
   alpine)
     alias upd="sudo apk update && echo 'UPGRADABLE :' && sudo apk upgrade -s"
+    alias updl="sudo apk upgrade -s"
     alias updnow="sudo apk update && sudo apk upgrade"
     alias rpkg="sudo apk del"
     alias gpkg="apk list -I | grep -i"
