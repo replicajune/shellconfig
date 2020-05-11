@@ -49,6 +49,7 @@ alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
+# shellcheck disable=SC2139
 alias e="${EDITOR}"
 
 # compress, decompress
