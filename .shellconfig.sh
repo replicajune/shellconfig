@@ -20,11 +20,13 @@ fi
 
 # use vim if possible, nano otherwise
 if command -v vim &> /dev/null; then
-  export VISUAL="vim"
-  export EDITOR="vim"
+  export VISUAL='vim'
+  export EDITOR='vim'
+  alias vless='vim -M'
 else
-  export VISUAL="nano"
-  export EDITOR="nano"
+  export VISUAL='nano'
+  export EDITOR='nano'
+  alias vless='nano --nohelp --view'
 fi
 
 # history with date, no size limit
@@ -574,7 +576,6 @@ terminate () {
 # misc
 alias h="history | tail -20"
 alias gh='history | grep'
-alias vless="vim -M"
 alias see="grep -Ev '(^$)|(^#\s.*$)|(^#$)|(^;.*$)|(^\s+#\s.*$)'"
 alias datei="date --iso-8601=m"
 alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
