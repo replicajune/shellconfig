@@ -39,13 +39,25 @@ export XZ_DEFAULTS="-T 0"
 # --- ALIASES & FUNCTIONS
 
 # files managment
-alias l='ls -C --classify --group-directories-first'
-alias ll='ls -l --classify --group-directories-first --human-readable'
-alias la='ls -l --classify --group-directories-first --human-readable --all'
-alias lll='ls -l --classify --group-directories-first --human-readable --context  --author'
-alias lla='ls -l --classify --group-directories-first --human-readable --context  --author --all'
-alias lz='ls -g --classify --group-directories-first --human-readable --context --no-group --all'
-alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
+if command -v exa &> /dev/null; then
+  alias ls='exa'
+  alias l='exa --classify --group-directories-first'
+  alias ll='exa -l --classify --group-directories-first --git'
+  alias la='exa -l --classify --group-directories-first --all --git'
+  alias lll='exa -l --classify --group-directories-first --git --links --inode --blocks --extended'
+  alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
+  alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
+else
+  alias l='ls -C --classify --group-directories-first'
+  alias ll='ls -l --classify --group-directories-first --human-readable'
+  alias la='ls -l --classify --group-directories-first --human-readable --all'
+  alias lll='ls -l --classify --group-directories-first --human-readable --context  --author'
+  alias lla='ls -l --classify --group-directories-first --human-readable --context  --author --all'
+  alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
+fi
+
+alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
+
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
