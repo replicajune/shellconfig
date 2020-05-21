@@ -562,6 +562,20 @@ wof () {
   sync
 }
 
+udsk () {
+  # unmount all filesystemes part of a block device (Unmount DiSK)
+  local BLOCK_DEV
+  BLOCK_DEV="${1?:'missing argument, please specify a block device'}"
+  [ -b "${BLOCK_DEV}" ] || { echo 'argument is not a block device'; return 1; }
+  echo 'unmount all filesystems mounted on specified block device'
+  while IFS= read -r -d '' MOUNTED_FS; do
+    sudo umount "${MOUNTED_FS}" || \
+      { echo "error while unmounting ${MOUNTED_FS}"; return 1; }
+  done  < <(lsblk "${BLOCK_DEV}" --output MOUNTPOINT \
+            | grep -Eo '^/.*$' \
+            | tr '\n' '\0')
+}
+
 terminate () {
   # cycle on pkill to make sure all process related to a command end.
   if [ "x$(pidof "${1}")" != "x" ]; then
