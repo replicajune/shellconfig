@@ -629,24 +629,40 @@ mdlt () {
   # won't really report dead link if domain require auth or other funky server
   # side setup. Anyway, work but still buggy
   local DIR
+  local HTTP_CODE
   DIR="${1:-.}"
   [ -e "${DIR}" ] || { echo 'argument is not iterable'; return 1; }
   while IFS= read -r -d '' MARKDOWN_FILE; do
     for LINK in \
       $(grep -Eoh "\[[[:print:]]+\]\([[:alnum:][:punct:]]+\)" \
         "${MARKDOWN_FILE}" \
-      | grep -Eo "\([[:alnum:]:#-\/\.]+\)" \
-      | cut -c2- | rev \
+      | grep -Eo "\]\([[:alnum:]:#-\/\.]+\)" \
+      | cut -c3- | rev \
       | cut -c2- | rev); do
-      if [ -f "$(dirname "${MARKDOWN_FILE}")/${LINK}" ]; then
+
+      # test various cases were the reference is a valid link
+      if [ -z "${LINK##\#*}" ]; then
+        # link start with a '#' and is an in-doc link, wont't test
         continue
-      elif [ "$(curl -w '%{response_code}' -s -o /dev/null -L "${LINK}")" \
-          != '404' ]; then
+      elif [ -f "$(dirname "${MARKDOWN_FILE}")/${LINK}" ]; then
+        # link is a file
         continue
-      else
-        echo "reporting ${LINK} as bad link"
       fi
-      break
+
+      # classify and report link from their http codes responses
+      HTTP_CODE="$(\
+        curl -w '%{response_code}' -s -o /dev/null \
+        --user-agent "Mozilla/5.0 CK={} (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko" \
+        --insecure -L "${LINK}")"
+      case "${HTTP_CODE}" in
+        200)
+          continue
+        ;;
+        *)
+          echo "link report as ${HTTP_CODE} for ${LINK} in ${MARKDOWN_FILE}"
+        ;;
+      esac
+
     done
   done  < <(find "${DIR}" -name '*md' -type f -print0)
 }
