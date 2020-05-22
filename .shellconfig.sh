@@ -640,12 +640,16 @@ mdlt () {
       | cut -c3- | rev \
       | cut -c2- | rev); do
 
-      # test various cases were the reference is a valid link
+      # test various cases were the reference is a link to a file
       if [ -z "${LINK##\#*}" ]; then
         # link start with a '#' and is an in-doc link, wont't test
         continue
       elif [ -f "$(dirname "${MARKDOWN_FILE}")/${LINK}" ]; then
-        # link is a file
+        # link is a file and exists
+        continue
+      elif [ -z "${LINK##\.*}" ]; then
+        # link start with a '.' but did not resolve as an existing file
+        echo "link report as a non existing file for ${LINK} in '${MARKDOWN_FILE}'"
         continue
       fi
 
@@ -659,7 +663,7 @@ mdlt () {
           continue
         ;;
         *)
-          echo "link report as ${HTTP_CODE} for ${LINK} in ${MARKDOWN_FILE}"
+          echo "link report as ${HTTP_CODE} for ${LINK} in '${MARKDOWN_FILE}'"
         ;;
       esac
 
