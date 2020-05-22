@@ -623,6 +623,33 @@ d () { # a couple of city I like to know the time of
   done | column -t -s '%'
 }
 
+mdlt () {
+  # MarlDown Link Tester : parse links and report them if they are faulty
+  # Mostly work but not as accurate as I would like it to be
+  # won't really report dead link if domain require auth or other funky server
+  # side setup. Anyway, work but still buggy
+  local DIR
+  DIR="${1:-.}"
+  [ -e "${DIR}" ] || { echo 'argument is not iterable'; return 1; }
+  while IFS= read -r -d '' MARKDOWN_FILE; do
+    for LINK in \
+      $(grep -Eoh "\[[[:print:]]+\]\([[:alnum:][:punct:]]+\)" \
+        "${MARKDOWN_FILE}" \
+      | grep -Eo "\([[:alnum:]:#-\/\.]+\)" \
+      | cut -c2- | rev \
+      | cut -c2- | rev); do
+      if [ -f "$(dirname "${MARKDOWN_FILE}")/${LINK}" ]; then
+        continue
+      elif [ "$(curl -w '%{response_code}' -s -o /dev/null -L "${LINK}")" \
+          != '404' ]; then
+        continue
+      else
+        echo "reporting ${LINK} as bad link"
+      fi
+      break
+    done
+  done  < <(find "${DIR}" -name '*md' -type f -print0)
+}
 
 # --- PS1
 
