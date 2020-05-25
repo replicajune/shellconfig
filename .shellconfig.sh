@@ -353,6 +353,7 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   alias dki="docker system info"
 
   # other aliases involving docker images
+  alias mdlt='docker run --rm -i -v "${PWD}:/srv:ro" -v "/etc:/etc:ro" replicajune/markdown-link-tester'
   if ! command -v shellcheck &> /dev/null; then
     alias shellcheck='docker run --rm -i -v "${PWD}:/mnt:ro" -v "/etc:/etc:ro" koalaman/shellcheck -x'
   fi
@@ -562,6 +563,20 @@ wof () {
   sync
 }
 
+udsk () {
+  # unmount all filesystemes part of a block device (Unmount DiSK)
+  local BLOCK_DEV
+  BLOCK_DEV="${1?:'missing argument, please specify a block device'}"
+  [ -b "${BLOCK_DEV}" ] || { echo 'argument is not a block device'; return 1; }
+  echo 'unmount all filesystems mounted on specified block device'
+  while IFS= read -r -d '' MOUNTED_FS; do
+    sudo umount "${MOUNTED_FS}" || \
+      { echo "error while unmounting ${MOUNTED_FS}"; return 1; }
+  done  < <(lsblk "${BLOCK_DEV}" --output MOUNTPOINT \
+            | grep -Eo '^/.*$' \
+            | tr '\n' '\0')
+}
+
 terminate () {
   # cycle on pkill to make sure all process related to a command end.
   if [ "x$(pidof "${1}")" != "x" ]; then
@@ -608,7 +623,6 @@ d () { # a couple of city I like to know the time of
     TZ=${LOC} date '+%R - %d %B %:::z %Z' | tr -d '\n'; echo -e "${RST}"
   done | column -t -s '%'
 }
-
 
 # --- PS1
 
