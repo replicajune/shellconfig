@@ -63,6 +63,8 @@ alias lz='command ls -g --classify --group-directories-first --context --no-grou
 alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
+alias hl="grep -izF" # highlight
+alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 # shellcheck disable=SC2139
 alias e="${EDITOR}"
 
@@ -761,7 +763,7 @@ for INCLUDE in ~/.local.sh ~/.offline.sh ~/.online.sh; do
   fi
 done
 
-# --- TMUX : disable 
+# --- TMUX : disable
 # - inclide  "export TMUX=disable" before loading shellconfig
 # uninstall tmux
 if command -v tmux &> /dev/null &&\
@@ -782,4 +784,4 @@ fi
 #   later and on in this shell config
 # - SC2001 / https://github.com/koalaman/shellcheck/wiki/SC2001
 #   Used pattern is not transposable in the form of ${variable//search/replace}
-# 
+#
