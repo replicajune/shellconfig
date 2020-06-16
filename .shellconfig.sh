@@ -414,6 +414,19 @@ if command -v microk8s.status &> /dev/null; then
   fi
 fi
 
+# kubectl
+if command -v kubectl &> /dev/null; then
+  source <(kubectl completion bash)
+  source <(kubectl completion bash | sed 's/kubectl/k/g')
+
+  alias k='kubectl'
+
+  kset () {
+    #shellcheck disable=SC2139
+    alias kubectl="kubectl --kubeconfig ~/.kubeconfig.${1}.yml"
+  }
+fi
+
 # lazygit
 if command -v lazygit &> /dev/null; then
   alias lgt=lazygit
