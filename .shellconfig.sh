@@ -390,42 +390,54 @@ if command -v lxc &> /dev/null; then
   }
 fi
 
-# MicroK8s
-if command -v microk8s.status &> /dev/null; then
-  alias m.enable="microk8s.enable"
-  alias m.disable="microk8s.disable"
-  alias m.start="microk8s.start"
-  alias m.stop="microk8s.stop"
-  alias m.status="microk8s.status"
+# kubectl, helm, MicroK8s
+kset () {
+  # usage :
+  # - kset : set completions and aliases for kubectl and helm
+  # - kset $ARG : set kubeconfig value
+  local _CLUSTER
+  local _K_BASE_ARG
+  _CLUSTER="${1}"
+  _K_BASE_ARG="--kubeconfig ~/.kubeconfig.${_CLUSTER}.yml"
 
-  # common kube shortcuts if original tools doesn't exists already
-  if ! command -v kubectl &> /dev/null; then
-    alias kubectl="microk8s.kubectl"
-    alias k="microk8s.kubectl"
-    if microk8s.status &> /dev/null &&\
-      (grep "${USER}" /etc/group | grep -q microk8s || [ "${USER}" = "root" ]);
-    then
-      source <(microk8s.kubectl completion bash)
-      source <(microk8s.kubectl completion bash | sed 's/kubectl/k/g')
+  if [ -z "${_CLUSTER}" ]; then
+    if command -v microk8s.status &> /dev/null &&\
+        grep "${USER}" /etc/group | grep -q microk8s; then
+      # microk8s is up and running, and i'm in microk8s group
+      alias m.enable="microk8s.enable"
+      alias m.disable="microk8s.disable"
+      alias m.start="microk8s.start"
+      alias m.stop="microk8s.stop"
+      alias m.status="microk8s.status"
+
+      if ! command -v kubectl &> /dev/null; then
+        source <(microk8s.kubectl completion bash)
+        source <(microk8s.kubectl completion bash | sed 's/kubectl/k/g')
+        alias kubectl='microk8s.kubectl'
+        alias k='microk8s.kubectl'
+      fi
+
+      if ! command -v helm &> /dev/null &&\
+        microk8s status | grep -qF 'helm: enable'; then
+        source <(microk8s.helm completion bash)
+        alias helm='microk8s.helm'
+      fi
+    else
+      if command -v kubectl &> /dev/null; then
+        source <(kubectl completion bash)
+        source <(kubectl completion bash | sed 's/kubectl/k/g')
+        alias k='kubectl'
+      fi
+      if command -v helm &> /dev/null; then
+        source <(helm completion bash)
+      fi
     fi
-  fi
-  if ! command -v helm &> /dev/null; then
-    alias helm="microk8s.helm"
-  fi
-fi
-
-# kubectl
-if command -v kubectl &> /dev/null; then
-  source <(kubectl completion bash)
-  source <(kubectl completion bash | sed 's/kubectl/k/g')
-
-  alias k='kubectl'
-
-  kset () {
+  else
     #shellcheck disable=SC2139
-    alias kubectl="kubectl --kubeconfig ~/.kubeconfig.${1}.yml"
-  }
-fi
+    alias kubectl="kubectl ${_K_BASE_ARG}"
+  fi
+  set +x
+}
 
 # lazygit
 if command -v lazygit &> /dev/null; then
