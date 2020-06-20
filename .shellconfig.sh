@@ -439,6 +439,9 @@ kset () {
   set +x
 }
 
+# git
+alias g=git # extra lazy git alias, I know
+
 # lazygit
 if command -v lazygit &> /dev/null; then
   alias lgt=lazygit
