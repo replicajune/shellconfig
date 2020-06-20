@@ -812,4 +812,3 @@ fi
 #   later and on in this shell config
 # - SC2001 / https://github.com/koalaman/shellcheck/wiki/SC2001
 #   Used pattern is not transposable in the form of ${variable//search/replace}
-#
