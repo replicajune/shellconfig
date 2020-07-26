@@ -439,6 +439,20 @@ kset () {
   set +x
 }
 
+if command -v k3s &> /dev/null; then
+  k3s.recycle () {
+    # reset or install k3s
+    [ "$(id -u)" != '0' ] || exit 1 # don't execute stuff as root
+    command -v k3s &> /dev/null && k3s-uninstall.sh # remove everything
+    curl -sfL https://get.k3s.io | sh - # re-install
+    # import root config to user home - will override an existing config !!
+    [ -f /etc/rancher/k3s/k3s.yaml ] && {
+      sudo cp -f "/etc/rancher/k3s/k3s.yaml" "${HOME}/.kube/config";
+      sudo chown "${USER}" "${HOME}/.kube/config"
+    }
+  }
+fi
+
 # git
 alias g=git # extra lazy git alias, I know
 
