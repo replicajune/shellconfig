@@ -178,9 +178,9 @@ if command -v protonvpn &> /dev/null; then
   PVPN="$(whereis -b protonvpn | head -1 | cut -f2 -d" ")"
   if [ -x "${PVPN}" ]; then
     # shellcheck disable=SC2139
-    alias protonvpn="${PVPN}"
+    alias protonvpn="sudo ${PVPN}"
     # shellcheck disable=SC2139
-    alias pvpn="${PVPN}"
+    alias pvpn="sudo ${PVPN}"
   fi
 fi
 
@@ -331,6 +331,14 @@ if command -v python &> /dev/null || command -v python3 &> /dev/null; then
     fi
     . "${HOME}/.venv/${PKG}/bin/activate"
   }
+fi
+
+if command -v openstack &> /dev/null; then
+  alias oc=openstack
+fi
+
+if command -v terraform &> /dev/null; then
+  alias tf=terraform
 fi
 
 # docker
