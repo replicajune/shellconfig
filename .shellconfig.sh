@@ -442,7 +442,7 @@ if command -v k3s &> /dev/null; then
 fi
 
 # git
-alias g=git # extra lazy git alias, I know
+alias g=git
 
 # lazygit
 if command -v lazygit &> /dev/null; then
@@ -794,7 +794,7 @@ for INCLUDE in ~/.local.sh ~/.offline.sh ~/.online.sh; do
 done
 
 # --- TMUX : disable
-# - inclide  "export TMUX=disable" before loading shellconfig
+# - include  "export TMUX=disable" before loading shellconfig
 # uninstall tmux
 if command -v tmux &> /dev/null &&\
    [ -z "$TMUX" ] &&\
