@@ -32,6 +32,7 @@ fi
 # history with date, no size limit
 export HISTCONTROL=ignoreboth
 export HISTSIZE='INF'
+export HISTFILESIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
 export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
 
