@@ -328,7 +328,7 @@ if command -v python &> /dev/null || command -v python3 &> /dev/null; then
 
     # setup a new virtual env if it doesn't exists, and activate it
     if ! [ -d "${HOME}/.venv/${PKG}" ]; then
-      python -m venv "${HOME}/.venv/${PKG}"
+      python3 -m venv "${HOME}/.venv/${PKG}"
     fi
     . "${HOME}/.venv/${PKG}/bin/activate"
   }
