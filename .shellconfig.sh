@@ -410,14 +410,14 @@ kset () {
   _K_BASE_ARG="--kubeconfig ~/.kubeconfig.${_CLUSTER}.yml"
 
   if [ -z "${_CLUSTER}" ]; then
-      if command -v kubectl &> /dev/null; then
-        source <(kubectl completion bash)
-        source <(kubectl completion bash | sed 's/kubectl/k/g')
-        alias k='kubectl'
-      fi
-      if command -v helm &> /dev/null; then
-        source <(helm completion bash)
-      fi
+    if command -v kubectl &> /dev/null; then
+      source <(kubectl completion bash)
+      source <(kubectl completion bash | sed 's/kubectl/k/g')
+      alias k='kubectl'
+    fi
+    if command -v helm &> /dev/null; then
+      source <(helm completion bash)
+    fi
   else
     #shellcheck disable=SC2139
     alias kubectl="kubectl ${_K_BASE_ARG}"
