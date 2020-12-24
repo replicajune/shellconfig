@@ -428,8 +428,11 @@ if command -v k3s &> /dev/null; then
   k3s.recycle () {
     # reset or install k3s
     [ "$(id -u)" != '0' ] || exit 1 # don't execute stuff as root
-    command -v k3s &> /dev/null && k3s-uninstall.sh # remove everything
+    { command -v k3s &> /dev/null && k3s-uninstall.sh; } || true # clean up
     curl -sfL https://get.k3s.io | sh - # re-install
+    # backup an already existing config, in case..
+    [ -f "${HOME}/.kube/config" ] && {
+      mv "${HOME}/.kube/config" "${HOME}/.kube/config.$(date +%Y%m%d%H%M%S).backup"; }
     # import root config to user home - will override an existing config !!
     [ -f /etc/rancher/k3s/k3s.yaml ] && {
       sudo cp -f "/etc/rancher/k3s/k3s.yaml" "${HOME}/.kube/config";
