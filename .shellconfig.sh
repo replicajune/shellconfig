@@ -422,7 +422,6 @@ kset () {
     #shellcheck disable=SC2139
     alias kubectl="kubectl ${_K_BASE_ARG}"
   fi
-  set +x
 }
 
 if command -v k3s &> /dev/null; then
