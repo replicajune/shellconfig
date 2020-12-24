@@ -32,6 +32,7 @@ fi
 # history with date, no size limit
 export HISTCONTROL=ignoreboth
 export HISTSIZE='INF'
+export HISTFILESIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
 export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
 
@@ -178,9 +179,9 @@ if command -v protonvpn &> /dev/null; then
   PVPN="$(whereis -b protonvpn | head -1 | cut -f2 -d" ")"
   if [ -x "${PVPN}" ]; then
     # shellcheck disable=SC2139
-    alias protonvpn="${PVPN}"
+    alias protonvpn="sudo ${PVPN}"
     # shellcheck disable=SC2139
-    alias pvpn="${PVPN}"
+    alias pvpn="sudo ${PVPN}"
   fi
 fi
 
@@ -327,10 +328,18 @@ if command -v python &> /dev/null || command -v python3 &> /dev/null; then
 
     # setup a new virtual env if it doesn't exists, and activate it
     if ! [ -d "${HOME}/.venv/${PKG}" ]; then
-      python -m venv "${HOME}/.venv/${PKG}"
+      python3 -m venv "${HOME}/.venv/${PKG}"
     fi
     . "${HOME}/.venv/${PKG}/bin/activate"
   }
+fi
+
+if command -v openstack &> /dev/null; then
+  alias oc=openstack
+fi
+
+if command -v terraform &> /dev/null; then
+  alias tf=terraform
 fi
 
 # docker
@@ -355,7 +364,7 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   alias dki="docker system info"
 
   # other aliases involving docker images
-  alias mdlt='docker run --rm -i -v "${PWD}:/srv:ro" -v "/etc:/etc:ro" replicajune/markdown-link-tester'
+  alias mlt='docker run --rm -i -v "${PWD}:/srv:ro" -v "/etc:/etc:ro" registry.gitlab.com/replicajune/markdown-link-tester:latest'
   if ! command -v shellcheck &> /dev/null; then
     alias shellcheck='docker run --rm -i -v "${PWD}:/mnt:ro" -v "/etc:/etc:ro" koalaman/shellcheck -x'
   fi
@@ -390,7 +399,7 @@ if command -v lxc &> /dev/null; then
   }
 fi
 
-# kubectl, helm, MicroK8s
+# kubectl, helm
 kset () {
   # usage :
   # - kset : set completions and aliases for kubectl and helm
@@ -401,50 +410,29 @@ kset () {
   _K_BASE_ARG="--kubeconfig ~/.kubeconfig.${_CLUSTER}.yml"
 
   if [ -z "${_CLUSTER}" ]; then
-    if command -v microk8s.status &> /dev/null &&\
-        grep "${USER}" /etc/group | grep -q microk8s; then
-      # microk8s is up and running, and i'm in microk8s group
-      alias m.enable="microk8s.enable"
-      alias m.disable="microk8s.disable"
-      alias m.start="microk8s.start"
-      alias m.stop="microk8s.stop"
-      alias m.status="microk8s.status"
-
-      if ! command -v kubectl &> /dev/null; then
-        source <(microk8s.kubectl completion bash)
-        source <(microk8s.kubectl completion bash | sed 's/kubectl/k/g')
-        alias kubectl='microk8s.kubectl'
-        alias k='microk8s.kubectl'
-      fi
-
-      if ! command -v helm &> /dev/null &&\
-        microk8s status | grep -qF 'helm: enable'; then
-        source <(microk8s.helm completion bash)
-        alias helm='microk8s.helm'
-      fi
-    else
-      if command -v kubectl &> /dev/null; then
-        source <(kubectl completion bash)
-        source <(kubectl completion bash | sed 's/kubectl/k/g')
-        alias k='kubectl'
-      fi
-      if command -v helm &> /dev/null; then
-        source <(helm completion bash)
-      fi
+    if command -v kubectl &> /dev/null; then
+      source <(kubectl completion bash)
+      source <(kubectl completion bash | sed 's/kubectl/k/g')
+      alias k='kubectl'
+    fi
+    if command -v helm &> /dev/null; then
+      source <(helm completion bash)
     fi
   else
     #shellcheck disable=SC2139
     alias kubectl="kubectl ${_K_BASE_ARG}"
   fi
-  set +x
 }
 
 if command -v k3s &> /dev/null; then
   k3s.recycle () {
     # reset or install k3s
     [ "$(id -u)" != '0' ] || exit 1 # don't execute stuff as root
-    command -v k3s &> /dev/null && k3s-uninstall.sh # remove everything
+    { command -v k3s &> /dev/null && k3s-uninstall.sh; } || true # clean up
     curl -sfL https://get.k3s.io | sh - # re-install
+    # backup an already existing config, in case..
+    [ -f "${HOME}/.kube/config" ] && {
+      mv "${HOME}/.kube/config" "${HOME}/.kube/config.$(date +%Y%m%d%H%M%S).backup"; }
     # import root config to user home - will override an existing config !!
     [ -f /etc/rancher/k3s/k3s.yaml ] && {
       sudo cp -f "/etc/rancher/k3s/k3s.yaml" "${HOME}/.kube/config";
@@ -454,7 +442,7 @@ if command -v k3s &> /dev/null; then
 fi
 
 # git
-alias g=git # extra lazy git alias, I know
+alias g=git
 
 # lazygit
 if command -v lazygit &> /dev/null; then
@@ -650,7 +638,7 @@ d () { # a couple of city I like to know the time of
              Europe/Bucharest \
              Europe/Paris     \
              UTC              \
-             America/Montreal \
+             America/New_York \
              America/Los_Angeles; do
     if { [ -f '/etc/timezone' ] && [ "$(cat /etc/timezone)" = "$LOC" ]; } || \
        { [ -L '/etc/localtime' ] &&\
@@ -806,7 +794,7 @@ for INCLUDE in ~/.local.sh ~/.offline.sh ~/.online.sh; do
 done
 
 # --- TMUX : disable
-# - inclide  "export TMUX=disable" before loading shellconfig
+# - include  "export TMUX=disable" before loading shellconfig
 # uninstall tmux
 if command -v tmux &> /dev/null &&\
    [ -z "$TMUX" ] &&\
