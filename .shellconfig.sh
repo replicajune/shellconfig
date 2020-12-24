@@ -399,7 +399,7 @@ if command -v lxc &> /dev/null; then
   }
 fi
 
-# kubectl, helm, MicroK8s
+# kubectl, helm
 kset () {
   # usage :
   # - kset : set completions and aliases for kubectl and helm
@@ -410,28 +410,6 @@ kset () {
   _K_BASE_ARG="--kubeconfig ~/.kubeconfig.${_CLUSTER}.yml"
 
   if [ -z "${_CLUSTER}" ]; then
-    if command -v microk8s.status &> /dev/null &&\
-        grep "${USER}" /etc/group | grep -q microk8s; then
-      # microk8s is up and running, and i'm in microk8s group
-      alias m.enable="microk8s.enable"
-      alias m.disable="microk8s.disable"
-      alias m.start="microk8s.start"
-      alias m.stop="microk8s.stop"
-      alias m.status="microk8s.status"
-
-      if ! command -v kubectl &> /dev/null; then
-        source <(microk8s.kubectl completion bash)
-        source <(microk8s.kubectl completion bash | sed 's/kubectl/k/g')
-        alias kubectl='microk8s.kubectl'
-        alias k='microk8s.kubectl'
-      fi
-
-      if ! command -v helm &> /dev/null &&\
-        microk8s status | grep -qF 'helm: enable'; then
-        source <(microk8s.helm completion bash)
-        alias helm='microk8s.helm'
-      fi
-    else
       if command -v kubectl &> /dev/null; then
         source <(kubectl completion bash)
         source <(kubectl completion bash | sed 's/kubectl/k/g')
@@ -440,7 +418,6 @@ kset () {
       if command -v helm &> /dev/null; then
         source <(helm completion bash)
       fi
-    fi
   else
     #shellcheck disable=SC2139
     alias kubectl="kubectl ${_K_BASE_ARG}"
