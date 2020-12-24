@@ -638,7 +638,7 @@ d () { # a couple of city I like to know the time of
              Europe/Bucharest \
              Europe/Paris     \
              UTC              \
-             America/Montreal \
+             America/New_York \
              America/Los_Angeles; do
     if { [ -f '/etc/timezone' ] && [ "$(cat /etc/timezone)" = "$LOC" ]; } || \
        { [ -L '/etc/localtime' ] &&\
