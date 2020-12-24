@@ -364,7 +364,7 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   alias dki="docker system info"
 
   # other aliases involving docker images
-  alias mdlt='docker run --rm -i -v "${PWD}:/srv:ro" -v "/etc:/etc:ro" replicajune/markdown-link-tester'
+  alias mlt='docker run --rm -i -v "${PWD}:/srv:ro" -v "/etc:/etc:ro" registry.gitlab.com/replicajune/markdown-link-tester:latest'
   if ! command -v shellcheck &> /dev/null; then
     alias shellcheck='docker run --rm -i -v "${PWD}:/mnt:ro" -v "/etc:/etc:ro" koalaman/shellcheck -x'
   fi
