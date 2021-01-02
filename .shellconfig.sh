@@ -365,6 +365,7 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
 
   # other aliases involving docker images
   alias mlt='docker run --rm -i -v "${PWD}:/srv:ro" -v "/etc:/etc:ro" registry.gitlab.com/replicajune/markdown-link-tester:latest'
+  alias kaniko='docker run --rm --workdir "/workspace" -v "${PWD}:/workspace:ro" --entrypoint "" gcr.io/kaniko-project/executor:debug /kaniko/executor --no-push --force'
   if ! command -v shellcheck &> /dev/null; then
     alias shellcheck='docker run --rm -i -v "${PWD}:/mnt:ro" -v "/etc:/etc:ro" koalaman/shellcheck -x'
   fi
@@ -782,7 +783,9 @@ if [ -z "${0##*bash}" ] || [ -z "${0##*ash}" ] ; then
   PS2='…  '
 fi
 
-# --- include extra config files :
+# --- EXTRA SOURCES
+
+# Include extra config files :
 # - ~/.online.sh:  cross-system sharing configs (bluetooth, lan dependend, etc)
 # - ~/.offline.sh: for machine dependent configs or secrets (pass, tokens)
 # - ~/.local.sh: for local configs worth an external sync
@@ -793,7 +796,15 @@ for INCLUDE in ~/.local.sh ~/.offline.sh ~/.online.sh; do
   fi
 done
 
-# --- TMUX : disable
+# current imported .dircolors from https://www.nordtheme.com/docs/ports/dircolors/installation
+if [ -r "${HOME}/.dir_colors" ] \
+&& command -v dircolors &> /dev/null; then
+  eval "$(dircolors "${HOME}/.dir_colors")"
+fi
+
+# --- TMUX
+
+# disable:
 # - include  "export TMUX=disable" before loading shellconfig
 # uninstall tmux
 if command -v tmux &> /dev/null &&\
