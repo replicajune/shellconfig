@@ -8,9 +8,14 @@ fi
 
 # --- ENVIRONMENTS VARIABLES
 
-# user binary in ~/.local/bin
+# user binaries in ~/.local/bin
 if [ -n "${PATH##*/.local/bin*}" ]; then
   export PATH=$PATH:/home/${SUDO_USER-$USER}/.local/bin
+fi
+
+# "global" binaries in /opt/bin
+if [ -n "${PATH##*/opt/bin*}" ]; then
+  export PATH=$PATH:/opt/bin
 fi
 
 # user default python virtual env in ~/.venv/global
