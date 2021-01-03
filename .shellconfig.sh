@@ -66,13 +66,19 @@ fi
 
 alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
 
-alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias hl="grep -izF" # highlight
 alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 # shellcheck disable=SC2139
 alias e="${EDITOR}"
+
+# safe rm
+if [ -z "${XDG_CURRENT_DESKTOP##*GNOME*}" ]; then
+  alias rm='gio trash'
+else
+  alias rm="rm -i"
+fi
 
 # compress, decompress
 alias cpx="tar -capfv" # cpx archname.tar.xz dir
@@ -570,7 +576,7 @@ if command -v vagrant &> /dev/null; then
     vagrant ssh
     vagrant destroy -f
     cd "${CWD}" || cd "${HOME}" || return 1
-    rm -rf "${TMP_DIR}"
+    command rm -rf "${TMP_DIR}"
   }
 fi
 
