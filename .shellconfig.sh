@@ -281,12 +281,19 @@ esac
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   alias status="systemctl status"
   alias sctl="sudo systemctl"
+  alias ctl="systemctl --user"
   alias j="sudo journalctl --since '7 days ago'"
   alias jf="sudo journalctl -f"
   alias jg="sudo journalctl --since '7 days ago' --no-pager | grep"
   health() {
+    local SCTL
+    if [ "${1}" = "u" ]; then
+      SCTL="systemctl --user"
+    else
+      SCTL="sudo systemctl"
+    fi
     # return status health for systemd, show failed units if system isn't healthy
-    case "$(sudo systemctl is-system-running | tr -d '\n')" in
+    case "$(${SCTL} is-system-running | tr -d '\n')" in
       running)
         echo -e '\e[32m●\e[0m system running' # green circle
       ;;
@@ -299,7 +306,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
       degraded)
         echo -e '\e[33m⚑\e[0m System in degraded mode:' # orange flag
         # is in failed state
-        sudo systemctl --failed
+        ${SCTL} --failed
       ;;
       maintenance)
         echo -e '\e[5m\e[31mx\e[0m System currently in maintenance' # blk red
@@ -700,8 +707,12 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
     systemctl is-system-running &> /dev/null \
     || echo -ne '\e[33m●\e[0m '
   }
+  _SCSDSTU () {
+    systemctl --user is-system-running &> /dev/null \
+    || echo -ne '\e[35m●\e[0m '
+  }
   # shellcheck disable=SC2016
-  _SCSDSTS='$(_SCSDST)'
+  _SCSDSTS='$(_SCSDST)$(_SCSDSTU)'
 fi
 
 # exit status in red if != 0
