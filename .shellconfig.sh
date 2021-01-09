@@ -679,6 +679,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
     || echo -ne '\e[33m●\e[0m '
   }
   _SCSDSTU () {
+    [ "${USER}" = "root" ] && return 0
     systemctl --user is-system-running &> /dev/null \
     || echo -ne '\e[35m●\e[0m '
   }
