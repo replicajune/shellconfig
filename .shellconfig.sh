@@ -68,6 +68,11 @@ alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 # shellcheck disable=SC2139
 alias e="${EDITOR}"
 
+# open, using desktop stuff
+if command -v xdg-open &> /dev/null; then
+  alias open="xdg-open"
+fi
+
 # safe rm
 if [ -z "${XDG_CURRENT_DESKTOP##*GNOME*}" ]; then
   alias rm='gio trash'
