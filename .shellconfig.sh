@@ -18,11 +18,6 @@ if [ -n "${PATH##*/opt/bin*}" ]; then
   export PATH=$PATH:/opt/bin
 fi
 
-# user default python virtual env in ~/.venv/global
-if [ -n "${PATH##*/.venv/global/bin*}" ]; then
-  export PATH=$PATH:/home/${SUDO_USER-$USER}/.venv/global/bin
-fi
-
 # use vim if possible, nano otherwise
 if command -v vim &> /dev/null; then
   export VISUAL='vim'
@@ -152,20 +147,6 @@ lsn () {
     ;;
   esac
 }
-
-# protonvpn
-if command -v protonvpn &> /dev/null; then
-  # protonvpn required to be run as root most of the time but is installed
-  # in a user homefolder (through a global venv). calling an non PATHed bin
-  # fails so I need another strategy.
-  PVPN="$(whereis -b protonvpn | head -1 | cut -f2 -d" ")"
-  if [ -x "${PVPN}" ]; then
-    # shellcheck disable=SC2139
-    alias protonvpn="sudo ${PVPN}"
-    # shellcheck disable=SC2139
-    alias pvpn="sudo ${PVPN}"
-  fi
-fi
 
 
 # virt type of host
@@ -297,14 +278,6 @@ fi
 
 # python
 if command -v python &> /dev/null || command -v python3 &> /dev/null; then
-  if command -v python3 &> /dev/null; then
-    alias python='python3'
-    alias pip='pip3'
-  fi
-  if command -v ipython &> /dev/null; then
-    alias ipy=ipython
-  fi
-
   venv() {
     # spawn a virtual python env with a given name, usualy a package name.
     # usage: venv package
