@@ -172,13 +172,13 @@ case "${ID}" in
       fi
     }
     cleanpm () {
-      echo "remove orphans"
-      sudo apt-get autoremove -y > /dev/null;
-      echo "cleaning apt"
-      sudo apt-get autoclean > /dev/null;
-      echo "delete old/removed package configs"
+      echo -e '\e[33m'"REMOVE ORPHANS"'\e[0m'
+      sudo apt-get autoremove -y
+      echo -e '\e[33m'"CLEANING APT"'\e[0m'
+      sudo apt-get autoclean
+      echo -e '\e[33m'"DELETE OLD/REMOVED PACKAGE CONFIGS"'\e[0m'
       for PKG in $(dpkg -l | grep -E '(^rc\s+.*$)' | cut -d' ' -f3); do
-        sudo dpkg -P "${PKG}" > /dev/null
+        sudo dpkg -P "${PKG}"
       done
     }
     ipkg () {
@@ -199,12 +199,12 @@ case "${ID}" in
         fi
       }
       cleanpm () {
-        echo 'remove orphans'
+        echo -e '\e[33m''REMOVE ORPHANS''\e[0m'
         sudo dnf remove -y &> /dev/null
-        echo 'remove older kernel packages'
+        echo -e '\e[33m''REMOVE OLDER KERNEL PACKAGES''\e[0m'
         sudo dnf remove -y \
           "$(dnf repoquery --installonly --latest-limit=-2 -q)" &> /dev/null
-        echo 'clean dnf/rpmdb, remove cached packages'
+        echo -e '\e[33m''CLEAN DNF/RPMDB, REMOVE CACHED PACKAGES''\e[0m'
         sudo dnf clean all &> /dev/null
       }
       ipkg () {
