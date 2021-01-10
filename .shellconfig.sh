@@ -81,8 +81,8 @@ else
 fi
 
 # compress, decompress
-alias cpx="tar -capfv" # cpx archname.tar.xz dir
-alias dpx="tar -xpfv" # dpx archname.tar.xz
+alias cpx="tar -capvf" # cpx archname.tar.xz dir
+alias dpx="tar -xpvf" # dpx archname.tar.xz
 
 if [ "x${ID}" != 'xalpine' ]; then
   # directory stack
