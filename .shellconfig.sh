@@ -775,10 +775,10 @@ if [ -r "${HOME}/.dir_colors" ] \
 fi
 
 # --- TMUX
-
-# disable:
-# - include  "export TMUX=disable" before loading shellconfig
-# uninstall tmux
+alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
+# disable this last bit:
+# - include "export TMUX=disable" before loading shellconfig
+# - uninstall tmux
 if command -v tmux &> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ] &&\
