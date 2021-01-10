@@ -782,7 +782,8 @@ fi
 if command -v tmux &> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ] &&\
-   [ "x${TERM_PROGRAM}" != "xvscode" ]; then
+   [ "x${TERM_PROGRAM}" != "xvscode" ] &&\
+   [ "x${XDG_SESSION_TYPE}" != "xtty" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
   exit
 fi
