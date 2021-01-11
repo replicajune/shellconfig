@@ -18,11 +18,6 @@ if [ -n "${PATH##*/opt/bin*}" ]; then
   export PATH=$PATH:/opt/bin
 fi
 
-# user default python virtual env in ~/.venv/global
-if [ -n "${PATH##*/.venv/global/bin*}" ]; then
-  export PATH=$PATH:/home/${SUDO_USER-$USER}/.venv/global/bin
-fi
-
 # use vim if possible, nano otherwise
 if command -v vim &> /dev/null; then
   export VISUAL='vim'
@@ -66,7 +61,6 @@ fi
 
 alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
 
-alias rm="rm -i"
 alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias hl="grep -izF" # highlight
@@ -74,9 +68,21 @@ alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 # shellcheck disable=SC2139
 alias e="${EDITOR}"
 
+# open, using desktop stuff
+if command -v xdg-open &> /dev/null; then
+  alias open="xdg-open"
+fi
+
+# safe rm
+if [ -z "${XDG_CURRENT_DESKTOP##*GNOME*}" ]; then
+  alias rm='gio trash'
+else
+  alias rm="rm -i"
+fi
+
 # compress, decompress
-alias cpx="tar -capfv" # cpx archname.tar.xz dir
-alias dpx="tar -xpfv" # dpx archname.tar.xz
+alias cpx="tar -capvf" # cpx archname.tar.xz dir
+alias dpx="tar -xpvf" # dpx archname.tar.xz
 
 if [ "x${ID}" != 'xalpine' ]; then
   # directory stack
@@ -147,49 +153,6 @@ lsn () {
   esac
 }
 
-if command -v nc &> /dev/null && ! command -v tcping &> /dev/null; then
-  sping () {
-    # socket ping, leverage nc to check if a tcp port is open on a given host
-    # this function act as a tcping alternative
-    local HOST_NAME
-    local PORT
-    HOST_NAME="${1}"
-    PORT="${2}"
-
-    # sanity checks
-    if ! grep -Eq \
-      '^([a-zA-Z0-9\-]+\.)+([a-zA-Z0-9]+){2,}$' <(echo "${HOST_NAME}"); then
-      echo 'wrong hostname'
-      return 1
-    elif ! grep -Eq '^[0-9]+$' <(echo "${PORT}"); then
-      echo 'wrong port'
-      return 1
-    fi
-
-    # test
-    printf 'tcp socket: '
-    if nc -z "${HOST_NAME}" "${PORT}" &> /dev/null; then
-      echo 'open'
-    else
-      echo 'closed'
-    fi
-  }
-fi
-
-# protonvpn
-if command -v protonvpn &> /dev/null; then
-  # protonvpn required to be run as root most of the time but is installed
-  # in a user homefolder (through a global venv). calling an non PATHed bin
-  # fails so I need another strategy.
-  PVPN="$(whereis -b protonvpn | head -1 | cut -f2 -d" ")"
-  if [ -x "${PVPN}" ]; then
-    # shellcheck disable=SC2139
-    alias protonvpn="sudo ${PVPN}"
-    # shellcheck disable=SC2139
-    alias pvpn="sudo ${PVPN}"
-  fi
-fi
-
 
 # virt type of host
 vtype () {
@@ -214,13 +177,13 @@ case "${ID}" in
       fi
     }
     cleanpm () {
-      echo "remove orphans"
-      sudo apt-get autoremove -y > /dev/null;
-      echo "cleaning apt"
-      sudo apt-get autoclean > /dev/null;
-      echo "delete old/removed package configs"
+      echo -e '\e[33m'"REMOVE ORPHANS"'\e[0m'
+      sudo apt-get autoremove -y
+      echo -e '\e[33m'"CLEANING APT"'\e[0m'
+      sudo apt-get autoclean
+      echo -e '\e[33m'"DELETE OLD/REMOVED PACKAGE CONFIGS"'\e[0m'
       for PKG in $(dpkg -l | grep -E '(^rc\s+.*$)' | cut -d' ' -f3); do
-        sudo dpkg -P "${PKG}" > /dev/null
+        sudo dpkg -P "${PKG}"
       done
     }
     ipkg () {
@@ -241,12 +204,12 @@ case "${ID}" in
         fi
       }
       cleanpm () {
-        echo 'remove orphans'
+        echo -e '\e[33m''REMOVE ORPHANS''\e[0m'
         sudo dnf remove -y &> /dev/null
-        echo 'remove older kernel packages'
+        echo -e '\e[33m''REMOVE OLDER KERNEL PACKAGES''\e[0m'
         sudo dnf remove -y \
           "$(dnf repoquery --installonly --latest-limit=-2 -q)" &> /dev/null
-        echo 'clean dnf/rpmdb, remove cached packages'
+        echo -e '\e[33m''CLEAN DNF/RPMDB, REMOVE CACHED PACKAGES''\e[0m'
         sudo dnf clean all &> /dev/null
       }
       ipkg () {
@@ -275,12 +238,19 @@ esac
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   alias status="systemctl status"
   alias sctl="sudo systemctl"
+  alias ctl="systemctl --user"
   alias j="sudo journalctl --since '7 days ago'"
   alias jf="sudo journalctl -f"
   alias jg="sudo journalctl --since '7 days ago' --no-pager | grep"
   health() {
+    local SCTL
+    if [ "${1}" = "u" ]; then
+      SCTL="systemctl --user"
+    else
+      SCTL="sudo systemctl"
+    fi
     # return status health for systemd, show failed units if system isn't healthy
-    case "$(sudo systemctl is-system-running | tr -d '\n')" in
+    case "$(${SCTL} is-system-running | tr -d '\n')" in
       running)
         echo -e '\e[32m●\e[0m system running' # green circle
       ;;
@@ -293,7 +263,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
       degraded)
         echo -e '\e[33m⚑\e[0m System in degraded mode:' # orange flag
         # is in failed state
-        sudo systemctl --failed
+        ${SCTL} --failed
       ;;
       maintenance)
         echo -e '\e[5m\e[31mx\e[0m System currently in maintenance' # blk red
@@ -313,14 +283,6 @@ fi
 
 # python
 if command -v python &> /dev/null || command -v python3 &> /dev/null; then
-  if command -v python3 &> /dev/null; then
-    alias python='python3'
-    alias pip='pip3'
-  fi
-  if command -v ipython &> /dev/null; then
-    alias ipy=ipython
-  fi
-
   venv() {
     # spawn a virtual python env with a given name, usualy a package name.
     # usage: venv package
@@ -499,7 +461,7 @@ if command -v vagrant &> /dev/null; then
     UUID=$(cat /proc/sys/kernel/random/uuid)
     TMP_DIR="/tmp/vmspan.${UUID}"
 
-    if ! echo "${IMAGE}" | grep -Eq '^[a-Z0-9]+/[a-Z0-9\.\-\_]+$'; then
+    if ! echo "${IMAGE}" | grep -Eq '^[[:alnum:]]+/([-\._[:alnum:]])+$'; then
       echo 'wrong image name'
       return 1
     fi
@@ -570,7 +532,7 @@ if command -v vagrant &> /dev/null; then
     vagrant ssh
     vagrant destroy -f
     cd "${CWD}" || cd "${HOME}" || return 1
-    rm -rf "${TMP_DIR}"
+    command rm -rf "${TMP_DIR}"
   }
 fi
 
@@ -694,8 +656,13 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
     systemctl is-system-running &> /dev/null \
     || echo -ne '\e[33m●\e[0m '
   }
+  _SCSDSTU () {
+    [ "${USER}" = "root" ] && return 0
+    systemctl --user is-system-running &> /dev/null \
+    || echo -ne '\e[35m●\e[0m '
+  }
   # shellcheck disable=SC2016
-  _SCSDSTS='$(_SCSDST)'
+  _SCSDSTS='$(_SCSDST)$(_SCSDSTU)'
 fi
 
 # exit status in red if != 0
@@ -808,14 +775,15 @@ if [ -r "${HOME}/.dir_colors" ] \
 fi
 
 # --- TMUX
-
-# disable:
-# - include  "export TMUX=disable" before loading shellconfig
-# uninstall tmux
+alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
+# disable this last bit:
+# - include "export TMUX=disable" before loading shellconfig
+# - uninstall tmux
 if command -v tmux &> /dev/null &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ] &&\
-   [ "x${TERM_PROGRAM}" != "xvscode" ]; then
+   [ "x${TERM_PROGRAM}" != "xvscode" ] &&\
+   [ "x${XDG_SESSION_TYPE}" != "xtty" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
   exit
 fi
