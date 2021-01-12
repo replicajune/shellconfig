@@ -29,6 +29,8 @@ else
   alias vless='nano --nohelp --view'
 fi
 
+alias co="codium -ra ."
+
 # history with date, no size limit
 export HISTCONTROL=ignoreboth
 export HISTSIZE='INF'
@@ -118,6 +120,7 @@ fi
 if command -v gio &> /dev/null; then
   export ELECTRON_TRASH=gio # https://github.com/atom/atom/issues/17452
   alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
+  alias et="gio trash --empty" # empty trash
 fi
 
 # network
