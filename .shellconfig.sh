@@ -400,7 +400,8 @@ if command -v k3s &> /dev/null; then
     # reset or install k3s
     [ "$(id -u)" != '0' ] || exit 1 # don't execute stuff as root
     { command -v k3s &> /dev/null && k3s-uninstall.sh; } || true # clean up
-    curl -sfL https://get.k3s.io | sh - # re-install
+    # https://rancher.com/docs/k3s/latest/en/installation/install-options/how-to-flags/
+    curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 # re-install
     # backup an already existing config, in case..
     [ -f "${HOME}/.kube/config" ] && {
       mv "${HOME}/.kube/config" "${HOME}/.kube/config.$(date +%Y%m%d%H%M%S).backup"; }
