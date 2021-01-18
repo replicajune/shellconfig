@@ -29,6 +29,8 @@ else
   alias vless='nano --nohelp --view'
 fi
 
+alias co="codium -ra ."
+
 # history with date, no size limit
 export HISTCONTROL=ignoreboth
 export HISTSIZE='INF'
@@ -118,6 +120,7 @@ fi
 if command -v gio &> /dev/null; then
   export ELECTRON_TRASH=gio # https://github.com/atom/atom/issues/17452
   alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
+  alias et="gio trash --empty" # empty trash
 fi
 
 # network
@@ -397,7 +400,8 @@ if command -v k3s &> /dev/null; then
     # reset or install k3s
     [ "$(id -u)" != '0' ] || exit 1 # don't execute stuff as root
     { command -v k3s &> /dev/null && k3s-uninstall.sh; } || true # clean up
-    curl -sfL https://get.k3s.io | sh - # re-install
+    # https://rancher.com/docs/k3s/latest/en/installation/install-options/how-to-flags/
+    curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 # re-install
     # backup an already existing config, in case..
     [ -f "${HOME}/.kube/config" ] && {
       mv "${HOME}/.kube/config" "${HOME}/.kube/config.$(date +%Y%m%d%H%M%S).backup"; }
@@ -591,7 +595,8 @@ terminate () {
 # misc
 alias h="history | tail -20"
 alias gh='history | grep'
-alias see="grep -Ev '(^$)|(^#\s.*$)|(^#$)|(^;.*$)|(^\s+#\s.*$)'"
+# shellcheck disable=SC2142
+alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 alias datei="date --iso-8601=m"
 alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
