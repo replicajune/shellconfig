@@ -110,7 +110,6 @@ fi
 alias topd='sudo sh -c "du -shc .[!.]* * |sort -rh |head -11" 2> /dev/null'
 alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
-alias dropcaches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 
 # replace top for htop
 if command -v htop &> /dev/null; then
@@ -179,16 +178,6 @@ case "${ID}" in
         sudo snap refresh
       fi
     }
-    cleanpm () {
-      echo -e '\e[33m'"REMOVE ORPHANS"'\e[0m'
-      sudo apt-get autoremove -y
-      echo -e '\e[33m'"CLEANING APT"'\e[0m'
-      sudo apt-get autoclean
-      echo -e '\e[33m'"DELETE OLD/REMOVED PACKAGE CONFIGS"'\e[0m'
-      for PKG in $(dpkg -l | grep -E '(^rc\s+.*$)' | cut -d' ' -f3); do
-        sudo dpkg -P "${PKG}"
-      done
-    }
     ipkg () {
       sudo apt install -y "./${1}"
     }
@@ -205,15 +194,6 @@ case "${ID}" in
         if command -v snap &> /dev/null; then
           sudo snap refresh
         fi
-      }
-      cleanpm () {
-        echo -e '\e[33m''REMOVE ORPHANS''\e[0m'
-        sudo dnf remove -y &> /dev/null
-        echo -e '\e[33m''REMOVE OLDER KERNEL PACKAGES''\e[0m'
-        sudo dnf remove -y \
-          "$(dnf repoquery --installonly --latest-limit=-2 -q)" &> /dev/null
-        echo -e '\e[33m''CLEAN DNF/RPMDB, REMOVE CACHED PACKAGES''\e[0m'
-        sudo dnf clean all &> /dev/null
       }
       ipkg () {
         sudo dnf install -y "./${1}"
