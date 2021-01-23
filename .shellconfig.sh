@@ -572,6 +572,12 @@ terminate () {
   fi
 }
 
+# tmux
+if command -v tmux &> /dev/null; then
+  alias irc="tmux neww irssi"
+  command -v tmux &> /dev/null && alias lgt="tmux neww lazygit"
+fi
+
 # misc
 alias h="history | tail -20"
 alias gh='history | grep'
@@ -582,6 +588,7 @@ alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
 alias wtth="curl wttr.in/?qF3n" # 3 days forcast
 alias bt='bluetoothctl'
+alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
 
 d () { # a couple of city I like to know the time of
   local EMPH
@@ -760,7 +767,6 @@ if [ -r "${HOME}/.dir_colors" ] \
 fi
 
 # --- TMUX
-alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
 # disable this last bit:
 # - include "export TMUX=disable" before loading shellconfig
 # - uninstall tmux
