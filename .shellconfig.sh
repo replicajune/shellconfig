@@ -575,7 +575,8 @@ terminate () {
 # tmux
 if command -v tmux &> /dev/null; then
   alias irc="tmux neww irssi"
-  command -v tmux &> /dev/null && alias lgt="tmux neww lazygit"
+  command -v lazygit &> /dev/null && alias lgt="tmux neww lazygit"
+  alias ssh="tmux neww ssh"
 fi
 
 # misc
