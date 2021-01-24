@@ -1,10 +1,28 @@
 #!/bin/bash
 
-# source distrib information; will use 'ID' variable
-# shellcheck source=/etc/os-release
-if [ -f '/etc/os-release' ]; then
-  source '/etc/os-release'
-fi
+# --- SHELL CONFIG
+
+# avoid sourcing if non interactive
+case $- in
+ *i*) ;;
+ *) return;;
+esac
+
+# shell options
+shopt -s histappend # parallel history
+history -a # parallel history
+shopt -s checkwinsize # resize window
+shopt -s autocd # go in a directory without cd
+shopt -s histverify # put a caled historized command in readline
+
+# umask: others should not have default read and execute options
+umask 027
+
+# source profile.d items
+for SRC_PROFILE in /etc/profile.d/*.sh; do
+  # shellcheck source=/dev/null
+  . "${SRC_PROFILE}"
+done
 
 # --- ENVIRONMENTS VARIABLES
 
@@ -42,6 +60,18 @@ export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
 export XZ_DEFAULTS="-T 0"
 
 # --- ALIASES & FUNCTIONS
+
+# source distrib information; will use 'ID' variable
+# shellcheck source=/etc/os-release
+if [ -f '/etc/os-release' ]; then
+  source '/etc/os-release'
+fi
+
+# standard aliases
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
 
 # files managment
 if command -v exa &> /dev/null; then
@@ -394,6 +424,11 @@ if command -v k3s &> /dev/null; then
 fi
 
 # git
+if [ -f "/home/${SUDO_USER-$USER}/.git-prompt.sh" ]; then
+  # shellcheck source=/dev/null
+  . "/home/${SUDO_USER-$USER}/.git-prompt.sh"
+fi
+
 alias g=git
 
 # lazygit
