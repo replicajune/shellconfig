@@ -1,10 +1,28 @@
 #!/bin/bash
 
-# source distrib information; will use 'ID' variable
-# shellcheck source=/etc/os-release
-if [ -f '/etc/os-release' ]; then
-  source '/etc/os-release'
-fi
+# --- SHELL CONFIG
+
+# avoid sourcing if non interactive
+case $- in
+ *i*) ;;
+ *) return;;
+esac
+
+# shell options
+shopt -s histappend # parallel history
+history -a # parallel history
+shopt -s checkwinsize # resize window
+shopt -s autocd # go in a directory without cd
+shopt -s histverify # put a caled historized command in readline
+
+# umask: others should not have default read and execute options
+umask 027
+
+# source profile.d items
+for SRC_PROFILE in /etc/profile.d/*.sh; do
+  # shellcheck source=/dev/null
+  . "${SRC_PROFILE}"
+done
 
 # --- ENVIRONMENTS VARIABLES
 
@@ -42,6 +60,18 @@ export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
 export XZ_DEFAULTS="-T 0"
 
 # --- ALIASES & FUNCTIONS
+
+# source distrib information; will use 'ID' variable
+# shellcheck source=/etc/os-release
+if [ -f '/etc/os-release' ]; then
+  source '/etc/os-release'
+fi
+
+# standard aliases
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
 
 # files managment
 if command -v exa &> /dev/null; then
@@ -110,7 +140,6 @@ fi
 alias topd='sudo sh -c "du -shc .[!.]* * |sort -rh |head -11" 2> /dev/null'
 alias df="df -h"
 alias lsm='mount | grep -E ^/dev | column -t'
-alias dropcaches="echo 3 | sudo tee /proc/sys/vm/drop_caches &> /dev/null"
 
 # replace top for htop
 if command -v htop &> /dev/null; then
@@ -179,16 +208,6 @@ case "${ID}" in
         sudo snap refresh
       fi
     }
-    cleanpm () {
-      echo -e '\e[33m'"REMOVE ORPHANS"'\e[0m'
-      sudo apt-get autoremove -y
-      echo -e '\e[33m'"CLEANING APT"'\e[0m'
-      sudo apt-get autoclean
-      echo -e '\e[33m'"DELETE OLD/REMOVED PACKAGE CONFIGS"'\e[0m'
-      for PKG in $(dpkg -l | grep -E '(^rc\s+.*$)' | cut -d' ' -f3); do
-        sudo dpkg -P "${PKG}"
-      done
-    }
     ipkg () {
       sudo apt install -y "./${1}"
     }
@@ -205,15 +224,6 @@ case "${ID}" in
         if command -v snap &> /dev/null; then
           sudo snap refresh
         fi
-      }
-      cleanpm () {
-        echo -e '\e[33m''REMOVE ORPHANS''\e[0m'
-        sudo dnf remove -y &> /dev/null
-        echo -e '\e[33m''REMOVE OLDER KERNEL PACKAGES''\e[0m'
-        sudo dnf remove -y \
-          "$(dnf repoquery --installonly --latest-limit=-2 -q)" &> /dev/null
-        echo -e '\e[33m''CLEAN DNF/RPMDB, REMOVE CACHED PACKAGES''\e[0m'
-        sudo dnf clean all &> /dev/null
       }
       ipkg () {
         sudo dnf install -y "./${1}"
@@ -336,6 +346,9 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   # other aliases involving docker images
   alias mlt='docker run --rm -i -v "${PWD}:/srv:ro" -v "/etc:/etc:ro" registry.gitlab.com/replicajune/markdown-link-tester:latest'
   alias kaniko='docker run --rm --workdir "/workspace" -v "${PWD}:/workspace:ro" --entrypoint "" gcr.io/kaniko-project/executor:debug /kaniko/executor --no-push --force'
+  alias cinc-auditor='docker run --workdir "/srv" -v "${PWD}:/srv" --entrypoint "/opt/cinc-auditor/bin/cinc-auditor" cincproject/auditor:latest'
+  alias auditor=cinc-auditor
+  alias aud=auditor
   if ! command -v shellcheck &> /dev/null; then
     alias shellcheck='docker run --rm -i -v "${PWD}:/mnt:ro" -v "/etc:/etc:ro" koalaman/shellcheck -x'
   fi
@@ -414,6 +427,11 @@ if command -v k3s &> /dev/null; then
 fi
 
 # git
+if [ -f "/home/${SUDO_USER-$USER}/.git-prompt.sh" ]; then
+  # shellcheck source=/dev/null
+  . "/home/${SUDO_USER-$USER}/.git-prompt.sh"
+fi
+
 alias g=git
 
 # lazygit
@@ -592,6 +610,13 @@ terminate () {
   fi
 }
 
+# tmux
+if command -v tmux &> /dev/null; then
+  alias irc="tmux neww irssi"
+  command -v lazygit &> /dev/null && alias lgt="tmux neww lazygit"
+  alias sst="tmux neww ssh"
+fi
+
 # misc
 alias h="history | tail -20"
 alias gh='history | grep'
@@ -602,6 +627,7 @@ alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
 alias wtth="curl wttr.in/?qF3n" # 3 days forcast
 alias bt='bluetoothctl'
+alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
 
 d () { # a couple of city I like to know the time of
   local EMPH
@@ -780,7 +806,6 @@ if [ -r "${HOME}/.dir_colors" ] \
 fi
 
 # --- TMUX
-alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
 # disable this last bit:
 # - include "export TMUX=disable" before loading shellconfig
 # - uninstall tmux
