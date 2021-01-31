@@ -615,6 +615,11 @@ if command -v tmux &> /dev/null; then
   alias irc="tmux neww irssi"
   command -v lazygit &> /dev/null && alias lgt="tmux neww lazygit"
   alias sst="tmux neww ssh"
+  if command -v htop &> /dev/null; then
+    alias ttop="tmux neww htop"
+  else
+    alias ttop="tmux neww top"
+  fi
 fi
 
 # misc
