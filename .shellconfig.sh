@@ -694,6 +694,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   }
   _SCSDSTU () {
     [ "${USER}" = "root" ] && return 0
+    [ -z "${DBUS_SESSION_BUS_ADDRESS}" ] && return 0
     systemctl --user is-system-running &> /dev/null \
     || echo -ne '\e[35m●\e[0m '
   }
