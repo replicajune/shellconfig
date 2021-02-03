@@ -118,8 +118,8 @@ alias dpx="tar -xpvf" # dpx archname.tar.xz
 
 if [ "x${ID}" != 'xalpine' ]; then
   # directory stack
-  alias lsd="dirs -v" # list stack directory
-  alias pdir="pushd ./ > /dev/null; dirs -v"
+  alias lsd="dirs -v | grep -Ev '^ 0 .*$'" # list stack directory
+  alias pdir="pushd ./ > /dev/null; lsd"
 
   # ressources; regular systems
   alias psf="
