@@ -620,6 +620,11 @@ if command -v tmux &> /dev/null; then
   else
     alias ttop="tmux neww top"
   fi
+  if command -v most &> /dev/null; then
+    alias man='tmux neww man --pager=most --no-hyphenation --no-justification'
+  else
+    alias man='tmux neww man --no-hyphenation --no-justification'
+  fi
 fi
 
 # misc
