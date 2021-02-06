@@ -106,11 +106,7 @@ if command -v xdg-open &> /dev/null; then
 fi
 
 # safe rm
-if [ -z "${XDG_CURRENT_DESKTOP##*GNOME*}" ]; then
-  alias rm='gio trash'
-else
-  alias rm="rm -i"
-fi
+alias rm="rm -i"
 
 # compress, decompress
 alias cpx="tar -capvf" # cpx archname.tar.xz dir
