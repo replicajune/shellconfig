@@ -360,29 +360,6 @@ if command -v docker-compose &> /dev/null; then
   alias dkcd="docker-compose down"
 fi
 
-# LXC
-if command -v lxc &> /dev/null; then
-  # go in a container, do some test, leave. stop and destroy it automatically
-  lxcspawn() {
-    # usage : lxcspawn image_name shell_name
-    # shell is opt, default to bash
-    local IMAGE
-    local SHELL
-    local CNT_NAME
-    IMAGE="${1}"
-    SHELL="${2:-bash}"
-    CNT_NAME=$(head /dev/urandom | tr -dc '[:lower:]' | head -c 12 ; echo '')
-    if [ "x${IMAGE}" = "x" ]; then # no image given
-      lxc image list images: --columns ldu # show list of available ones
-      return 0
-    fi
-    lxc launch "images:${IMAGE}" "$CNT_NAME"
-    lxc exec "$CNT_NAME" "${SHELL}"
-    lxc stop "$CNT_NAME"
-    lxc delete "$CNT_NAME"
-  }
-fi
-
 # kubectl, helm
 kset () {
   # usage :
@@ -442,101 +419,6 @@ if command -v vagrant &> /dev/null; then
       rsync -e "ssh -F ${CONF}" "${@}"
       rm -f "${CONF}"
     fi
-  }
-
-  vmspawn() {
-    # go in a VM, do some test, leave. stop and destroy it automatically
-    # usage : vmspan image_name
-    # lookup names at https://app.vagrantup.com/boxes/search
-    local CWD
-    local IMAGE
-    local PROVIDER
-    local UUID
-    local TMP_DIR
-    local VENDOR
-    local BOX
-    local BOX_URL
-    local VERSION
-    local BOX_FILE_URL
-    CWD="${PWD}"
-    IMAGE="${1:?'no image name given'}"
-    VERSION="${2}"
-    PROVIDER="${VAGRANT_DEFAULT_PROVIDER:-virtualbox}"
-    UUID=$(cat /proc/sys/kernel/random/uuid)
-    TMP_DIR="/tmp/vmspan.${UUID}"
-
-    if ! echo "${IMAGE}" | grep -Eq '^[[:alnum:]]+/([-\._[:alnum:]])+$'; then
-      echo 'wrong image name'
-      return 1
-    fi
-
-    if [ "x${VERISON}" != "x" ] &&\
-      ! echo "${VERSION}" | grep -Eq '^[0-9\.]+$'; then
-      echo 'wrong version given'
-      return 1
-    fi
-
-    VENDOR="${IMAGE%/*}"
-    BOX="${IMAGE#*/}"
-    BOX_URL="https://app.vagrantup.com/${VENDOR}/boxes/${BOX}"
-
-    # check ressource availability
-    if ! [ "$(curl --silent --head --location \
-        --write-out '%{response_code}' --output /dev/null \
-        "${BOX_URL}")" -eq "200" ]; then
-      echo "image not found, check connectivity or given box name"
-      return 1
-    fi
-
-    # fetch latest version of given box
-    if [ "x${VERSION}" = "x" ]; then
-      VERSION="$(
-        curl --location "https://vagrantcloud.com/${IMAGE}" --silent \
-        | jq .versions[0].version | tr -d '"'
-      )"
-    fi
-    BOX_FILE_URL="${BOX_URL}/versions/${VERSION}/providers/${PROVIDER}.box"
-
-    # check box availability
-    if [ "$(curl --silent --head --location \
-        --write-out '%{response_code}' --output /dev/null \
-        "${BOX_FILE_URL}")" -ne "200" ]; then
-      echo "box exists but provider and/or version not available. "
-      return 1
-    fi
-
-    # download vagrant image unconditionally if it doesn't exists locally
-    if vagrant box list \
-        | grep --extended-regexp --silent \
-          "^${IMAGE}\\s+\\(${PROVIDER},\\s${VERSION})$"; then
-      true
-    else
-      echo "box not available localy or is out of date, fetching.."
-      until vagrant box add "${IMAGE}" \
-        --provider ${PROVIDER}\
-        --box-version "${VERSION}"; do
-        sleep "$(shuf --input-range=20-40 --head-count=1)"
-      done
-    fi
-
-    # build a temporary folder to serve as working directory
-    if mkdir "${TMP_DIR}"; then
-      cd "${TMP_DIR}" || return 1
-    else
-      return 1
-    fi
-
-    # build Vagrantfile
-    vagrant init --minimal "${IMAGE}" \
-      --box-version "${VERSION}" \
-      --output "${TMP_DIR}/Vagrantfile"
-
-    # start vagrant
-    vagrant up
-    vagrant ssh
-    vagrant destroy -f
-    cd "${CWD}" || cd "${HOME}" || return 1
-    command rm -rf "${TMP_DIR}"
   }
 fi
 
