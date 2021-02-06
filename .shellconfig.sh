@@ -408,24 +408,6 @@ kset () {
   fi
 }
 
-if command -v k3s &> /dev/null; then
-  k3s.recycle () {
-    # reset or install k3s
-    [ "$(id -u)" != '0' ] || exit 1 # don't execute stuff as root
-    { command -v k3s &> /dev/null && k3s-uninstall.sh; } || true # clean up
-    # https://rancher.com/docs/k3s/latest/en/installation/install-options/how-to-flags/
-    curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 # re-install
-    # backup an already existing config, in case..
-    [ -f "${HOME}/.kube/config" ] && {
-      mv "${HOME}/.kube/config" "${HOME}/.kube/config.$(date +%Y%m%d%H%M%S).backup"; }
-    # import root config to user home - will override an existing config !!
-    [ -f /etc/rancher/k3s/k3s.yaml ] && {
-      sudo cp -f "/etc/rancher/k3s/k3s.yaml" "${HOME}/.kube/config";
-      sudo chown "${USER}" "${HOME}/.kube/config"
-    }
-  }
-fi
-
 # git
 if [ -f "/home/${SUDO_USER-$USER}/.git-prompt.sh" ]; then
   # shellcheck source=/dev/null
