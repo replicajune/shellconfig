@@ -594,6 +594,7 @@ if command -v tmux &> /dev/null; then
 fi
 
 # misc
+alias down="command wget --progress=bar:scroll --no-verbose --show-progress"
 alias h="history | tail -20"
 alias gh='history | grep'
 # shellcheck disable=SC2142
