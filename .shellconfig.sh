@@ -106,11 +106,7 @@ if command -v xdg-open &> /dev/null; then
 fi
 
 # safe rm
-if [ -z "${XDG_CURRENT_DESKTOP##*GNOME*}" ]; then
-  alias rm='gio trash'
-else
-  alias rm="rm -i"
-fi
+alias rm="rm -i"
 
 # compress, decompress
 alias cpx="tar -capvf" # cpx archname.tar.xz dir
@@ -118,8 +114,8 @@ alias dpx="tar -xpvf" # dpx archname.tar.xz
 
 if [ "x${ID}" != 'xalpine' ]; then
   # directory stack
-  alias lsd="dirs -v" # list stack directory
-  alias pdir="pushd ./ > /dev/null; dirs -v"
+  alias lsd="dirs -v | grep -Ev '^ 0 .*$'" # list stack directory
+  alias pdir="pushd ./ > /dev/null; lsd"
 
   # ressources; regular systems
   alias psf="
@@ -360,29 +356,6 @@ if command -v docker-compose &> /dev/null; then
   alias dkcd="docker-compose down"
 fi
 
-# LXC
-if command -v lxc &> /dev/null; then
-  # go in a container, do some test, leave. stop and destroy it automatically
-  lxcspawn() {
-    # usage : lxcspawn image_name shell_name
-    # shell is opt, default to bash
-    local IMAGE
-    local SHELL
-    local CNT_NAME
-    IMAGE="${1}"
-    SHELL="${2:-bash}"
-    CNT_NAME=$(head /dev/urandom | tr -dc '[:lower:]' | head -c 12 ; echo '')
-    if [ "x${IMAGE}" = "x" ]; then # no image given
-      lxc image list images: --columns ldu # show list of available ones
-      return 0
-    fi
-    lxc launch "images:${IMAGE}" "$CNT_NAME"
-    lxc exec "$CNT_NAME" "${SHELL}"
-    lxc stop "$CNT_NAME"
-    lxc delete "$CNT_NAME"
-  }
-fi
-
 # kubectl, helm
 kset () {
   # usage :
@@ -407,24 +380,6 @@ kset () {
     alias kubectl="kubectl ${_K_BASE_ARG}"
   fi
 }
-
-if command -v k3s &> /dev/null; then
-  k3s.recycle () {
-    # reset or install k3s
-    [ "$(id -u)" != '0' ] || exit 1 # don't execute stuff as root
-    { command -v k3s &> /dev/null && k3s-uninstall.sh; } || true # clean up
-    # https://rancher.com/docs/k3s/latest/en/installation/install-options/how-to-flags/
-    curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 # re-install
-    # backup an already existing config, in case..
-    [ -f "${HOME}/.kube/config" ] && {
-      mv "${HOME}/.kube/config" "${HOME}/.kube/config.$(date +%Y%m%d%H%M%S).backup"; }
-    # import root config to user home - will override an existing config !!
-    [ -f /etc/rancher/k3s/k3s.yaml ] && {
-      sudo cp -f "/etc/rancher/k3s/k3s.yaml" "${HOME}/.kube/config";
-      sudo chown "${USER}" "${HOME}/.kube/config"
-    }
-  }
-fi
 
 # git
 if [ -f "/home/${SUDO_USER-$USER}/.git-prompt.sh" ]; then
@@ -461,142 +416,13 @@ if command -v vagrant &> /dev/null; then
       rm -f "${CONF}"
     fi
   }
-
-  vmspawn() {
-    # go in a VM, do some test, leave. stop and destroy it automatically
-    # usage : vmspan image_name
-    # lookup names at https://app.vagrantup.com/boxes/search
-    local CWD
-    local IMAGE
-    local PROVIDER
-    local UUID
-    local TMP_DIR
-    local VENDOR
-    local BOX
-    local BOX_URL
-    local VERSION
-    local BOX_FILE_URL
-    CWD="${PWD}"
-    IMAGE="${1:?'no image name given'}"
-    VERSION="${2}"
-    PROVIDER="${VAGRANT_DEFAULT_PROVIDER:-virtualbox}"
-    UUID=$(cat /proc/sys/kernel/random/uuid)
-    TMP_DIR="/tmp/vmspan.${UUID}"
-
-    if ! echo "${IMAGE}" | grep -Eq '^[[:alnum:]]+/([-\._[:alnum:]])+$'; then
-      echo 'wrong image name'
-      return 1
-    fi
-
-    if [ "x${VERISON}" != "x" ] &&\
-      ! echo "${VERSION}" | grep -Eq '^[0-9\.]+$'; then
-      echo 'wrong version given'
-      return 1
-    fi
-
-    VENDOR="${IMAGE%/*}"
-    BOX="${IMAGE#*/}"
-    BOX_URL="https://app.vagrantup.com/${VENDOR}/boxes/${BOX}"
-
-    # check ressource availability
-    if ! [ "$(curl --silent --head --location \
-        --write-out '%{response_code}' --output /dev/null \
-        "${BOX_URL}")" -eq "200" ]; then
-      echo "image not found, check connectivity or given box name"
-      return 1
-    fi
-
-    # fetch latest version of given box
-    if [ "x${VERSION}" = "x" ]; then
-      VERSION="$(
-        curl --location "https://vagrantcloud.com/${IMAGE}" --silent \
-        | jq .versions[0].version | tr -d '"'
-      )"
-    fi
-    BOX_FILE_URL="${BOX_URL}/versions/${VERSION}/providers/${PROVIDER}.box"
-
-    # check box availability
-    if [ "$(curl --silent --head --location \
-        --write-out '%{response_code}' --output /dev/null \
-        "${BOX_FILE_URL}")" -ne "200" ]; then
-      echo "box exists but provider and/or version not available. "
-      return 1
-    fi
-
-    # download vagrant image unconditionally if it doesn't exists locally
-    if vagrant box list \
-        | grep --extended-regexp --silent \
-          "^${IMAGE}\\s+\\(${PROVIDER},\\s${VERSION})$"; then
-      true
-    else
-      echo "box not available localy or is out of date, fetching.."
-      until vagrant box add "${IMAGE}" \
-        --provider ${PROVIDER}\
-        --box-version "${VERSION}"; do
-        sleep "$(shuf --input-range=20-40 --head-count=1)"
-      done
-    fi
-
-    # build a temporary folder to serve as working directory
-    if mkdir "${TMP_DIR}"; then
-      cd "${TMP_DIR}" || return 1
-    else
-      return 1
-    fi
-
-    # build Vagrantfile
-    vagrant init --minimal "${IMAGE}" \
-      --box-version "${VERSION}" \
-      --output "${TMP_DIR}/Vagrantfile"
-
-    # start vagrant
-    vagrant up
-    vagrant ssh
-    vagrant destroy -f
-    cd "${CWD}" || cd "${HOME}" || return 1
-    command rm -rf "${TMP_DIR}"
-  }
 fi
-
-# download a file using wget and auto resume if failing
-download () {
-  local DEST
-  command -v xdg-user-dir &> /dev/null &&\
-    DEST="$(xdg-user-dir DOWNLOAD)"
-  DEST="${DEST:=~/}"
-  if [ "x${*}" != 'x' ] && [ -d "${DEST}" ] &&\
-     [ "$(curl -XGET -IsLw '%{response_code}' -o /dev/null "${@}")" -eq '200' ];
-  then
-    until wget \
-      --continue --random-wait --directory-prefix="${DEST}" \
-      --progress=bar:scroll --no-verbose --show-progress "${@}"; do
-      true;
-    done
-    sync
-  else
-    return 1
-  fi
-}
 
 wof () {
   # write on file ..
   # usage : wof file.iso /dev/usbthing
   sudo dd if="${1}" of="${2}" bs=32M status=progress
   sync
-}
-
-udsk () {
-  # unmount all filesystemes part of a block device (Unmount DiSK)
-  local BLOCK_DEV
-  BLOCK_DEV="${1?:'missing argument, please specify a block device'}"
-  [ -b "${BLOCK_DEV}" ] || { echo 'argument is not a block device'; return 1; }
-  echo 'unmount all filesystems mounted on specified block device'
-  while IFS= read -r -d '' MOUNTED_FS; do
-    sudo umount "${MOUNTED_FS}" || \
-      { echo "error while unmounting ${MOUNTED_FS}"; return 1; }
-  done  < <(lsblk "${BLOCK_DEV}" --output MOUNTPOINT \
-            | grep -Eo '^/.*$' \
-            | tr '\n' '\0')
 }
 
 terminate () {
@@ -620,9 +446,15 @@ if command -v tmux &> /dev/null; then
   else
     alias ttop="tmux neww top"
   fi
+  if command -v most &> /dev/null; then
+    alias man='tmux neww man --pager=most --no-hyphenation --no-justification'
+  else
+    alias man='tmux neww man --no-hyphenation --no-justification'
+  fi
 fi
 
 # misc
+alias down="command wget --progress=bar:scroll --no-verbose --show-progress"
 alias h="history | tail -20"
 alias gh='history | grep'
 # shellcheck disable=SC2142
@@ -633,6 +465,7 @@ alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
 alias wtth="curl wttr.in/?qF3n" # 3 days forcast
 alias bt='bluetoothctl'
 alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
+alias reload-bash=". ~/.bashrc"
 
 d () { # a couple of city I like to know the time of
   local EMPH
@@ -694,6 +527,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   }
   _SCSDSTU () {
     [ "${USER}" = "root" ] && return 0
+    [ -z "${DBUS_SESSION_BUS_ADDRESS}" ] && return 0
     systemctl --user is-system-running &> /dev/null \
     || echo -ne '\e[35m●\e[0m '
   }
