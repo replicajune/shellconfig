@@ -611,7 +611,7 @@ if env | grep -Eq "^SSH_CONNECTION=.*$"; then
   # you're not home, be careful - root may be standard, you're on your own!
   PS_PROMPT=$_CC_orange'\n> '$_CC_reset
 else
-  PS_PROMPT='\n>_ '
+  PS_PROMPT='\n> '
 fi
 
 # PS1/2 definition
