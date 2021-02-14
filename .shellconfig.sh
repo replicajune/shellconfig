@@ -609,7 +609,7 @@ PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
 
 if env | grep -Eq "^SSH_CONNECTION=.*$"; then
   # you're not home, be careful - root may be standard, you're on your own!
-  PS_PROMPT=$_CC_orange'\n>_ '$_CC_reset
+  PS_PROMPT=$_CC_orange'\n> '$_CC_reset
 else
   PS_PROMPT='\n>_ '
 fi
