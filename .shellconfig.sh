@@ -356,28 +356,91 @@ if command -v docker-compose &> /dev/null; then
   alias dkcd="docker-compose down"
 fi
 
-# kubectl, helm
-kset () {
-  # usage :
-  # - kset : set completions and aliases for kubectl and helm
-  # - kset $ARG : set kubeconfig value
-  local _CLUSTER
-  local _K_BASE_ARG
-  _CLUSTER="${1}"
-  _K_BASE_ARG="--kubeconfig ~/.kubeconfig.${_CLUSTER}.yml"
+# Kubernetes
 
-  if [ -z "${_CLUSTER}" ]; then
+kset (){
+  # set completions and aliases for kubectl and helm "on demand"
+  # Need to stay as a function as it's sourcing stuff and creating aliases
+  # I bet kubectlx/kubens is much better but eh..
+
+  local USAGE
+  local KEY
+  local VALUE
+  local NAMESPACE
+  local CLUSTER
+  local COMPLETION
+  local COMPLETION
+
+  USAGE='
+  usage : kset [OPTIONS]
+    -c --cluster CLUSTER     : will source ~/.kubeconfig.CLUSTER.yml
+    -n --namespace NAMESPACE : set given namespace option to kubectl
+    -r --reset               : remove aliases
+    -x --completion          : if other arguements are given, will also set auto
+                              completion. If no other option are set, this
+                              option is implied
+  '
+
+  while [ ${#} -gt 0 ]; do
+    KEY="${1}"
+    VALUE="${2}"
+    case $KEY in
+      -n|--namespace)
+        NAMESPACE="${VALUE}"
+        shift # past argument
+      ;;
+      -c|--cluster)
+        CLUSTER="${VALUE}"
+        shift # past argument
+      ;;
+      -x|--completion)
+        COMPLETION='TRUE'
+      ;;
+      -r|--reset)
+        echo "removing aliases"
+        unalias k &> /dev/null || true
+        unalias kubectl &> /dev/null || true
+        return 0
+      ;;
+      -h|--help)
+        echo "${USAGE}" | grep -Ev '^$' | sed 's/^  //'
+        return 0
+      ;;
+      *)
+        echo "${USAGE}" | grep -Ev '^$' | sed 's/^  //'
+        return 0
+      ;;
+    esac
+    shift
+  done
+
+  if [ -n "${CLUSTER}" ]; then
+    ARGUMENTS="${ARGUMENTS} --kubeconfig ~/.kubeconfig.${CLUSTER}.yml"
+  fi
+
+  if [ -n "${NAMESPACE}" ]; then
+    ARGUMENTS="${ARGUMENTS} --namespace ${NAMESPACE}"
+  fi
+
+  if { [ -z "${CLUSTER}" ] && [ -z "${CLUSTER}" ]; } \
+  || [ "${COMPLETION}" = "TRUE" ]; then
     if command -v kubectl &> /dev/null; then
+      echo "set kubectl completion for kubectl, k"
       source <(kubectl completion bash)
       source <(kubectl completion bash | sed 's/kubectl/k/g')
+      echo "set k alias"
       alias k='kubectl'
     fi
     if command -v helm &> /dev/null; then
+      echo "set helm completion"
       source <(helm completion bash)
     fi
   else
-    #shellcheck disable=SC2139
-    alias kubectl="kubectl ${_K_BASE_ARG}"
+    if [ -n "${ARGUMENTS}" ]; then
+      echo "define following arguments through kubectl alias:${ARGUMENTS}"
+      # shellcheck disable=SC2139
+      alias kubectl="kubectl ${ARGUMENTS}"
+    fi
   fi
 }
 
@@ -437,7 +500,8 @@ terminate () {
 }
 
 # tmux
-if command -v tmux &> /dev/null; then
+if command -v tmux &> /dev/null \
+&& [ -S "$(echo "${TMUX}" | cut -f1 -d',')" ]; then
   alias irc="tmux neww irssi"
   command -v lazygit &> /dev/null && alias lgt="tmux neww lazygit"
   alias sst="tmux neww ssh"
