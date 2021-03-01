@@ -500,7 +500,8 @@ terminate () {
 }
 
 # tmux
-if command -v tmux &> /dev/null; then
+if command -v tmux &> /dev/null \
+&& [ -S "$(echo "${TMUX}" | cut -f1 -d',')" ]; then
   alias irc="tmux neww irssi"
   command -v lazygit &> /dev/null && alias lgt="tmux neww lazygit"
   alias sst="tmux neww ssh"
