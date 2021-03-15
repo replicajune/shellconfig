@@ -148,40 +148,6 @@ if command -v gio &> /dev/null; then
   alias et="gio trash --empty" # empty trash
 fi
 
-# network
-lsn () {
-  case "${1}" in
-    4)
-      sudo ss -lpntu4 |column -t
-    ;;
-    6)
-      sudo ss -lpntu6 |column -t
-    ;;
-    t)
-      sudo ss -lpnt |column -t
-    ;;
-    t4)
-      sudo ss -lpnt4 |column -t
-    ;;
-    t6)
-      sudo ss -lpnt6 |column -t
-    ;;
-    u)
-      sudo ss -lpnu |column -t
-    ;;
-    u4)
-      sudo ss -lpnu4 |column -t
-    ;;
-    u6)
-      sudo ss -lpnu6 |column -t
-    ;;
-    *)
-      sudo ss -lpntu |column -t
-    ;;
-  esac
-}
-
-
 # virt type of host
 vtype () {
   # will give yout the type of node you're on
@@ -524,38 +490,12 @@ alias gh='history | grep'
 # shellcheck disable=SC2142
 alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 alias datei="date --iso-8601=m"
-alias wt="curl wttr.in/?format='+%c%20+%t'" # what's the weather like
+alias wt="curl wttr.in/?format='+%c%20+%t'; echo" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
 alias wtth="curl wttr.in/?qF3n" # 3 days forcast
 alias bt='bluetoothctl'
 alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
 alias reload-bash=". ~/.bashrc"
-
-d () { # a couple of city I like to know the time of
-  local EMPH
-  local RST
-  for LOC in Asia/Tokyo       \
-             Asia/Shanghai    \
-             Europe/Bucharest \
-             Europe/Paris     \
-             UTC              \
-             America/New_York \
-             America/Los_Angeles; do
-    if { [ -f '/etc/timezone' ] && [ "$(cat /etc/timezone)" = "$LOC" ]; } || \
-       { [ -L '/etc/localtime' ] &&\
-        [ "$(readlink /etc/localtime | sed 's%../usr/share/zoneinfo/%%')" \
-        = "$LOC" ]; }; then
-      EMPH='\e[36m'
-      RST='\e[0m'
-    else
-      unset EMPH
-      unset RST
-    fi
-    echo -ne "${LOC##*/}:%" | tr '_' ' ' ;
-    echo -ne "${EMPH}";
-    TZ=${LOC} date '+%R - %d %B %:::z %Z' | tr -d '\n'; echo -e "${RST}"
-  done | column -t -s '%'
-}
 
 # --- PS1
 
