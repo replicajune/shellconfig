@@ -82,13 +82,18 @@ if command -v exa &> /dev/null; then
   alias lll='exa -l --classify --group-directories-first --git --links --inode --blocks --extended'
   alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
   alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
-else
+elif ! [ -L "$(command -v ls)" ]; then
   alias l='ls -C --classify --group-directories-first'
   alias ll='ls -l --classify --group-directories-first --human-readable'
   alias la='ls -l --classify --group-directories-first --human-readable --all'
   alias lll='ls -l --classify --group-directories-first --human-readable --context  --author'
   alias lla='ls -l --classify --group-directories-first --human-readable --context  --author --all'
   alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
+else # if ls is a link, it's probably busybox
+  alias l='ls -C --group-directories-first'
+  alias ll='ls -l --group-directories-first -h'
+  alias la='ls -l --group-directories-first -h -a'
+  alias lt='ls -gt -r -h -a'
 fi
 
 alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
