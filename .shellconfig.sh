@@ -335,7 +335,7 @@ kset (){
   local NAMESPACE
   local CLUSTER
   local COMPLETION
-  local COMPLETION
+  local ARGUMENTS
 
   USAGE='
   usage : kset [OPTIONS]
