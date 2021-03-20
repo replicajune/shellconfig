@@ -116,11 +116,13 @@ alias rm="rm -i"
 alias cpx="tar -capvf" # cpx archname.tar.xz dir
 alias dpx="tar -xpvf" # dpx archname.tar.xz
 
-if [ "x${ID}" != 'xalpine' ]; then
-  # directory stack
+# directory stack
+if [ -z "${0##*bash}" ]; then
   alias lsd="dirs -v | grep -Ev '^ 0 .*$'" # list stack directory
   alias pdir="pushd ./ > /dev/null; lsd"
+fi
 
+if ! [ -L "$(command -v ps)" ]; then
   # ressources; regular systems
   alias psf="
     ps --ppid 2 -p 2 --deselect \
