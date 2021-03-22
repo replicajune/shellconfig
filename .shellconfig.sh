@@ -82,16 +82,20 @@ if command -v exa &> /dev/null; then
   alias lll='exa -l --classify --group-directories-first --git --links --inode --blocks --extended'
   alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
   alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
-else
+elif ! [ -L "$(command -v ls)" ]; then
+  alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
   alias l='ls -C --classify --group-directories-first'
   alias ll='ls -l --classify --group-directories-first --human-readable'
   alias la='ls -l --classify --group-directories-first --human-readable --all'
   alias lll='ls -l --classify --group-directories-first --human-readable --context  --author'
   alias lla='ls -l --classify --group-directories-first --human-readable --context  --author --all'
   alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
+else # if ls is a link, it's probably busybox
+  alias l='ls -C --group-directories-first'
+  alias ll='ls -l --group-directories-first -h'
+  alias la='ls -l --group-directories-first -h -a'
+  alias lt='ls -gt -r -h -a'
 fi
-
-alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
 
 alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
@@ -112,11 +116,13 @@ alias rm="rm -i"
 alias cpx="tar -capvf" # cpx archname.tar.xz dir
 alias dpx="tar -xpvf" # dpx archname.tar.xz
 
-if [ "x${ID}" != 'xalpine' ]; then
-  # directory stack
+# directory stack
+if [ -z "${0##*bash}" ]; then
   alias lsd="dirs -v | grep -Ev '^ 0 .*$'" # list stack directory
   alias pdir="pushd ./ > /dev/null; lsd"
+fi
 
+if ! [ -L "$(command -v ps)" ]; then
   # ressources; regular systems
   alias psf="
     ps --ppid 2 -p 2 --deselect \
@@ -335,7 +341,7 @@ kset (){
   local NAMESPACE
   local CLUSTER
   local COMPLETION
-  local COMPLETION
+  local ARGUMENTS
 
   USAGE='
   usage : kset [OPTIONS]
