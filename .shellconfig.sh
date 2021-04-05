@@ -317,9 +317,6 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   alias cinc-auditor='docker run --workdir "/srv" -v "${PWD}:/srv" --entrypoint "/opt/cinc-auditor/bin/cinc-auditor" cincproject/auditor:latest'
   alias auditor=cinc-auditor
   alias aud=auditor
-  if ! command -v shellcheck &> /dev/null; then
-    alias shellcheck='docker run --rm -i -v "${PWD}:/mnt:ro" -v "/etc:/etc:ro" koalaman/shellcheck -x'
-  fi
 fi
 
 if command -v docker-compose &> /dev/null; then
