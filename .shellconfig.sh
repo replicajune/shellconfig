@@ -473,9 +473,10 @@ terminate () {
 # tmux
 if command -v tmux &> /dev/null \
 && [ -S "$(echo "${TMUX}" | cut -f1 -d',')" ]; then
+  alias recycle='tmux new-window; tmux last-window; tmux kill-window'
+  alias tk='tmux kill-session'
   alias irc="tmux neww irssi"
   alias sst="tmux neww ssh"
-  alias recycle='tmux new-window; tmux last-window; tmux kill-window'
   command -v lazygit &> /dev/null && alias lgt="tmux neww lazygit"
   if command -v htop &> /dev/null; then
     alias ttop="tmux neww htop"
