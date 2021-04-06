@@ -317,7 +317,7 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   alias cinc-auditor='docker run --workdir "/srv" -v "${PWD}:/srv" --entrypoint "/opt/cinc-auditor/bin/cinc-auditor" cincproject/auditor:latest'
   alias auditor=cinc-auditor
   alias aud=auditor
-  alias doggo='docker run -t ghcr.io/mr-karan/doggo:latest --color=true'
+  alias doggo='docker run --net=host -t ghcr.io/mr-karan/doggo:latest --color=true'
   alias dnc='doggo'
 fi
 
