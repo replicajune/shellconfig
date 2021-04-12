@@ -317,9 +317,8 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   alias cinc-auditor='docker run --workdir "/srv" -v "${PWD}:/srv" --entrypoint "/opt/cinc-auditor/bin/cinc-auditor" cincproject/auditor:latest'
   alias auditor=cinc-auditor
   alias aud=auditor
-  if ! command -v shellcheck &> /dev/null; then
-    alias shellcheck='docker run --rm -i -v "${PWD}:/mnt:ro" -v "/etc:/etc:ro" koalaman/shellcheck -x'
-  fi
+  alias doggo='docker run --net=host -t ghcr.io/mr-karan/doggo:latest --color=true'
+  alias dnc='doggo'
 fi
 
 if command -v docker-compose &> /dev/null; then
@@ -474,9 +473,11 @@ terminate () {
 # tmux
 if command -v tmux &> /dev/null \
 && [ -S "$(echo "${TMUX}" | cut -f1 -d',')" ]; then
+  alias recycle='tmux new-window; tmux last-window; tmux kill-window'
+  alias tk='tmux kill-session'
   alias irc="tmux neww irssi"
-  command -v lazygit &> /dev/null && alias lgt="tmux neww lazygit"
   alias sst="tmux neww ssh"
+  command -v lazygit &> /dev/null && alias lgt="tmux neww lazygit"
   if command -v htop &> /dev/null; then
     alias ttop="tmux neww htop"
   else
