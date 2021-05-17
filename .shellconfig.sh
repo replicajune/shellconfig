@@ -313,12 +313,17 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
 
   # other aliases involving docker images
   alias mlt='docker run --rm -i -v "${PWD}:/srv:ro" -v "/etc:/etc:ro" registry.gitlab.com/replicajune/markdown-link-tester:latest'
+  # build a container in a container and not exposing stuff
   alias kaniko='docker run --rm --workdir "/workspace" -v "${PWD}:/workspace:ro" --entrypoint "" gcr.io/kaniko-project/executor:debug /kaniko/executor --no-push --force'
+  # auditor
   alias cinc-auditor='docker run --workdir "/srv" -v "${PWD}:/srv" --entrypoint "/opt/cinc-auditor/bin/cinc-auditor" cincproject/auditor:latest'
   alias auditor=cinc-auditor
   alias aud=auditor
+  # doggo
   alias doggo='docker run --net=host -t ghcr.io/mr-karan/doggo:latest --color=true'
   alias dnc='doggo'
+  # kamoulox..
+  alias kamoulox='docker run jeanlaurent/kamoulox'
 fi
 
 if command -v docker-compose &> /dev/null; then
