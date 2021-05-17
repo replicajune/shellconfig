@@ -224,6 +224,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   alias jf="sudo journalctl -f"
   alias jg="sudo journalctl --since '7 days ago' --no-pager | grep"
   health() {
+    # keeping this for flexibility
     local SCTL
     if [ "${1}" = "u" ]; then
       SCTL="systemctl --user"
@@ -302,14 +303,6 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   alias dkli="docker image ls"
   alias dkln="docker network ls"
   alias dklv="docker volume ls"
-  alias dkpc="docker container prune -f"
-  alias dkpi="docker image prune -f"
-  alias dkpn="docker network prune -f"
-  alias dkpv="docker volume prune -f"
-  alias dkpurge="docker system prune -af"
-  alias dkpurgeall="docker system prune -af; docker volume prune -f"
-  alias dkdf="docker system df"
-  alias dki="docker system info"
 
   # other aliases involving docker images
   alias mlt='docker run --rm -i -v "${PWD}:/srv:ro" -v "/etc:/etc:ro" registry.gitlab.com/replicajune/markdown-link-tester:latest'
