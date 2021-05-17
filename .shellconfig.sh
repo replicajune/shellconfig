@@ -170,11 +170,15 @@ case "${ID}" in
     alias gpkg="dpkg -l | grep -i"
     alias spkg="apt-cache search -qq"
     updnow () {
-      sudo apt update &&\
-      sudo apt upgrade -y
       if command -v snap &> /dev/null; then
         sudo snap refresh
       fi
+      if command -v flatpak &> /dev/null; then
+        flatpak update -y
+      fi
+      sudo apt update &&\
+      sudo apt upgrade -y
+
     }
     ipkg () {
       sudo apt install -y "./${1}"
@@ -188,10 +192,13 @@ case "${ID}" in
       alias rpkg="sudo dnf remove --assumeyes"
       alias spkg="dnf search"
       updnow () {
-        sudo dnf update --refresh --assumeyes
         if command -v snap &> /dev/null; then
           sudo snap refresh
         fi
+        if command -v flatpak &> /dev/null; then
+          flatpak update -y
+        fi
+        sudo dnf update --refresh --assumeyes
       }
       ipkg () {
         sudo dnf install -y "./${1}"
