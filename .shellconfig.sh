@@ -170,11 +170,15 @@ case "${ID}" in
     alias gpkg="dpkg -l | grep -i"
     alias spkg="apt-cache search -qq"
     updnow () {
-      sudo apt update &&\
-      sudo apt upgrade -y
       if command -v snap &> /dev/null; then
         sudo snap refresh
       fi
+      if command -v flatpak &> /dev/null; then
+        flatpak update -y
+      fi
+      sudo apt update &&\
+      sudo apt upgrade -y
+
     }
     ipkg () {
       sudo apt install -y "./${1}"
@@ -188,10 +192,13 @@ case "${ID}" in
       alias rpkg="sudo dnf remove --assumeyes"
       alias spkg="dnf search"
       updnow () {
-        sudo dnf update --refresh --assumeyes
         if command -v snap &> /dev/null; then
           sudo snap refresh
         fi
+        if command -v flatpak &> /dev/null; then
+          flatpak update -y
+        fi
+        sudo dnf update --refresh --assumeyes
       }
       ipkg () {
         sudo dnf install -y "./${1}"
@@ -224,6 +231,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   alias jf="sudo journalctl -f"
   alias jg="sudo journalctl --since '7 days ago' --no-pager | grep"
   health() {
+    # keeping this for flexibility
     local SCTL
     if [ "${1}" = "u" ]; then
       SCTL="systemctl --user"
@@ -302,23 +310,20 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   alias dkli="docker image ls"
   alias dkln="docker network ls"
   alias dklv="docker volume ls"
-  alias dkpc="docker container prune -f"
-  alias dkpi="docker image prune -f"
-  alias dkpn="docker network prune -f"
-  alias dkpv="docker volume prune -f"
-  alias dkpurge="docker system prune -af"
-  alias dkpurgeall="docker system prune -af; docker volume prune -f"
-  alias dkdf="docker system df"
-  alias dki="docker system info"
 
   # other aliases involving docker images
   alias mlt='docker run --rm -i -v "${PWD}:/srv:ro" -v "/etc:/etc:ro" registry.gitlab.com/replicajune/markdown-link-tester:latest'
+  # build a container in a container and not exposing stuff
   alias kaniko='docker run --rm --workdir "/workspace" -v "${PWD}:/workspace:ro" --entrypoint "" gcr.io/kaniko-project/executor:debug /kaniko/executor --no-push --force'
+  # auditor
   alias cinc-auditor='docker run --workdir "/srv" -v "${PWD}:/srv" --entrypoint "/opt/cinc-auditor/bin/cinc-auditor" cincproject/auditor:latest'
   alias auditor=cinc-auditor
   alias aud=auditor
+  # doggo
   alias doggo='docker run --net=host -t ghcr.io/mr-karan/doggo:latest --color=true'
   alias dnc='doggo'
+  # kamoulox..
+  alias kamoulox='docker run jeanlaurent/kamoulox'
 fi
 
 if command -v docker-compose &> /dev/null; then
