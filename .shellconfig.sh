@@ -180,9 +180,7 @@ case "${ID}" in
       sudo apt upgrade -y
 
     }
-    ipkg () {
-      sudo apt install -y "./${1}"
-    }
+    ipkg () { sudo apt install -y "./${1}"; }
     ;;
 
   fedora|centos)
@@ -200,9 +198,7 @@ case "${ID}" in
         fi
         sudo dnf update --refresh --assumeyes
       }
-      ipkg () {
-        sudo dnf install -y "./${1}"
-      }
+      ipkg () { sudo dnf install -y "./${1}"; }
     fi
     alias gpkg="rpm -qa | grep -i"
     ;;
@@ -457,12 +453,8 @@ if command -v vagrant &> /dev/null; then
   }
 fi
 
-wof () {
-  # write on file ..
-  # usage : wof file.iso /dev/usbthing
-  sudo dd if="${1}" of="${2}" bs=32M status=progress
-  sync
-}
+# write on file .. usage : wof file.iso /dev/usbthing
+wof () { sudo dd if="${1}" of="${2}" bs=32M status=progress; sync; }
 
 terminate () {
   # cycle on pkill to make sure all process related to a command end.
@@ -502,6 +494,7 @@ alias gh='history | grep'
 # shellcheck disable=SC2142
 alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 alias datei="date --iso-8601=m"
+alias epoch="date +%s"
 alias wt="curl wttr.in/?format='+%c%20+%t'; echo" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
 alias wtth="curl wttr.in/?qF3n" # 3 days forcast
@@ -552,15 +545,10 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 fi
 
 # exit status in red if != 0
-_SCCLR () {
-  if [ "${1}" -ne 0 ]; then
-    # shellcheck disable=SC2016
-    echo -ne '\e[31m'
-  fi
-}
-_SCES () {
-  echo "$(_SCCLR "${1}")${1}"
-}
+# shellcheck disable=SC2016
+_SCCLR () { if [ "${1}" -ne 0 ]; then echo -ne '\e[31m'; fi; }
+_SCES () { echo "$(_SCCLR "${1}")${1}"; }
+
 # shellcheck disable=SC2016
 _SCESS=$_CC_dark_grey'$(_SCES $?)\e[0m'
 
