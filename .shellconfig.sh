@@ -47,8 +47,6 @@ else
   alias vless='nano --nohelp --view'
 fi
 
-alias co="codium -ra ."
-
 # history with date, no size limit
 export HISTCONTROL=ignoreboth
 export HISTSIZE='INF'
@@ -101,8 +99,10 @@ alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias hl="grep -izF" # highlight
 alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
+
 # shellcheck disable=SC2139
 alias e="${EDITOR}"
+alias co="codium -ra ."
 
 # open, using desktop stuff
 if command -v xdg-open &> /dev/null; then
