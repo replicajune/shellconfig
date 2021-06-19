@@ -80,7 +80,7 @@ if command -v exa &> /dev/null; then
   alias lll='exa -l --classify --group-directories-first --git --links --inode --blocks --extended'
   alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
   alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
-elif ! [ -L "$(command -v ls)" ]; then
+elif ! [ -L "/bin/ls" ]; then
   alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
   alias l='ls -C --classify --group-directories-first'
   alias ll='ls -l --classify --group-directories-first --human-readable'
