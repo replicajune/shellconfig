@@ -107,6 +107,8 @@ alias co="codium -ra ."
 # open, using desktop stuff
 if command -v xdg-open &> /dev/null; then
   alias open="xdg-open"
+else
+  alias open=vless
 fi
 
 # safe rm
