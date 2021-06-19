@@ -424,8 +424,6 @@ if [ -f "/home/${SUDO_USER-$USER}/.git-prompt.sh" ]; then
   . "/home/${SUDO_USER-$USER}/.git-prompt.sh"
 fi
 
-alias g=git
-
 # lazygit
 if command -v lazygit &> /dev/null; then
   alias lgt=lazygit
