@@ -495,9 +495,9 @@ alias gh='history | grep'
 alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 alias datei="date --iso-8601=m"
 alias epoch="date +%s"
-alias wt="curl wttr.in/?format='+%c%20+%t'; echo" # what's the weather like
+alias wt="curl wttr.in/?format='+%c%20+%f'; echo" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
-alias wtth="curl wttr.in/?qF3n" # 3 days forcast
+alias wtth="curl v2.wttr.in/" # 3 days forcast
 alias bt='bluetoothctl'
 alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
 alias reload-bash=". ~/.bashrc"
