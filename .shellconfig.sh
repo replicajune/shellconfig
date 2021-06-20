@@ -47,8 +47,6 @@ else
   alias vless='nano --nohelp --view'
 fi
 
-alias co="codium -ra ."
-
 # history with date, no size limit
 export HISTCONTROL=ignoreboth
 export HISTSIZE='INF'
@@ -82,7 +80,7 @@ if command -v exa &> /dev/null; then
   alias lll='exa -l --classify --group-directories-first --git --links --inode --blocks --extended'
   alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
   alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
-elif ! [ -L "$(command -v ls)" ]; then
+elif ! [ -L "/bin/ls" ]; then
   alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
   alias l='ls -C --classify --group-directories-first'
   alias ll='ls -l --classify --group-directories-first --human-readable'
@@ -101,12 +99,16 @@ alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias hl="grep -izF" # highlight
 alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
+
 # shellcheck disable=SC2139
 alias e="${EDITOR}"
+alias co="codium -ra ."
 
 # open, using desktop stuff
 if command -v xdg-open &> /dev/null; then
   alias open="xdg-open"
+else
+  alias open=vless
 fi
 
 # safe rm
@@ -422,8 +424,6 @@ if [ -f "/home/${SUDO_USER-$USER}/.git-prompt.sh" ]; then
   . "/home/${SUDO_USER-$USER}/.git-prompt.sh"
 fi
 
-alias g=git
-
 # lazygit
 if command -v lazygit &> /dev/null; then
   alias lgt=lazygit
@@ -495,9 +495,9 @@ alias gh='history | grep'
 alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 alias datei="date --iso-8601=m"
 alias epoch="date +%s"
-alias wt="curl wttr.in/?format='+%c%20+%t'; echo" # what's the weather like
+alias wt="curl wttr.in/?format='+%c%20+%f'; echo" # what's the weather like
 alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
-alias wtth="curl wttr.in/?qF3n" # 3 days forcast
+alias wtth="curl v2.wttr.in/" # 3 days forcast
 alias bt='bluetoothctl'
 alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
 alias reload-bash=". ~/.bashrc"
