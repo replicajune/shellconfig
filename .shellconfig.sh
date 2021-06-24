@@ -19,10 +19,12 @@ shopt -s histverify # put a caled historized command in readline
 umask 027
 
 # source profile.d items
-for SRC_PROFILE in /etc/profile.d/*.sh; do
-  # shellcheck source=/dev/null
-  . "${SRC_PROFILE}"
-done
+if ls /etc/profile.d/*.sh > /dev/null 2>&1; then
+  for SRC_PROFILE in /etc/profile.d/*.sh; do
+    # shellcheck source=/dev/null
+    . "${SRC_PROFILE}"
+  done
+fi
 
 # --- ENVIRONMENTS VARIABLES
 
