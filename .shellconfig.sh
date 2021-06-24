@@ -185,7 +185,7 @@ case "${ID}" in
     ipkg () { sudo apt install -y "./${1}"; }
     ;;
 
-  fedora|centos)
+  fedora|centos|rocky)
     if command -v dnf &> /dev/null; then
       alias upd="sudo dnf check-update --refresh --assumeno"
       alias updl="dnf list --cacheonly --upgrades --assumeno"
