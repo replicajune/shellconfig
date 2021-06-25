@@ -26,6 +26,11 @@ if ls /etc/profile.d/*.sh > /dev/null 2>&1; then
   done
 fi
 
+# from rustup, since I also manage .profile, .bashrc in other repos
+if [ -f "${HOME}/.cargo/env" ]; then
+  . "${HOME}/.cargo/env"
+fi
+
 # --- ENVIRONMENTS VARIABLES
 
 # user binaries in ~/.local/bin
