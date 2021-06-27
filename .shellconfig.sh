@@ -102,6 +102,12 @@ else # if ls is a link, it's probably busybox
   alias lt='ls -gt -r -h -a'
 fi
 
+# rust alternative to cp, can do // and show progress bar by default
+if command -v xcp &> /dev/null; then
+  alias xcp="xcp -w 0"
+  alias cpr="xcp -r"
+fi
+
 alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias hl="grep -izF" # highlight
