@@ -108,6 +108,11 @@ if command -v xcp &> /dev/null; then
   alias cpr="xcp -r"
 fi
 
+# rust alternative to cat, colors by default
+if command -v bat &> /dev/null; then
+  alias rcat="bat --theme Nord --pager=never --style=numbers"
+fi
+
 alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias hl="grep -izF" # highlight
