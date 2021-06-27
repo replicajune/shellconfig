@@ -19,10 +19,17 @@ shopt -s histverify # put a caled historized command in readline
 umask 027
 
 # source profile.d items
-for SRC_PROFILE in /etc/profile.d/*.sh; do
-  # shellcheck source=/dev/null
-  . "${SRC_PROFILE}"
-done
+if ls /etc/profile.d/*.sh > /dev/null 2>&1; then
+  for SRC_PROFILE in /etc/profile.d/*.sh; do
+    # shellcheck source=/dev/null
+    . "${SRC_PROFILE}"
+  done
+fi
+
+# from rustup, since I also manage .profile, .bashrc in other repos
+if [ -f "${HOME}/.cargo/env" ]; then
+  . "${HOME}/.cargo/env"
+fi
 
 # --- ENVIRONMENTS VARIABLES
 
@@ -185,7 +192,7 @@ case "${ID}" in
     ipkg () { sudo apt install -y "./${1}"; }
     ;;
 
-  fedora|centos)
+  fedora|centos|rocky)
     if command -v dnf &> /dev/null; then
       alias upd="sudo dnf check-update --refresh --assumeno"
       alias updl="dnf list --cacheonly --upgrades --assumeno"
