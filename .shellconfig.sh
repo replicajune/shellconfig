@@ -495,7 +495,13 @@ if command -v tmux &> /dev/null \
   alias irc="tmux neww irssi"
   alias sst="tmux neww ssh"
   command -v lazygit &> /dev/null && alias lgt="tmux neww lazygit"
-  if command -v htop &> /dev/null; then
+  if command -v ytop &> /dev/null; then
+    if [ -d "/sys/class/power_supply/BAT0" ]; then
+      alias ttop="tmux neww ytop -b"
+    else
+      alias ttop="tmux neww ytop"
+    fi
+  elif command -v htop &> /dev/null; then
     alias ttop="tmux neww htop"
   else
     alias ttop="tmux neww top"
