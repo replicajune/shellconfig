@@ -19,10 +19,17 @@ shopt -s histverify # put a caled historized command in readline
 umask 027
 
 # source profile.d items
-for SRC_PROFILE in /etc/profile.d/*.sh; do
-  # shellcheck source=/dev/null
-  . "${SRC_PROFILE}"
-done
+if ls /etc/profile.d/*.sh > /dev/null 2>&1; then
+  for SRC_PROFILE in /etc/profile.d/*.sh; do
+    # shellcheck source=/dev/null
+    . "${SRC_PROFILE}"
+  done
+fi
+
+# from rustup, since I also manage .profile, .bashrc in other repos
+if [ -f "${HOME}/.cargo/env" ]; then
+  . "${HOME}/.cargo/env"
+fi
 
 # --- ENVIRONMENTS VARIABLES
 
@@ -93,6 +100,17 @@ else # if ls is a link, it's probably busybox
   alias ll='ls -l --group-directories-first -h'
   alias la='ls -l --group-directories-first -h -a'
   alias lt='ls -gt -r -h -a'
+fi
+
+# rust alternative to cp, can do // and show progress bar by default
+if command -v xcp &> /dev/null; then
+  alias xcp="xcp -w 0"
+  alias cpr="xcp -r"
+fi
+
+# rust alternative to cat, colors by default
+if command -v bat &> /dev/null; then
+  alias rcat="bat --theme Nord --pager=never --style=numbers"
 fi
 
 alias vd="diff --side-by-side --suppress-common-lines"
@@ -185,7 +203,7 @@ case "${ID}" in
     ipkg () { sudo apt install -y "./${1}"; }
     ;;
 
-  fedora|centos)
+  fedora|centos|rocky)
     if command -v dnf &> /dev/null; then
       alias upd="sudo dnf check-update --refresh --assumeno"
       alias updl="dnf list --cacheonly --upgrades --assumeno"
@@ -427,6 +445,8 @@ fi
 # lazygit
 if command -v lazygit &> /dev/null; then
   alias lgt=lazygit
+elif command -v lazygit.exe &> /dev/null; then # WSL
+  alias lgt=lazygit.exe
 fi
 
 # vagrant
@@ -475,7 +495,13 @@ if command -v tmux &> /dev/null \
   alias irc="tmux neww irssi"
   alias sst="tmux neww ssh"
   command -v lazygit &> /dev/null && alias lgt="tmux neww lazygit"
-  if command -v htop &> /dev/null; then
+  if command -v ytop &> /dev/null; then
+    if [ -d "/sys/class/power_supply/BAT0" ]; then
+      alias ttop="tmux neww ytop -b"
+    else
+      alias ttop="tmux neww ytop"
+    fi
+  elif command -v htop &> /dev/null; then
     alias ttop="tmux neww htop"
   else
     alias ttop="tmux neww top"
