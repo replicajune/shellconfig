@@ -117,6 +117,7 @@ alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias hl="grep -izF" # highlight
 alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
+alias tmpcd='cd "$(mktemp -d)"'
 
 # shellcheck disable=SC2139
 alias e="${EDITOR}"
@@ -332,7 +333,7 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   # build a container in a container and not exposing stuff
   alias kaniko='docker run --rm --workdir "/workspace" -v "${PWD}:/workspace:ro" --entrypoint "" gcr.io/kaniko-project/executor:debug /kaniko/executor --no-push --force'
   # auditor
-  alias cinc-auditor='docker run --workdir "/srv" -v "${PWD}:/srv" --entrypoint "/opt/cinc-auditor/bin/cinc-auditor" cincproject/auditor:latest'
+  alias cinc-auditor='docker run --workdir "/srv" -v "${PWD}:/srv" -v "${HOME}/.ssh:/root/.ssh" --entrypoint "/opt/cinc-auditor/bin/cinc-auditor" cincproject/auditor:latest'
   alias auditor=cinc-auditor
   alias aud=auditor
   # doggo
@@ -491,7 +492,8 @@ terminate () {
 if command -v tmux &> /dev/null \
 && [ -S "$(echo "${TMUX}" | cut -f1 -d',')" ]; then
   alias recycle='tmux new-window; tmux last-window; tmux kill-window'
-  alias tk='tmux kill-session'
+  alias tk='tmux kill-session' # terminal kill
+  alias wk='tmux kill-window' # window kill
   alias irc="tmux neww irssi"
   alias sst="tmux neww ssh"
   command -v lazygit &> /dev/null && alias lgt="tmux neww lazygit"
