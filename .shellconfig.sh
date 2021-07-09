@@ -117,6 +117,7 @@ alias vd="diff --side-by-side --suppress-common-lines"
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias hl="grep -izF" # highlight
 alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
+alias tmpcd='cd "$(mktemp -d)"'
 
 # shellcheck disable=SC2139
 alias e="${EDITOR}"
