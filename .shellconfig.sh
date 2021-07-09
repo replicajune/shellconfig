@@ -333,7 +333,7 @@ if (command -v docker &> /dev/null || command -v podman &> /dev/null); then
   # build a container in a container and not exposing stuff
   alias kaniko='docker run --rm --workdir "/workspace" -v "${PWD}:/workspace:ro" --entrypoint "" gcr.io/kaniko-project/executor:debug /kaniko/executor --no-push --force'
   # auditor
-  alias cinc-auditor='docker run --workdir "/srv" -v "${PWD}:/srv" --entrypoint "/opt/cinc-auditor/bin/cinc-auditor" cincproject/auditor:latest'
+  alias cinc-auditor='docker run --workdir "/srv" -v "${PWD}:/srv" -v "${HOME}/.ssh:/root/.ssh" --entrypoint "/opt/cinc-auditor/bin/cinc-auditor" cincproject/auditor:latest'
   alias auditor=cinc-auditor
   alias aud=auditor
   # doggo
