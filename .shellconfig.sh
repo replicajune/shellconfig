@@ -121,7 +121,7 @@ alias tmpcd='cd "$(mktemp -d)"'
 
 # shellcheck disable=SC2139
 alias e="${EDITOR}"
-alias co="codium -ra ."
+alias co="codium -a ."
 
 # open, using desktop stuff
 if command -v xdg-open &> /dev/null; then
