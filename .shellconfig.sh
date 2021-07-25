@@ -446,6 +446,7 @@ fi
 # lazygit
 if command -v lazygit &> /dev/null; then
   alias lgt=lazygit
+  alias gc="git global-status commit" # see https://gitlab.com/replicajune/usr-local-bin/-/blob/main/git-global-status
 elif command -v lazygit.exe &> /dev/null; then # WSL
   alias lgt=lazygit.exe
 fi
