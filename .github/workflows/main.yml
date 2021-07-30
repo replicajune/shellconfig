@@ -28,5 +28,5 @@ jobs:
           # - most tests in a CI job would miss the location of an expected
           #   file on target
           # SC2039 : https://github.com/koalaman/shellcheck/wiki/SC2039
-          # - using "local" works on at least alpine and openwrt, if busybox is
-          #   save, this is enough for me
+          # - using "local", echo flags, ect.. works on at least alpine and
+          #   openwrt, if busybox is safe, this is enough for me.
