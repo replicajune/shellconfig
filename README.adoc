@@ -1,0 +1,5 @@
+= Yet another shell configuration repository
+
+[![Actions Status](https://github.com/replicajune/shellconfig/workflows/Shellcheck/badge.svg)](https://github.com/replicajune/shellconfig/actions)
+
+WARNING: I'm changing a lot in the structure of my shell configs here. if you use it please keep it to link:https://github.com/replicajune/shellconfig/tree/8ace2bb94fb8ec1b1d82c84642e8cdeb793eba6c[the previous "stable" commit] for now :)
