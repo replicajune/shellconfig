@@ -40,7 +40,7 @@ alias topc="
 
 # ressources
 alias topd='sudo sh -c "du -shc .[!.]* * |sort -rh |head -11" 2> /dev/null'
-alias lsm='mount | grep -E ^/dev | column -t'
+alias lsm="mount | grep -E '^(/dev|//)' | column -t"
 
 # shellcheck disable=SC2142
 alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
