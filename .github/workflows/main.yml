@@ -23,3 +23,7 @@ jobs:
             fi
           done  < <(find . -name "*.sh" -type f -print0)
           [ -n "${ERROR}" ] && exit 1
+
+          # SC1090: https://github.com/koalaman/shellcheck/wiki/SC1090
+          # - most tests in a CI job would miss the location of an expected
+          #   file on target
