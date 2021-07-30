@@ -20,4 +20,4 @@ jobs:
                 shellcheck --external-sources --format=gcc --color=always \
                   --exclude=SC1090 "${SHELL_FILE}" || ERROR=1
           done  < <(find . -name "*.sh" -type f -print0)
-          [ -n "${ERROR}" ] && echo 1
+          [ -n "${ERROR}" ] && exit 1
