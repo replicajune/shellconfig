@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 alias upd="sudo apt update && apt list --upgradable"
 alias updl="apt list --upgradable"

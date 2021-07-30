@@ -18,5 +18,6 @@ jobs:
         run: |
           while IFS= read -r -d '' SHELL_FILE; do
                 shellcheck --external-sources --format=gcc --color=always \
-                  --exclude=SC1090 "${SHELL_FILE}"
+                  --exclude=SC1090 "${SHELL_FILE}" || ERROR=1
           done  < <(find . -name "*.sh" -type f -print0)
+          [ -n "${ERROR}" ] && echo 1
