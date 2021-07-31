@@ -41,12 +41,12 @@ vtype () {
   [ -z "${_vtype}" ] && echo "none" || echo "${_vtype}"
 }
 
-# docker
+# DOCKER
+# docker on other systems may work differently
 if command -v podman > /dev/null 2>&1; then
   alias docker='podman'
 fi
 
-# docker on other systems may work differently
 if (command -v docker > /dev/null 2>&1 || command -v podman > /dev/null 2>&1); then
   alias dk="docker"
   alias dkr="docker run -it"
@@ -66,8 +66,6 @@ if (command -v docker > /dev/null 2>&1 || command -v podman > /dev/null 2>&1); t
   # doggo
   alias doggo='docker run --net=host -t ghcr.io/mr-karan/doggo:latest --color=true'
   alias dnc='doggo'
-  # kamoulox..
-  alias kamoulox='docker run jeanlaurent/kamoulox'
 fi
 
 if command -v docker-compose > /dev/null 2>&1; then

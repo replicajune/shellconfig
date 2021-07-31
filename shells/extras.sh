@@ -2,17 +2,6 @@
 # common settings for non busybox shells
 
 # files managment
-if ! [ -L "/bin/ls" ]; then
-  alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
-  alias l='ls -C --classify --group-directories-first'
-  alias ll='ls -l --classify --group-directories-first --human-readable'
-  alias la='ls -l --classify --group-directories-first --human-readable --all'
-  alias lll='ls -l --classify --group-directories-first --human-readable --context  --author'
-  alias lla='ls -l --classify --group-directories-first --human-readable --context  --author --all'
-  alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
-fi
-
-# override some aliases if exa is available
 if command -v exa > /dev/null 2>&1; then
   alias ls='exa'
   alias l='exa --classify --group-directories-first'
@@ -21,8 +10,16 @@ if command -v exa > /dev/null 2>&1; then
   alias lll='exa -l --classify --group-directories-first --git --links --inode --blocks --extended'
   alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
   alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
+else
+  alias l='ls -C --classify --group-directories-first'
+  alias ll='ls -l --classify --group-directories-first --human-readable'
+  alias la='ls -l --classify --group-directories-first --human-readable --all'
+  alias lll='ls -l --inode --classify --group-directories-first --human-readable  --author'
+  alias lla='ls -l --inode --classify --group-directories-first --human-readable  --author --all'
+  alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
 fi
 
+alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
 alias vd="diff --side-by-side --suppress-common-lines"
 
 alias psf="

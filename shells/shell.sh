@@ -6,4 +6,5 @@ alias ll='ls -l --group-directories-first -h'
 alias la='ls -l --group-directories-first -h -a'
 alias lt='ls -gt -r -h -a'
 
+# space managment
 alias lsm='mount | grep -E ^/dev'

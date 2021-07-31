@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 
-# shell options
+# OPTIONS
 shopt -s histappend # parallel history
 shopt -s checkwinsize # resize window
 shopt -s autocd # go in a directory without cd
 shopt -s histverify # put a caled historized command in readline
-
-alias reload-bash=". ~/.bashrc"
 
 # PROMPT
 
@@ -16,8 +14,7 @@ _CC_cyan='\[\e[0;36m\]'
 _CC_orange='\[\e[0;33m\]'
 _CC_reset='\[\e[0m\]'
 
-# is git installed ?
-# type works on both bash and ash
+# is git installed ? (type works on both bash and ash)
 if type __git_ps1 2> /dev/null | grep -q '()'; then
 
   # show more git stuff
@@ -51,7 +48,6 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 fi
 
 # exit status in red if != 0
-# shellcheck disable=SC2016
 _SCCLR () { if [ "${1}" -ne 0 ]; then echo -ne '\e[31m'; fi; }
 _SCES () { echo "$(_SCCLR "${1}")${1}"; }
 
@@ -91,17 +87,15 @@ _SCLDAVGF () {
 
   if [ "${FACTOR}" -ge 200 ]; then
     echo -ne '\e[31m'"${LDAVG}"
-    # return
   elif [ "${FACTOR}" -ge 100 ]; then
     echo -ne '\e[33m'"${LDAVG}"
-    # return
   elif [ "${FACTOR}" -ge 50 ]; then
     echo -ne '\e[32m'"${LDAVG}"
-    # return
   else
     echo -n "${LDAVG}"
   fi
 }
+
 # shellcheck disable=SC2016
 _SCLDAVG='[$(_SCLDAVGF)'$_CC_reset$_CC_dark_grey']'
 
@@ -118,7 +112,7 @@ PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
 PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
 
 if env | grep -Eq "^SSH_CONNECTION=.*$"; then
-  # you're not home, be careful - root may be standard, you're on your own!
+  # you're not home, be careful
   PS_PROMPT=$_CC_orange'\n> '$_CC_reset
 else
   PS_PROMPT='\n> '

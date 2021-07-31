@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
-alias status="systemctl status"
 alias sctl="sudo systemctl"
 alias ctl="systemctl --user"
 alias j="sudo journalctl --since '7 days ago'"
 alias jf="sudo journalctl -f"
 alias jg="sudo journalctl --since '7 days ago' --no-pager | grep"
 health() {
-  # keeping this for flexibility
+  # keeping this as a function in shellconfig for flexibility
   local SCTL
   if [ "${1}" = "u" ]; then
     SCTL="systemctl --user"
@@ -23,7 +22,7 @@ health() {
       echo -e '\e[32m↑\e[0m System currently booting up' # green up arrow
     ;;
     stopping)
-      echo -e '\e[34m↓\e[0m µSystem shuting down' # blue down arrow
+      echo -e '\e[34m↓\e[0m System shuting down' # blue down arrow
     ;;
     degraded)
       echo -e '\e[33m⚑\e[0m System in degraded mode:' # orange flag

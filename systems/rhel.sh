@@ -16,4 +16,5 @@ if command -v dnf > /dev/null 2>&1; then
   }
   ipkg () { sudo dnf install -y "./${1}"; }
 fi
+
 alias gpkg="rpm -qa | grep -i"
