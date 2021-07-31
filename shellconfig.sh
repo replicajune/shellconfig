@@ -258,14 +258,17 @@ kset (){
   || [ "${COMPLETION}" = "TRUE" ]; then
     if command -v kubectl > /dev/null 2>&1; then
       echo "set kubectl completion for kubectl, k"
-      source <(kubectl completion bash)
-      source <(kubectl completion bash | sed 's/kubectl/k/g')
+      # shellcheck disable=SC3001
+      . <(kubectl completion bash)
+      # shellcheck disable=SC3001
+      . <(kubectl completion bash | sed 's/kubectl/k/g')
       echo "set k alias"
       alias k='kubectl'
     fi
     if command -v helm > /dev/null 2>&1; then
       echo "set helm completion"
-      source <(helm completion bash)
+      # shellcheck disable=SC3001
+      . <(helm completion bash)
     fi
   else
     if [ -n "${ARGUMENTS}" ]; then
