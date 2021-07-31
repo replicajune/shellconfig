@@ -1,10 +1,8 @@
 = Yet another shell configuration repository
 
-[![Actions Status](https://github.com/replicajune/shellconfig/workflows/Shellcheck/badge.svg)](https://github.com/replicajune/shellconfig/actions)
+This repo is hosting various functions, alias and other shell configuration (hence the name) to help me be faster at doing computer stuff.
 
-This repo is hosting various functions, alias and other shell configuration (hence the name) to help me be faster at stuff I already know and have more time for other things.
-
-WARNING: I will not be held responsible if your computer suddenly link:https://www.imdb.com/title/tt2543312[Halt and Catch Fire]. Some config will come and go as I use them, or not.
+WARNING: I will not be held responsible if your computer suddenly link:https://www.imdb.com/title/tt2543312[Halt and Catch Fire]. Some items may come and go as I use them, or not.
 
 == Setup
 
@@ -30,3 +28,7 @@ fi
 == Previous version
 
 This repo used to be basically only one file. This had some limitation for me but if you'd like to see the latest version of this repo using this approach, please see link:https://github.com/replicajune/shellconfig/tree/8ace2bb94fb8ec1b1d82c84642e8cdeb793eba6c[8ace2bb]
+
+<<<
+
+image::https://github.com/replicajune/shellconfig/workflows/Shellcheck/badge.svg[Tux,250,350]
