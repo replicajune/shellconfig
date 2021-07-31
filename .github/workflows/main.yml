@@ -22,7 +22,7 @@ jobs:
                 --exclude=SC1090,SC2039,SC3037,SC3043,SC1091 "${SHFILE}" || ERROR=1
             fi
           done  < <(find . -name "*.sh" -type f -print0)
-          [ -n "${ERROR}" ] && exit 1
+          [ "${ERROR}" = '1' ] && exit 1
 
           # SC1090: https://github.com/koalaman/shellcheck/wiki/SC1090
           # - most tests in a CI job would miss the location of an expected
