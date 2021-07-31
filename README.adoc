@@ -29,6 +29,4 @@ fi
 
 This repo used to be basically only one file. This had some limitation for me but if you'd like to see the latest version of this repo using this approach, please see link:https://github.com/replicajune/shellconfig/tree/8ace2bb94fb8ec1b1d82c84642e8cdeb793eba6c[8ace2bb]
 
-<<<
-
 image::https://github.com/replicajune/shellconfig/workflows/Shellcheck/badge.svg[Tux,250,350]
