@@ -16,7 +16,6 @@ jobs:
           sudo apt-get -qqq -y install --no-install-recommends shellcheck
       - name: lint
         run: |
-          set -x
           while IFS= read -r -d '' SHFILE; do
             if ! head -1 "${SHFILE}" | grep -Fq '#!/usr/bin/env zsh'; then
               shellcheck --external-sources --format=gcc --color=always \
