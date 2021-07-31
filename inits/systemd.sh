@@ -2,9 +2,10 @@
 
 alias sctl="sudo systemctl"
 alias ctl="systemctl --user"
-alias j="sudo journalctl --since '7 days ago'"
+alias j="sudo journalctl --since '1 day ago'"
 alias jf="sudo journalctl -f"
-alias jg="sudo journalctl --since '7 days ago' --no-pager | grep"
+alias jg="sudo journalctl --since '1 day ago' --no-pager | grep"
+
 health() {
   # keeping this as a function in shellconfig for flexibility
   local SCTL
