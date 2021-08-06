@@ -47,6 +47,9 @@ if command -v uname > /dev/null 2>&1; then
     Linux)
     . "${REPO_PATH}/systems/linux.sh"
     ;;
+    Darwin)
+    . "${REPO_PATH}/systems/darwin.sh"
+    ;;
   esac
 fi
 
