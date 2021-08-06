@@ -17,6 +17,10 @@ alias topc="
   ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pcpu \
   | head -11"
 
+alias lsd="dirs -v | grep -Ev '^ 0 .*$'" # list stack directory
+alias pdir="pushd ./ > /dev/null; lsd"
+
+
 # ressources
 alias topd='sudo sh -c "du -shc .[!.]* * |sort -rh |head -11" 2> /dev/null'
 alias lsm="mount | grep -E '^(/dev|//)' | column -t"
