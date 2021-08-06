@@ -10,7 +10,12 @@ esac
 
 # I have to assume the location of this directory as ${_HOME}/.shellconfig to
 # help with needed modularity of files
+if [ "$(uname -s)" = "Darwin" ]; then
+  _HOME="/Users/${SUDO_USER-$USER}"
+else
 _HOME="$(getent passwd "${SUDO_USER-$USER}" | cut -d: -f6)"
+fi
+
 REPO_PATH="${_HOME}/.shellconfig"
 
 case $(readlink /proc/${$}/exe) in
