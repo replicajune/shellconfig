@@ -60,11 +60,6 @@ fi
 
 # --- ENVIRONMENTS VARIABLES
 
-# user binaries in ~/.local/bin
-if [ -n "${PATH##*/.local/bin*}" ]; then
-  export PATH="${PATH}:/home/${SUDO_USER-$USER}/.local/bin"
-fi
-
 # "global" binaries in /opt/bin
 if [ -n "${PATH##*/opt/bin*}" ]; then
   export PATH="${PATH}:/opt/bin"
@@ -109,7 +104,6 @@ if command -v bat > /dev/null 2>&1; then
 fi
 
 alias send="rsync --archive --info=progress2 --human-readable --compress"
-alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 alias tmpcd='cd "$(mktemp -d)"'
 
 # shellcheck disable=SC2139
@@ -352,10 +346,6 @@ fi
 
 # misc
 alias down="command wget --progress=bar:scroll --no-verbose --show-progress"
-alias h="history | tail -20"
-alias gh='history | grep'
-# shellcheck disable=SC2142
-alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 alias datei="date --iso-8601=m"
 alias epoch="date +%s"
 alias wt="curl wttr.in/?format='+%c%20+%f'; echo" # what's the weather like
