@@ -1,17 +1,6 @@
 #!/usr/bin/env bash
 # common settings for non busybox shells
 
-# files managment
-if command -v exa > /dev/null 2>&1; then
-  alias ls='exa'
-  alias l='exa --classify --group-directories-first'
-  alias ll='exa -l --classify --group-directories-first --git'
-  alias la='exa -l --classify --group-directories-first --all --git'
-  alias lll='exa -l --classify --group-directories-first --git --links --inode --blocks --extended'
-  alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
-  alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
-fi
-
 alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
 alias vd="diff --side-by-side --suppress-common-lines"
 

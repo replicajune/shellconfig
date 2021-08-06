@@ -95,6 +95,17 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
+# files managment
+if command -v exa > /dev/null 2>&1; then
+  alias ls='exa'
+  alias l='exa --classify --group-directories-first'
+  alias ll='exa -l --classify --group-directories-first --git'
+  alias la='exa -l --classify --group-directories-first --all --git'
+  alias lll='exa -l --classify --group-directories-first --git --links --inode --blocks --extended'
+  alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
+  alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
+fi
+
 # rust alternative to cp, can do // and show progress bar by default
 if command -v xcp > /dev/null 2>&1; then
   alias xcp="xcp -w 0"
