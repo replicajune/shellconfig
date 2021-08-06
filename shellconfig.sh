@@ -389,7 +389,6 @@ if command -v tmux > /dev/null 2>&1 &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ] &&\
    [ "x${TERM_PROGRAM}" != "xvscode" ] &&\
-   [ "x${__CFBundleIdentifier}" != "com.apple.Terminal" ] &&\
    [ "x${XDG_SESSION_TYPE}" != "xtty" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
   exit
