@@ -68,21 +68,18 @@ if [ -n "${PATH##*/opt/bin*}" ]; then
   export PATH="${PATH}:/opt/bin"
 fi
 
-# brew is pushing a lot of stuff in /usr/local/bin so i have to find another
-# location for my usr-local-bin repo (k3s also makes a bit of a mess)
-if [ -n "${PATH##*/opt/local-bin*}" ]; then
-  export PATH="${PATH}:/opt/local-bin"
-fi
-
-# use vim if possible, nano otherwise
-if command -v vim > /dev/null 2>&1; then
+# nano by default, vim if not, vi as last case scenario
+if command -v nano > /dev/null 2>&1; then
+  export VISUAL='nano'
+  export EDITOR='nano'
+  alias vless='nano --nohelp --view'
+elif command -v vim > /dev/null 2>&1; then
   export VISUAL='vim'
   export EDITOR='vim'
   alias vless='vim -M'
 else
-  export VISUAL='nano'
-  export EDITOR='nano'
-  alias vless='nano --nohelp --view'
+  export VISUAL='vi'
+  export EDITOR='vi'
 fi
 
 # automaric multithreading for xz (implicit for tar)
