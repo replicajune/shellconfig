@@ -8,6 +8,11 @@ if ls /etc/profile.d/*.sh > /dev/null 2>&1; then
   done
 fi
 
+# user binaries in ~/.local/bin
+if [ -n "${PATH##*/.local/bin*}" ]; then
+  export PATH="${PATH}:/home/${SUDO_USER-$USER}/.local/bin"
+fi
+
 # history with date, no size limit
 history -a # parallel history
 export HISTCONTROL=ignoreboth
@@ -15,6 +20,10 @@ export HISTSIZE='INF'
 export HISTFILESIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
 export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
+alias h="history | tail -20"
+alias gh='history | grep'
+# shellcheck disable=SC2142
+alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 
 # source distrib information
 # shellcheck source=/etc/os-release
@@ -61,6 +70,7 @@ alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
 
 # file managment
 alias hl="grep -izF" # highlight
+alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 
 # virt type of host
 vtype () {
