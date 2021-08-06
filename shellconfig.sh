@@ -13,7 +13,7 @@ esac
 if [ "$(uname -s)" = "Darwin" ]; then
   _HOME="/Users/${SUDO_USER-$USER}"
 else
-_HOME="$(getent passwd "${SUDO_USER-$USER}" | cut -d: -f6)"
+  _HOME="$(getent passwd "${SUDO_USER-$USER}" | cut -d: -f6)"
 fi
 
 REPO_PATH="${_HOME}/.shellconfig"
@@ -53,14 +53,6 @@ fi
 # umask: others should not have default read and execute options
 umask 027
 
-# source profile.d items
-if ls /etc/profile.d/*.sh > /dev/null 2>&1; then
-  for SRC_PROFILE in /etc/profile.d/*.sh; do
-    # shellcheck source=/dev/null
-    . "${SRC_PROFILE}"
-  done
-fi
-
 # from rustup, since I also manage .profile, .bashrc in different repos
 if [ -f "${_HOME}/.cargo/env" ]; then
   . "${_HOME}/.cargo/env"
@@ -95,21 +87,12 @@ else
   alias vless='nano --nohelp --view'
 fi
 
-# history with date, no size limit
-history -a # parallel history
-export HISTCONTROL=ignoreboth
-export HISTSIZE='INF'
-export HISTFILESIZE='INF'
-export HISTTIMEFORMAT="[%d/%m/%y %T] "
-export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
-
 # automaric multithreading for xz (implicit for tar)
 export XZ_DEFAULTS="-T 0"
 
 # --- ALIASES & FUNCTIONS
 
 # standard aliases
-alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
@@ -126,7 +109,6 @@ if command -v bat > /dev/null 2>&1; then
 fi
 
 alias send="rsync --archive --info=progress2 --human-readable --compress"
-alias hl="grep -izF" # highlight
 alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 alias tmpcd='cd "$(mktemp -d)"'
 
@@ -407,6 +389,7 @@ if command -v tmux > /dev/null 2>&1 &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ] &&\
    [ "x${TERM_PROGRAM}" != "xvscode" ] &&\
+   [ "x${__CFBundleIdentifier}" != "com.apple.Terminal" ] &&\
    [ "x${XDG_SESSION_TYPE}" != "xtty" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
   exit

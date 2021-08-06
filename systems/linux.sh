@@ -1,5 +1,21 @@
 #!/usr/bin/env sh
 
+# source profile.d items
+if ls /etc/profile.d/*.sh > /dev/null 2>&1; then
+  for SRC_PROFILE in /etc/profile.d/*.sh; do
+    # shellcheck source=/dev/null
+    . "${SRC_PROFILE}"
+  done
+fi
+
+# history with date, no size limit
+history -a # parallel history
+export HISTCONTROL=ignoreboth
+export HISTSIZE='INF'
+export HISTFILESIZE='INF'
+export HISTTIMEFORMAT="[%d/%m/%y %T] "
+export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
+
 # source distrib information
 # shellcheck source=/etc/os-release
 if [ -f '/etc/os-release' ]; then
@@ -33,6 +49,18 @@ fi
 if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
   . "${REPO_PATH}/inits/systemd.sh"
 fi
+
+# standard aliases
+alias ls='ls --color=auto'
+alias l='ls -C --classify --group-directories-first'
+alias ll='ls -l --classify --group-directories-first --human-readable'
+alias la='ls -l --classify --group-directories-first --human-readable --all'
+alias lll='ls -l --inode --classify --group-directories-first --human-readable  --author'
+alias lla='ls -l --inode --classify --group-directories-first --human-readable  --author --all'
+alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
+
+# file managment
+alias hl="grep -izF" # highlight
 
 # virt type of host
 vtype () {

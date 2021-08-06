@@ -10,13 +10,6 @@ if command -v exa > /dev/null 2>&1; then
   alias lll='exa -l --classify --group-directories-first --git --links --inode --blocks --extended'
   alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
   alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
-else
-  alias l='ls -C --classify --group-directories-first'
-  alias ll='ls -l --classify --group-directories-first --human-readable'
-  alias la='ls -l --classify --group-directories-first --human-readable --all'
-  alias lll='ls -l --inode --classify --group-directories-first --human-readable  --author'
-  alias lla='ls -l --inode --classify --group-directories-first --human-readable  --author --all'
-  alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
 fi
 
 alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
