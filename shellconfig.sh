@@ -18,7 +18,14 @@ fi
 
 REPO_PATH="${_HOME}/.shellconfig"
 
-case $(readlink /proc/${$}/exe) in
+if [ -d "/proc" ]; then
+  # Just using ${SHELL} may give a shell that is the default configured one and not the one being used
+  SHELL_IS="$(readlink /proc/${$}/exe)"
+else
+  SHELL_IS="${SHELL}"
+fi
+
+case ${SHELL_IS} in
   *bash)
     . "${REPO_PATH}/shells/bash.sh"
     . "${REPO_PATH}/shells/extras.sh"
