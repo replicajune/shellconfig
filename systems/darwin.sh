@@ -16,7 +16,7 @@ fi
 
 # file managment
 alias hl="grep -izF" # highlight
-hlr () { grep -iFR "${@}" . } # recursive highlight (not full but ref/numbers avail.)
+hlr () { grep -iFR "${@}" .; } # recursive highlight (not full but ref/numbers avail.)
 # history
 alias h="history -20"
 alias gh='history 1 | grep'
