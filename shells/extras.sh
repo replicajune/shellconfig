@@ -17,7 +17,7 @@ alias topc="
   ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pcpu \
   | head -11"
 
-alias lsd="dirs -v | grep -Ev '^ 0 .*$'" # list stack directory
+alias lsd="dirs -v | grep -Ev '^0\s+.*$'" # list stack directory
 alias pdir="pushd ./ > /dev/null; lsd"
 
 

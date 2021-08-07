@@ -14,6 +14,8 @@ _CC_cyan='\[\e[0;36m\]'
 _CC_orange='\[\e[0;33m\]'
 _CC_reset='\[\e[0m\]'
 
+alias lsd="dirs -v | grep -Ev '^ 0 .*$'" # list stack directory
+
 # is git installed ? (type works on both bash and ash)
 if type __git_ps1 2> /dev/null | grep -q '()'; then
 
