@@ -353,9 +353,9 @@ fi
 alias down="command wget --progress=bar:scroll --no-verbose --show-progress"
 alias datei="date --iso-8601=m"
 alias epoch="date +%s"
-alias wt="curl wttr.in/?format='+%c%20+%f'; echo" # what's the weather like
-alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
-alias wtth="curl v2.wttr.in/" # 3 days forcast
+alias wt="curl wttr.in/?format='+%c%20+%f'; echo" # what's the weather like now
+alias wth="curl wttr.in/?qF1n" # what's the day will look like
+alias wtth="curl v2.wttr.in/" # full graph mode
 
 # --- EXTRA SOURCES
 
