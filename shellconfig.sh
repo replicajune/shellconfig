@@ -10,10 +10,22 @@ esac
 
 # I have to assume the location of this directory as ${_HOME}/.shellconfig to
 # help with needed modularity of files
-_HOME="$(getent passwd "${SUDO_USER-$USER}" | cut -d: -f6)"
+if [ "$(uname -s)" = "Darwin" ]; then
+  _HOME="/Users/${SUDO_USER-$USER}"
+else
+  _HOME="$(getent passwd "${SUDO_USER-$USER}" | cut -d: -f6)"
+fi
+
 REPO_PATH="${_HOME}/.shellconfig"
 
-case $(readlink /proc/${$}/exe) in
+if [ -d "/proc" ]; then
+  # Just using ${SHELL} may give a shell that is the default configured one and not the one being used
+  SHELL_IS="$(readlink /proc/${$}/exe)"
+else
+  SHELL_IS="${SHELL}"
+fi
+
+case ${SHELL_IS} in
   *bash)
     . "${REPO_PATH}/shells/bash.sh"
     . "${REPO_PATH}/shells/extras.sh"
@@ -35,19 +47,14 @@ if command -v uname > /dev/null 2>&1; then
     Linux)
     . "${REPO_PATH}/systems/linux.sh"
     ;;
+    Darwin)
+    . "${REPO_PATH}/systems/darwin.sh"
+    ;;
   esac
 fi
 
 # umask: others should not have default read and execute options
 umask 027
-
-# source profile.d items
-if ls /etc/profile.d/*.sh > /dev/null 2>&1; then
-  for SRC_PROFILE in /etc/profile.d/*.sh; do
-    # shellcheck source=/dev/null
-    . "${SRC_PROFILE}"
-  done
-fi
 
 # from rustup, since I also manage .profile, .bashrc in different repos
 if [ -f "${_HOME}/.cargo/env" ]; then
@@ -56,40 +63,24 @@ fi
 
 # --- ENVIRONMENTS VARIABLES
 
-# user binaries in ~/.local/bin
-if [ -n "${PATH##*/.local/bin*}" ]; then
-  export PATH="${PATH}:/home/${SUDO_USER-$USER}/.local/bin"
-fi
-
 # "global" binaries in /opt/bin
 if [ -n "${PATH##*/opt/bin*}" ]; then
   export PATH="${PATH}:/opt/bin"
 fi
 
-# brew is pushing a lot of stuff in /usr/local/bin so i have to find another
-# location for my usr-local-bin repo (k3s also makes a bit of a mess)
-if [ -n "${PATH##*/opt/local-bin*}" ]; then
-  export PATH="${PATH}:/opt/local-bin"
-fi
-
-# use vim if possible, nano otherwise
-if command -v vim > /dev/null 2>&1; then
+# nano by default, vim if not, vi as last case scenario
+if command -v nano > /dev/null 2>&1; then
+  export VISUAL='nano'
+  export EDITOR='nano'
+  alias vless='nano --nohelp --view'
+elif command -v vim > /dev/null 2>&1; then
   export VISUAL='vim'
   export EDITOR='vim'
   alias vless='vim -M'
 else
-  export VISUAL='nano'
-  export EDITOR='nano'
-  alias vless='nano --nohelp --view'
+  export VISUAL='vi'
+  export EDITOR='vi'
 fi
-
-# history with date, no size limit
-history -a # parallel history
-export HISTCONTROL=ignoreboth
-export HISTSIZE='INF'
-export HISTFILESIZE='INF'
-export HISTTIMEFORMAT="[%d/%m/%y %T] "
-export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
 
 # automaric multithreading for xz (implicit for tar)
 export XZ_DEFAULTS="-T 0"
@@ -97,10 +88,20 @@ export XZ_DEFAULTS="-T 0"
 # --- ALIASES & FUNCTIONS
 
 # standard aliases
-alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
+
+# files managment
+if command -v exa > /dev/null 2>&1; then
+  alias ls='exa'
+  alias l='exa --classify --group-directories-first'
+  alias ll='exa -l --classify --group-directories-first --git'
+  alias la='exa -l --classify --group-directories-first --all --git'
+  alias lll='exa -l --classify --group-directories-first --git --links --inode --blocks --extended'
+  alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
+  alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
+fi
 
 # rust alternative to cp, can do // and show progress bar by default
 if command -v xcp > /dev/null 2>&1; then
@@ -114,8 +115,6 @@ if command -v bat > /dev/null 2>&1; then
 fi
 
 alias send="rsync --archive --info=progress2 --human-readable --compress"
-alias hl="grep -izF" # highlight
-alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 alias tmpcd='cd "$(mktemp -d)"'
 
 # shellcheck disable=SC2139
@@ -135,12 +134,6 @@ alias rm="rm -i"
 # compress, decompress
 alias cpx="tar -capvf" # cpx archname.tar.xz dir
 alias dpx="tar -xpvf" # dpx archname.tar.xz
-
-# directory stack
-if [ -z "${0##*bash}" ]; then
-  alias lsd="dirs -v | grep -Ev '^ 0 .*$'" # list stack directory
-  alias pdir="pushd ./ > /dev/null; lsd"
-fi
 
 alias df="df -h"
 
@@ -358,15 +351,11 @@ fi
 
 # misc
 alias down="command wget --progress=bar:scroll --no-verbose --show-progress"
-alias h="history | tail -20"
-alias gh='history | grep'
-# shellcheck disable=SC2142
-alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 alias datei="date --iso-8601=m"
 alias epoch="date +%s"
-alias wt="curl wttr.in/?format='+%c%20+%f'; echo" # what's the weather like
-alias wth="curl wttr.in/?qF1n" # what's the next couple of hours will look like
-alias wtth="curl v2.wttr.in/" # 3 days forcast
+alias wt="curl wttr.in/?format='+%c%20+%f'; echo" # what's the weather like now
+alias wth="curl wttr.in/?qF1n" # what's the day will look like
+alias wtth="curl v2.wttr.in/" # full graph mode
 
 # --- EXTRA SOURCES
 

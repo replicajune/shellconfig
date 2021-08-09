@@ -1,24 +1,6 @@
 #!/usr/bin/env bash
 # common settings for non busybox shells
 
-# files managment
-if command -v exa > /dev/null 2>&1; then
-  alias ls='exa'
-  alias l='exa --classify --group-directories-first'
-  alias ll='exa -l --classify --group-directories-first --git'
-  alias la='exa -l --classify --group-directories-first --all --git'
-  alias lll='exa -l --classify --group-directories-first --git --links --inode --blocks --extended'
-  alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
-  alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
-else
-  alias l='ls -C --classify --group-directories-first'
-  alias ll='ls -l --classify --group-directories-first --human-readable'
-  alias la='ls -l --classify --group-directories-first --human-readable --all'
-  alias lll='ls -l --inode --classify --group-directories-first --human-readable  --author'
-  alias lla='ls -l --inode --classify --group-directories-first --human-readable  --author --all'
-  alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
-fi
-
 alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
 alias vd="diff --side-by-side --suppress-common-lines"
 
@@ -34,6 +16,10 @@ alias topt="
 alias topc="
   ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pcpu \
   | head -11"
+
+alias lsd="dirs -v | grep -Ev '^0\s+.*$'" # list stack directory
+alias pdir="pushd ./ > /dev/null; lsd"
+
 
 # ressources
 alias topd='sudo sh -c "du -shc .[!.]* * |sort -rh |head -11" 2> /dev/null'
