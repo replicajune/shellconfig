@@ -14,5 +14,6 @@ compinit
 # avoid end of lines addition when lines wne without newlines
 PROMPT_EOL_MARK=''
 
-PROMPT='%* [%n@%m %c] %? $(load) '$'${(r:$((COLUMNS-42))::\u2500:)}'$'\n''> '
 # horizontal line : https://superuser.com/a/846133
+# PROMPT='%* [%n@%m %c] %? $(load) '$'${(r:$((COLUMNS-42))::\u2500:)}'$'\n''> '
+PROMPT='%* [%n@%m %c] %? $(load) '$'\n''> '
