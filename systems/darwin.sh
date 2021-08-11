@@ -23,6 +23,15 @@ alias gh='history 1 | grep'
 # shellcheck disable=SC2142
 alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 
+if command -v tmux > /dev/null 2>&1 \
+&& [ -S "$(echo "${TMUX}" | cut -f1 -d',')" ]; then
+  if command -v most > /dev/null 2>&1; then
+    alias man='tmux neww man -P most'
+  else
+    alias man='tmux neww man'
+  fi
+fi
+
 load () {
   local LDAVG
   local NLOAD

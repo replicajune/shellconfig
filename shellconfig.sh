@@ -151,7 +151,6 @@ fi
 # pager or mod of aliases using a pager. Using most if possible, color friendly
 if command -v most > /dev/null 2>&1; then
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
-  alias man='man --pager=most --no-hyphenation --no-justification'
 fi
 
 # python
@@ -341,11 +340,6 @@ if command -v tmux > /dev/null 2>&1 \
     alias ttop="tmux neww htop"
   else
     alias ttop="tmux neww top"
-  fi
-  if command -v most > /dev/null 2>&1; then
-    alias man='tmux neww man --pager=most --no-hyphenation --no-justification'
-  else
-    alias man='tmux neww man --no-hyphenation --no-justification'
   fi
 fi
 
