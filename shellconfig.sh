@@ -373,11 +373,18 @@ fi
 # --- PROMPT FUNCTIONS & VARIABLES
 
 # colors:
+# I'm using these on different included files
+# shellcheck disable=SC2034
 CC_RED=$'\e[31m'
+# shellcheck disable=SC2034
 CC_ORANGE=$'\e[33m'
+# shellcheck disable=SC2034
 CC_GREEN=$'\e[32m'
+# shellcheck disable=SC2034
 CC_DARK_GREY=$'\e[2;2m'
+# shellcheck disable=SC2034
 CC_RESET_COLOR=$'\e[0m'
+# shellcheck disable=SC2034
 CC_CYAN=$'\e[36m'
 
 # load
