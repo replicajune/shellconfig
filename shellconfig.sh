@@ -370,6 +370,76 @@ if [ -r "${_HOME}/.dir_colors" ] \
   eval "$(dircolors "${_HOME}/.dir_colors")"
 fi
 
+# --- PROMPT FUNCTIONS & VARIABLES
+
+# colors:
+CC_RED=$'\e[31m'
+CC_ORANGE=$'\e[33m'
+CC_GREEN=$'\e[32m'
+CC_DARK_GREY=$'\e[2;2m'
+CC_RESET_COLOR=$'\e[0m'
+CC_CYAN=$'\e[36m'
+
+# load
+prompt_load () {
+  local LDAVG
+  local NLOAD
+  local NBPROC
+  local FACTOR
+  local NLOADNRM
+
+  case $(uname -s) in
+    Linux)
+      if ! command -v nproc > /dev/null 2>&1; then
+        FACTOR=0 # no color if I cannot compute load per cores
+      else
+        NBPROC="$(nproc)"
+        NLOAD="$(cut -f1 -d' ' /proc/loadavg | tr -d '.')"
+      fi
+      LDAVG="$(echo -n "$(cut -d" " -f1-3 /proc/loadavg)")"
+    ;;
+    Darwin)
+      NBPROC="$(sysctl -n hw.physicalcpu)"
+      LDAVG="$(sysctl -n vm.loadavg | tr -d '{' | tr -d '}' | cut -d ' ' -f2-4)"
+      NLOAD="$(echo "${LDAVG}" | cut -f1 -d' ' | tr -d '.')"
+    ;;
+  esac
+
+  # complex regex required
+  # shellcheck disable=SC2001
+  NLOADNRM="$(echo -n "$NLOAD" | sed 's/^0*//')"
+  if [ -z "${NLOADNRM}" ]; then
+    NLOADNRM=0
+  fi
+  FACTOR="$((NLOADNRM/NBPROC))"
+
+  if [ "${FACTOR}" -ge 200 ]; then
+    echo -n $'\e[31m'"${LDAVG}"$'\e[0m'
+  elif [ "${FACTOR}" -ge 100 ]; then
+    echo -n $'\e[33m'"${LDAVG}"$'\e[0m'
+  elif [ "${FACTOR}" -ge 50 ]; then
+    echo -n $'\e[32m'"${LDAVG}"$'\e[0m'
+  else
+    echo -n $'\e[2;2m'"${LDAVG}"$'\e[0m'
+  fi
+}
+
+# git
+if type __git_ps1 2> /dev/null | head -1 | grep -Eq 'is a(\sshell)? function'; then
+  export GIT_PS1_SHOWUPSTREAM='verbose'
+  export GIT_PS1_SHOWUNTRACKEDFILES=y
+  prompt_git () { printf $'\e[33m'; __git_ps1 " (%s)"; printf $'\e[0m'; }
+else
+  prompt_git () { true; }
+fi
+
+
+# exit status
+prompt_exit_status () {
+  prompt_exit_status_color () { [ "${1}" -ne 0 ] && printf $'\e[31m'; }
+  printf "$(prompt_exit_status_color "${1}")%s" "${1}" $'\e[0m'
+}
+
 # --- TMUX
 # disable this last bit:
 # - include "export TMUX=disable" before loading shellconfig

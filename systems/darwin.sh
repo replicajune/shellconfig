@@ -31,32 +31,3 @@ if command -v tmux > /dev/null 2>&1 \
     alias man='tmux neww man'
   fi
 fi
-
-load () {
-  local LDAVG
-  local NLOAD
-  local NBPROC
-  local FACTOR
-  local NLOADNRM
-  # shellcheck disable=SC2016
-  LDAVG="$(sysctl -n vm.loadavg | tr -d '{' | tr -d '}' | cut -d ' ' -f2-4)"
-  NBPROC="$(sysctl -n hw.physicalcpu)"
-  NLOAD="$(echo "${LDAVG}" | cut -f1 -d' ' | tr -d '.')"
-  # complex regex required
-  # shellcheck disable=SC2001
-  NLOADNRM="$(echo -n "$NLOAD" | sed 's/^0*//')"
-  if [ -z "${NLOADNRM}" ]; then
-    NLOADNRM=0
-  fi
-  FACTOR="$((NLOADNRM/NBPROC))"
-
-  if [ "${FACTOR}" -ge 200 ]; then
-    echo -ne '\e[31m'"${LDAVG}"'\e[0m'
-  elif [ "${FACTOR}" -ge 100 ]; then
-    echo -ne '\e[33m'"${LDAVG}"'\e[0m'
-  elif [ "${FACTOR}" -ge 50 ]; then
-    echo -ne '\e[32m'"${LDAVG}"'\e[0m'
-  else
-    echo -n "${LDAVG}"
-  fi
-}

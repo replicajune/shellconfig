@@ -15,5 +15,4 @@ compinit
 PROMPT_EOL_MARK=''
 
 # horizontal line : https://superuser.com/a/846133
-# PROMPT='%* [%n@%m %c] %? $(load) '$'${(r:$((COLUMNS-42))::\u2500:)}'$'\n''> '
-PROMPT='%* [%n@%m %c] %? $(load) '$'\n''> '
+PROMPT='$CC_DARK_GREY%*$CC_RESET_COLOR [%(!.$CC_ORANGE.$CC_GREEN)%n$CC_RESET_COLOR@$CC_CYAN%m $CC_DARK_GREY%c$CC_RESET_COLOR$(prompt_git)] %(?.$CC_DARK_GREY.$CC_RED)%?$CC_RESET_COLOR [$(prompt_load)] '$'\n''> '
