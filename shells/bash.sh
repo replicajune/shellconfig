@@ -45,11 +45,11 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 fi
 
 # exit status in red if != 0
-_SCCLR () { if [ "${1}" -ne 0 ]; then echo -ne '\e[31m'; fi; }
+_SCCLR () { if [ "${1}" -ne 0 ]; then echo -n "${CC_RESET_COLOR}${CC_RED}"; else echo -n "${CC_DARK_GREY}"; fi; }
 _SCES () { echo "$(_SCCLR "${1}")${1}"; }
 
 # shellcheck disable=SC2016
-_SCESS=$CC_DARK_GREY'$(_SCES $?)\e[0m'
+_SCESS='$(_SCES $?)\e[0m'
 
 # show temperature
 if [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
