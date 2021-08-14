@@ -77,6 +77,13 @@ if command -v most > /dev/null 2>&1; then
   alias man='man --pager=most'
 fi
 
+# open, using desktop stuff
+if command -v xdg-open > /dev/null 2>&1; then
+  alias open="xdg-open"
+else
+  alias open=vless
+fi
+
 if command -v tmux > /dev/null 2>&1 \
 && [ -S "$(echo "${TMUX}" | cut -f1 -d',')" ]; then
   if command -v most > /dev/null 2>&1; then

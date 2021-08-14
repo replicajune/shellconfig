@@ -121,13 +121,6 @@ alias tmpcd='cd "$(mktemp -d)"'
 alias e="${EDITOR}"
 alias co="codium -a ."
 
-# open, using desktop stuff
-if command -v xdg-open > /dev/null 2>&1; then
-  alias open="xdg-open"
-else
-  alias open=vless
-fi
-
 # safe rm
 alias rm="rm -i"
 
