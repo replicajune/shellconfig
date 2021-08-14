@@ -11,12 +11,6 @@ alias lsd="dirs -v | grep -Ev '^ 0 .*$'" # list stack directory
 
 # PROMPT
 
-# colors
-_CC_dark_grey='\[\e[2;2m\]'
-_CC_cyan='\[\e[0;36m\]'
-_CC_orange='\[\e[0;33m\]'
-_CC_reset='\[\e[0m\]'
-
 # is git installed ? (type works on both bash and ash)
 if type __git_ps1 2> /dev/null | grep -q '()'; then
 
@@ -55,13 +49,13 @@ _SCCLR () { if [ "${1}" -ne 0 ]; then echo -ne '\e[31m'; fi; }
 _SCES () { echo "$(_SCCLR "${1}")${1}"; }
 
 # shellcheck disable=SC2016
-_SCESS=$_CC_dark_grey'$(_SCES $?)\e[0m'
+_SCESS=$CC_DARK_GREY'$(_SCES $?)\e[0m'
 
 # show temperature
 if [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
   # shellcheck disable=SC2016
   _SCTMP='$(($(</sys/class/thermal/thermal_zone0/temp)/1000))° '
-  PS_SCTMP=$_CC_dark_grey$_SCTMP$_CC_reset
+  PS_SCTMP=$CC_DARK_GREY$_SCTMP$CC_RESET_COLOR
 fi
 
 # load average
@@ -100,23 +94,23 @@ _SCLDAVGF () {
 }
 
 # shellcheck disable=SC2016
-_SCLDAVG='[$(_SCLDAVGF)'$_CC_reset$_CC_dark_grey']'
+_SCLDAVG='[$(_SCLDAVGF)'$CC_RESET_COLOR$CC_DARK_GREY']'
 
 # use red if root, green otherwise
 _CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "33" || echo '32')"'m\]'
 
 # blocks definition for ps1
-PS_DATE=$_CC_dark_grey'\t '$_CC_reset
-PS_LOCATION=$_CC_user'\u'$_CC_reset'@'$_CC_cyan'\h'$_CC_reset
-PS_DIR=$_CC_dark_grey' \W'$_CC_reset
-PS_GIT=$_CC_orange$_SCPS1GIT$_CC_reset
+PS_DATE=$CC_DARK_GREY'\t '$CC_RESET_COLOR
+PS_LOCATION=$_CC_user'\u'$CC_RESET_COLOR'@'$CC_CYAN'\h'$CC_RESET_COLOR
+PS_DIR=$CC_DARK_GREY' \W'$CC_RESET_COLOR
+PS_GIT=$CC_ORANGE$_SCPS1GIT$CC_RESET_COLOR
 PS_ST=$_SCESS
-PS_LOAD=$_CC_dark_grey$_SCLDAVG$_CC_reset
-PS_SYSDS=$_CC_dark_grey$_SCSDSTS$_CC_reset
+PS_LOAD=$CC_DARK_GREY$_SCLDAVG$CC_RESET_COLOR
+PS_SYSDS=$CC_DARK_GREY$_SCSDSTS$CC_RESET_COLOR
 
 if env | grep -Eq "^SSH_CONNECTION=.*$"; then
   # you're not home, be careful
-  PS_PROMPT=$_CC_orange'\n> '$_CC_reset
+  PS_PROMPT=$CC_ORANGE'\n> '$CC_RESET_COLOR
 else
   PS_PROMPT='\n> '
 fi
