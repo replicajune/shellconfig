@@ -18,6 +18,30 @@ fi
 
 REPO_PATH="${_HOME}/.shellconfig"
 
+
+# --- GENERAL VARIABLES AND PARAMETERS (used in includes)
+
+# umask: others should not have default read and execute options
+umask 027
+
+# colors:
+# I'm using these on different included files
+# shellcheck disable=SC2034
+CC_RED=$'\e[31m'
+# shellcheck disable=SC2034
+CC_ORANGE=$'\e[33m'
+# shellcheck disable=SC2034
+CC_GREEN=$'\e[32m'
+# shellcheck disable=SC2034
+CC_DARK_GREY=$'\e[2;2m'
+# shellcheck disable=SC2034
+CC_RESET_COLOR=$'\e[0m'
+# shellcheck disable=SC2034
+CC_CYAN=$'\e[36m'
+
+
+# --- SHELLCONFIG INCLUDES
+
 if [ -d "/proc" ]; then
   # Just using ${SHELL} may give a shell that is the default configured one and not the one being used
   SHELL_IS="$(readlink /proc/${$}/exe)"
@@ -53,19 +77,17 @@ if command -v uname > /dev/null 2>&1; then
   esac
 fi
 
-# umask: others should not have default read and execute options
-umask 027
-
-# from rustup, since I also manage .profile, .bashrc in different repos
-if [ -f "${_HOME}/.cargo/env" ]; then
-  . "${_HOME}/.cargo/env"
-fi
 
 # --- ENVIRONMENTS VARIABLES
 
 # "global" binaries in /opt/bin
 if [ -n "${PATH##*/opt/bin*}" ]; then
   export PATH="${PATH}:/opt/bin"
+fi
+
+# from rustup, since I also manage .profile, .bashrc in different repos
+if [ -f "${_HOME}/.cargo/env" ]; then
+  . "${_HOME}/.cargo/env"
 fi
 
 # nano by default, vim if not, vi as last case scenario
@@ -84,6 +106,7 @@ fi
 
 # automaric multithreading for xz (implicit for tar)
 export XZ_DEFAULTS="-T 0"
+
 
 # --- ALIASES & FUNCTIONS
 
@@ -344,6 +367,7 @@ alias wt="curl wttr.in/?format='+%c%20+%f'; echo" # what's the weather like now
 alias wth="curl wttr.in/?qF1n" # what's the day will look like
 alias wtth="curl v2.wttr.in/" # full graph mode
 
+
 # --- EXTRA SOURCES
 
 # Include extra config files :
@@ -363,22 +387,8 @@ if [ -r "${_HOME}/.dir_colors" ] \
   eval "$(dircolors "${_HOME}/.dir_colors")"
 fi
 
-# --- PROMPT FUNCTIONS & VARIABLES
 
-# colors:
-# I'm using these on different included files
-# shellcheck disable=SC2034
-CC_RED=$'\e[31m'
-# shellcheck disable=SC2034
-CC_ORANGE=$'\e[33m'
-# shellcheck disable=SC2034
-CC_GREEN=$'\e[32m'
-# shellcheck disable=SC2034
-CC_DARK_GREY=$'\e[2;2m'
-# shellcheck disable=SC2034
-CC_RESET_COLOR=$'\e[0m'
-# shellcheck disable=SC2034
-CC_CYAN=$'\e[36m'
+# --- PROMPT FUNCTIONS & VARIABLES
 
 # load
 prompt_load () {
@@ -439,6 +449,7 @@ prompt_exit_status () {
   prompt_exit_status_color () { [ "${1}" -ne 0 ] && printf $'\e[31m'; }
   printf "$(prompt_exit_status_color "${1}")%s" "${1}" $'\e[0m'
 }
+
 
 # --- TMUX
 # disable this last bit:

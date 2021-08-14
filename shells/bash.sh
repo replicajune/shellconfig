@@ -97,7 +97,7 @@ _SCLDAVGF () {
 _SCLDAVG='[$(_SCLDAVGF)'$CC_RESET_COLOR$CC_DARK_GREY']'
 
 # use red if root, green otherwise
-_CC_user='\[\e[0;'"$([ "${USER}" = "root" ] && echo "33" || echo '32')"'m\]'
+_CC_user=$'\e[0;'"$([ "${USER}" = "root" ] && echo '33' || echo '32')"'m'
 
 # blocks definition for ps1
 PS_DATE=$CC_DARK_GREY'\t '$CC_RESET_COLOR
