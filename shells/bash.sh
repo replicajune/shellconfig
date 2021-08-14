@@ -58,44 +58,6 @@ if [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
   PS_SCTMP=$CC_DARK_GREY$_SCTMP$CC_RESET_COLOR
 fi
 
-# load average
-_SCLDAVGF () {
-  local LDAVG
-  local NLOAD
-  local NBPROC
-  local FACTOR
-  local NLOADNRM
-
-  # shellcheck disable=SC2016
-  LDAVG="$(echo -n "$(cut -d" " -f1-3 /proc/loadavg)")"
-  if ! command -v nproc > /dev/null 2>&1; then
-    FACTOR=0 # no color if I cannot compute load per cores
-  else
-    NBPROC="$(nproc)"
-    NLOAD="$(cut -f1 -d' ' /proc/loadavg | tr -d '.')"
-    # complex regex required
-    # shellcheck disable=SC2001
-    NLOADNRM="$(echo -n "$NLOAD" | sed 's/^0*//')"
-    if [ -z "${NLOADNRM}" ]; then
-      NLOADNRM=0
-    fi
-    FACTOR="$((NLOADNRM/NBPROC))"
-  fi
-
-  if [ "${FACTOR}" -ge 200 ]; then
-    echo -ne '\e[31m'"${LDAVG}"
-  elif [ "${FACTOR}" -ge 100 ]; then
-    echo -ne '\e[33m'"${LDAVG}"
-  elif [ "${FACTOR}" -ge 50 ]; then
-    echo -ne '\e[32m'"${LDAVG}"
-  else
-    echo -n "${LDAVG}"
-  fi
-}
-
-# shellcheck disable=SC2016
-_SCLDAVG='[$(_SCLDAVGF)'$CC_RESET_COLOR$CC_DARK_GREY']'
-
 # use red if root, green otherwise
 _CC_user=$'\e[0;'"$([ "${USER}" = "root" ] && echo '33' || echo '32')"'m'
 
@@ -105,7 +67,8 @@ PS_LOCATION=$_CC_user'\u'$CC_RESET_COLOR'@'$CC_CYAN'\h'$CC_RESET_COLOR
 PS_DIR=$CC_DARK_GREY' \W'$CC_RESET_COLOR
 PS_GIT=$CC_ORANGE$_SCPS1GIT$CC_RESET_COLOR
 PS_ST=$_SCESS
-PS_LOAD=$CC_DARK_GREY$_SCLDAVG$CC_RESET_COLOR
+# shellcheck disable=SC2016
+PS_LOAD='[$(prompt_load)]'
 PS_SYSDS=$CC_DARK_GREY$_SCSDSTS$CC_RESET_COLOR
 
 if env | grep -Eq "^SSH_CONNECTION=.*$"; then
