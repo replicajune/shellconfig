@@ -75,6 +75,10 @@ alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 # write on file .. usage : wof file.iso /dev/usbthing
 wof () { sudo dd if="${1}" of="${2}" bs=32m status=progress; sync; }
 
+# misc
+alias datei="date --iso-8601=m"
+
+
 # extra utils
 if command -v most > /dev/null 2>&1; then
   alias man='man --pager=most'

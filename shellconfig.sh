@@ -358,11 +358,10 @@ fi
 
 # misc
 alias down="command wget --progress=bar:scroll --no-verbose --show-progress"
-alias datei="date --iso-8601=m"
 alias epoch="date +%s"
-alias wt="curl wttr.in/?format='+%c%20+%f'; echo" # what's the weather like now
-alias wth="curl wttr.in/?qF1n" # what's the day will look like
-alias wtth="curl v2.wttr.in/" # full graph mode
+alias wt="curl \"wttr.in/?format='+%c%20+%f'\"; echo" # what's the weather like now
+alias wth="curl \"wttr.in/?qF1n\"" # what's the day will look like
+alias wtth="curl \"v2.wttr.in/\"" # full graph mode
 
 
 # --- EXTRA SOURCES
@@ -439,13 +438,6 @@ if type __git_ps1 2> /dev/null | head -1 | grep -Eq 'is a(\sshell)? function'; t
 else
   prompt_git () { true; }
 fi
-
-
-# exit status
-prompt_exit_status () {
-  prompt_exit_status_color () { [ "${1}" -ne 0 ] && printf $'\e[31m'; }
-  printf "$(prompt_exit_status_color "${1}")%s" "${1}" $'\e[0m'
-}
 
 
 # --- TMUX
