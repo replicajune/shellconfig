@@ -323,9 +323,6 @@ if command -v vagrant > /dev/null 2>&1; then
   }
 fi
 
-# write on file .. usage : wof file.iso /dev/usbthing
-wof () { sudo dd if="${1}" of="${2}" bs=32M status=progress; sync; }
-
 terminate () {
   # cycle on pkill to make sure all process related to a command end.
   if [ "x$(pidof "${1}")" != "x" ]; then
