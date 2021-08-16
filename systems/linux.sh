@@ -72,6 +72,34 @@ alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
 alias hl="grep -izF" # highlight
 alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 
+# write on file .. usage : wof file.iso /dev/usbthing
+wof () { sudo dd if="${1}" of="${2}" bs=32m status=progress; sync; }
+
+# misc
+alias datei="date --iso-8601=m"
+
+
+# extra utils
+if command -v most > /dev/null 2>&1; then
+  alias man='man --pager=most'
+fi
+
+# open, using desktop stuff
+if command -v xdg-open > /dev/null 2>&1; then
+  alias open="xdg-open"
+else
+  alias open=vless
+fi
+
+if command -v tmux > /dev/null 2>&1 \
+&& [ -S "$(echo "${TMUX}" | cut -f1 -d',')" ]; then
+  if command -v most > /dev/null 2>&1; then
+    alias man='tmux neww man --pager=most --no-hyphenation --no-justification'
+  else
+    alias man='tmux neww man --no-hyphenation --no-justification'
+  fi
+fi
+
 # virt type of host
 vtype () {
   # will give yout the type of node you're on
@@ -112,6 +140,6 @@ if command -v docker-compose > /dev/null 2>&1; then
   alias dkcd="docker-compose down"
 fi
 
+# desktop
 alias bt='bluetoothctl'
 alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
-

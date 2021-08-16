@@ -18,6 +18,30 @@ fi
 
 REPO_PATH="${_HOME}/.shellconfig"
 
+
+# --- GENERAL VARIABLES AND PARAMETERS (used in includes)
+
+# umask: others should not have default read and execute options
+umask 027
+
+# colors:
+# I'm using these on different included files
+# shellcheck disable=SC2034
+CC_RED=$'\e[31m'
+# shellcheck disable=SC2034
+CC_ORANGE=$'\e[33m'
+# shellcheck disable=SC2034
+CC_GREEN=$'\e[32m'
+# shellcheck disable=SC2034
+CC_DARK_GREY=$'\e[2;2m'
+# shellcheck disable=SC2034
+CC_RESET_COLOR=$'\e[0m'
+# shellcheck disable=SC2034
+CC_CYAN=$'\e[36m'
+
+
+# --- SHELLCONFIG INCLUDES
+
 if [ -d "/proc" ]; then
   # Just using ${SHELL} may give a shell that is the default configured one and not the one being used
   SHELL_IS="$(readlink /proc/${$}/exe)"
@@ -53,19 +77,17 @@ if command -v uname > /dev/null 2>&1; then
   esac
 fi
 
-# umask: others should not have default read and execute options
-umask 027
-
-# from rustup, since I also manage .profile, .bashrc in different repos
-if [ -f "${_HOME}/.cargo/env" ]; then
-  . "${_HOME}/.cargo/env"
-fi
 
 # --- ENVIRONMENTS VARIABLES
 
 # "global" binaries in /opt/bin
 if [ -n "${PATH##*/opt/bin*}" ]; then
   export PATH="${PATH}:/opt/bin"
+fi
+
+# from rustup, since I also manage .profile, .bashrc in different repos
+if [ -f "${_HOME}/.cargo/env" ]; then
+  . "${_HOME}/.cargo/env"
 fi
 
 # nano by default, vim if not, vi as last case scenario
@@ -84,6 +106,7 @@ fi
 
 # automaric multithreading for xz (implicit for tar)
 export XZ_DEFAULTS="-T 0"
+
 
 # --- ALIASES & FUNCTIONS
 
@@ -121,13 +144,6 @@ alias tmpcd='cd "$(mktemp -d)"'
 alias e="${EDITOR}"
 alias co="codium -a ."
 
-# open, using desktop stuff
-if command -v xdg-open > /dev/null 2>&1; then
-  alias open="xdg-open"
-else
-  alias open=vless
-fi
-
 # safe rm
 alias rm="rm -i"
 
@@ -151,7 +167,6 @@ fi
 # pager or mod of aliases using a pager. Using most if possible, color friendly
 if command -v most > /dev/null 2>&1; then
   alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
-  alias man='man --pager=most --no-hyphenation --no-justification'
 fi
 
 # python
@@ -308,9 +323,6 @@ if command -v vagrant > /dev/null 2>&1; then
   }
 fi
 
-# write on file .. usage : wof file.iso /dev/usbthing
-wof () { sudo dd if="${1}" of="${2}" bs=32M status=progress; sync; }
-
 terminate () {
   # cycle on pkill to make sure all process related to a command end.
   if [ "x$(pidof "${1}")" != "x" ]; then
@@ -342,20 +354,15 @@ if command -v tmux > /dev/null 2>&1 \
   else
     alias ttop="tmux neww top"
   fi
-  if command -v most > /dev/null 2>&1; then
-    alias man='tmux neww man --pager=most --no-hyphenation --no-justification'
-  else
-    alias man='tmux neww man --no-hyphenation --no-justification'
-  fi
 fi
 
 # misc
 alias down="command wget --progress=bar:scroll --no-verbose --show-progress"
-alias datei="date --iso-8601=m"
 alias epoch="date +%s"
-alias wt="curl wttr.in/?format='+%c%20+%f'; echo" # what's the weather like now
-alias wth="curl wttr.in/?qF1n" # what's the day will look like
-alias wtth="curl v2.wttr.in/" # full graph mode
+alias wt="curl \"wttr.in/?format='+%c%20+%f'\"; echo" # what's the weather like now
+alias wth="curl \"wttr.in/?qF1n\"" # what's the day will look like
+alias wtth="curl \"v2.wttr.in/\"" # full graph mode
+
 
 # --- EXTRA SOURCES
 
@@ -375,6 +382,63 @@ if [ -r "${_HOME}/.dir_colors" ] \
 && command -v dircolors > /dev/null 2>&1; then
   eval "$(dircolors "${_HOME}/.dir_colors")"
 fi
+
+
+# --- PROMPT FUNCTIONS & VARIABLES
+
+# load
+prompt_load () {
+  local LDAVG
+  local NLOAD
+  local NBPROC
+  local FACTOR
+  local NLOADNRM
+
+  case $(uname -s) in
+    Linux)
+      if ! command -v nproc > /dev/null 2>&1; then
+        FACTOR=0 # no color if I cannot compute load per cores
+      else
+        NBPROC="$(nproc)"
+        NLOAD="$(cut -f1 -d' ' /proc/loadavg | tr -d '.')"
+      fi
+      LDAVG="$(echo -n "$(cut -d" " -f1-3 /proc/loadavg)")"
+    ;;
+    Darwin)
+      NBPROC="$(sysctl -n hw.physicalcpu)"
+      LDAVG="$(sysctl -n vm.loadavg | tr -d '{' | tr -d '}' | cut -d ' ' -f2-4)"
+      NLOAD="$(echo "${LDAVG}" | cut -f1 -d' ' | tr -d '.')"
+    ;;
+  esac
+
+  # complex regex required
+  # shellcheck disable=SC2001
+  NLOADNRM="$(echo -n "$NLOAD" | sed 's/^0*//')"
+  if [ -z "${NLOADNRM}" ]; then
+    NLOADNRM=0
+  fi
+  FACTOR="$((NLOADNRM/NBPROC))"
+
+  if [ "${FACTOR}" -ge 200 ]; then
+    echo -n $'\e[31m'"${LDAVG}"$'\e[0m'
+  elif [ "${FACTOR}" -ge 100 ]; then
+    echo -n $'\e[33m'"${LDAVG}"$'\e[0m'
+  elif [ "${FACTOR}" -ge 50 ]; then
+    echo -n $'\e[32m'"${LDAVG}"$'\e[0m'
+  else
+    echo -n $'\e[2;2m'"${LDAVG}"$'\e[0m'
+  fi
+}
+
+# git
+if type __git_ps1 2> /dev/null | head -1 | grep -Eq 'is a(\sshell)? function'; then
+  export GIT_PS1_SHOWUPSTREAM='verbose'
+  export GIT_PS1_SHOWUNTRACKEDFILES=y
+  prompt_git () { printf $'\e[33m'; __git_ps1 " (%s)"; printf $'\e[0m'; }
+else
+  prompt_git () { true; }
+fi
+
 
 # --- TMUX
 # disable this last bit:
