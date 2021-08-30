@@ -85,6 +85,11 @@ if [ -n "${PATH##*/opt/bin*}" ]; then
   export PATH="${PATH}:/opt/bin"
 fi
 
+# self shared scripts. Used to be in /usr/local/bin but brew messes with that dir
+if [ -n "${PATH##*/usr/local/self/bin*}" ]; then
+  export PATH="${PATH}:/usr/local/self/bin"
+fi
+
 # from rustup, since I also manage .profile, .bashrc in different repos
 if [ -f "${_HOME}/.cargo/env" ]; then
   . "${_HOME}/.cargo/env"
