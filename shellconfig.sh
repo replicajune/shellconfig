@@ -158,6 +158,11 @@ alias dpx="tar -xpvf" # dpx archname.tar.xz
 
 alias df="df -h"
 
+# network
+if command -v dig > /dev/null 2>&1; then
+  alias dnc='dig +noall +answer'
+fi
+
 # replace top for htop
 if command -v htop > /dev/null 2>&1; then
   alias top='htop'
