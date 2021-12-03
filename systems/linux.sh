@@ -131,7 +131,6 @@ if (command -v docker > /dev/null 2>&1 || command -v podman > /dev/null 2>&1); t
   alias aud=auditor
   # doggo
   alias doggo='docker run --net=host -t ghcr.io/mr-karan/doggo:latest --color=true'
-  alias dnc='doggo'
 fi
 
 if command -v docker-compose > /dev/null 2>&1; then
