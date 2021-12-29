@@ -73,7 +73,7 @@ alias hl="grep -izF" # highlight
 alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 
 # write on file .. usage : wof file.iso /dev/usbthing
-wof () { sudo dd if="${1}" of="${2}" bs=32m status=progress; sync; }
+wof () { sudo dd if="${1}" of="${2}" bs=32M status=progress; sync; }
 
 # misc
 alias datei="date --iso-8601=m"
