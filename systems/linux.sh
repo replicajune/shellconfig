@@ -84,7 +84,12 @@ if command -v most > /dev/null 2>&1; then
   alias man='man --pager=most'
 fi
 
-# open, using desktop stuff
+
+# desktop stuff
+export ELECTRON_TRASH=gio # https://github.com/atom/atom/issues/17452
+alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
+alias et="gio trash --empty" # empty trash
+
 if command -v xdg-open > /dev/null 2>&1; then
   alias open="xdg-open"
 else
