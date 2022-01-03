@@ -48,6 +48,12 @@ else
   SHELL_IS="${SHELL}"
 fi
 
+# git
+if [ -f "${_HOME}/.git-prompt.sh" ]; then
+  # shellcheck source=/dev/null
+  . "${_HOME}/.git-prompt.sh"
+fi
+
 case ${SHELL_IS} in
   *bash)
     . "${REPO_PATH}/shells/bash.sh"
@@ -295,12 +301,6 @@ kset (){
     fi
   fi
 }
-
-# git
-if [ -f "${_HOME}/.git-prompt.sh" ]; then
-  # shellcheck source=/dev/null
-  . "${_HOME}/.git-prompt.sh"
-fi
 
 # lazygit
 if command -v lazygit > /dev/null 2>&1; then
