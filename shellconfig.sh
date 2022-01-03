@@ -39,7 +39,6 @@ CC_RESET_COLOR=$'\e[0m'
 # shellcheck disable=SC2034
 CC_CYAN=$'\e[36m'
 
-
 # --- SHELLCONFIG INCLUDES
 
 if [ -d "/proc" ]; then
@@ -457,8 +456,9 @@ fi
 if command -v tmux > /dev/null 2>&1 &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ] &&\
-   [ "x${TERM_PROGRAM}" != "xvscode" ] &&\
-   [ "x${XDG_SESSION_TYPE}" != "xtty" ]; then
+   [ "${TERM_PROGRAM}" != "vscode" ] &&\
+   [ "${PWD}" = "${HOME}" ] &&\
+   [ "${XDG_SESSION_TYPE}" != "tty" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
   exit
 fi
