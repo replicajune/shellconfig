@@ -19,7 +19,7 @@ export HISTCONTROL=ignoreboth
 export HISTSIZE='INF'
 export HISTFILESIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
-# export PROMPT_COMMAND="history -a; history -c; history -r; ${PROMPT_COMMAND}"
+export PROMPT_COMMAND="history -a; history -c; history -r;"
 alias h="history | tail -20"
 alias gh='history | grep'
 # shellcheck disable=SC2142
@@ -44,6 +44,9 @@ if [ -f '/etc/os-release' ]; then
   case "${ID}" in
     ubuntu)
       . "${REPO_PATH}/systems/ubuntu.sh"
+    ;;
+    fedora)
+      . "${REPO_PATH}/systems/rhel.sh"
     ;;
     alpine)
       . "${REPO_PATH}/systems/alpine.sh"
