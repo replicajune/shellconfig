@@ -76,7 +76,7 @@ alias hl="grep -izF" # highlight
 alias hlr="grep -iFR" # recursive highlight (not full but ref/numbers avail.)
 
 # write on file .. usage : wof file.iso /dev/usbthing
-wof () { sudo dd if="${1}" of="${2}" bs=32m status=progress; sync; }
+wof () { sudo dd if="${1}" of="${2}" bs=32M status=progress; sync; }
 
 # misc
 alias datei="date --iso-8601=m"
@@ -87,7 +87,12 @@ if command -v most > /dev/null 2>&1; then
   alias man='man --pager=most'
 fi
 
-# open, using desktop stuff
+
+# desktop stuff
+export ELECTRON_TRASH=gio # https://github.com/atom/atom/issues/17452
+alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
+alias et="gio trash --empty" # empty trash
+
 if command -v xdg-open > /dev/null 2>&1; then
   alias open="xdg-open"
 else

@@ -12,7 +12,7 @@ alias lsd="dirs -v | grep -Ev '^ 0 .*$'" # list stack directory
 # PROMPT
 
 # is git installed ? (type works on both bash and ash)
-if type __git_ps1 2> /dev/null | grep -q '()'; then
+if type __git_ps1 2> /dev/null | grep -Fq '()'; then
 
   # show more git stuff
   export GIT_PS1_SHOWUPSTREAM='verbose'

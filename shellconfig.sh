@@ -15,7 +15,6 @@ if [ "$(uname -s)" = "Darwin" ]; then
 else
   _HOME="$(getent passwd "${SUDO_USER-$USER}" | cut -d: -f6)"
 fi
-
 REPO_PATH="${_HOME}/.shellconfig"
 
 
@@ -136,16 +135,16 @@ if command -v exa > /dev/null 2>&1; then
   alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
 fi
 
-# rust alternative to cp, can do // and show progress bar by default
-if command -v xcp > /dev/null 2>&1; then
-  alias xcp="xcp -w 0"
-  alias cpr="xcp -r"
-fi
+# # rust alternative to cp, can do // and show progress bar by default
+# if command -v xcp > /dev/null 2>&1; then
+#   alias xcp="xcp -w 0"
+#   alias cpr="xcp -r"
+# fi
 
-# rust alternative to cat, colors by default
-if command -v bat > /dev/null 2>&1; then
-  alias rcat="bat --theme Nord --pager=never --style=numbers"
-fi
+# # rust alternative to cat, colors by default
+# if command -v bat > /dev/null 2>&1; then
+#   alias rcat="bat --theme Nord --pager=never --style=numbers"
+# fi
 
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias tmpcd='cd "$(mktemp -d)"'
@@ -164,25 +163,14 @@ alias dpx="tar -xpvf" # dpx archname.tar.xz
 alias df="df -h"
 
 # network
-if command -v dig > /dev/null 2>&1; then
-  alias dnc='dig +noall +answer'
-fi
+alias dnc='dig +noall +answer'
 
 # replace top for htop
 if command -v htop > /dev/null 2>&1; then
   alias top='htop'
 fi
 
-if command -v gio > /dev/null 2>&1; then
-  export ELECTRON_TRASH=gio # https://github.com/atom/atom/issues/17452
-  alias tt="gio trash" # to trash : https://unix.stackexchange.com/a/445281
-  alias et="gio trash --empty" # empty trash
-fi
-
-# pager or mod of aliases using a pager. Using most if possible, color friendly
-if command -v most > /dev/null 2>&1; then
-  alias ltree="tree -a --prune --noreport -h -C -I '*.git' | most"
-fi
+alias ltree="tree -a --prune --noreport -h -C -I '*.git'"
 
 # python
 if command -v python > /dev/null 2>&1 || command -v python3 > /dev/null 2>&1; then
@@ -204,13 +192,9 @@ if command -v python > /dev/null 2>&1 || command -v python3 > /dev/null 2>&1; th
   }
 fi
 
-if command -v openstack > /dev/null 2>&1; then
-  alias oc=openstack
-fi
-
-if command -v terraform > /dev/null 2>&1; then
-  alias tf=terraform
-fi
+# IAC
+alias oc=openstack
+alias tf=terraform
 
 # Kubernetes
 kset (){
@@ -302,10 +286,11 @@ kset (){
   fi
 }
 
-# lazygit
-if command -v lazygit > /dev/null 2>&1; then
-  alias lgt=lazygit
-  alias gc="git global-status commit" # see https://gitlab.com/replicajune/usr-local-bin/-/blob/main/git-global-status
+# git
+alias lgt=lazygit
+if [ -f "${_HOME}/.git-prompt.sh" ]; then
+  # shellcheck source=/dev/null
+  . "${_HOME}/.git-prompt.sh"
 fi
 
 # vagrant
@@ -351,18 +336,8 @@ if command -v tmux > /dev/null 2>&1 \
   alias wk='tmux kill-window' # window kill
   alias irc="tmux neww irssi"
   alias sst="tmux neww ssh"
-  command -v lazygit > /dev/null 2>&1 && alias lgt="tmux neww lazygit"
-  if command -v ytop > /dev/null 2>&1; then
-    if [ -d "/sys/class/power_supply/BAT0" ]; then
-      alias ttop="tmux neww ytop -b"
-    else
-      alias ttop="tmux neww ytop"
-    fi
-  elif command -v htop > /dev/null 2>&1; then
-    alias ttop="tmux neww htop"
-  else
-    alias ttop="tmux neww top"
-  fi
+  alias lgt="tmux neww lazygit"
+  alias ttop="tmux neww htop"
 fi
 
 # misc
