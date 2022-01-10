@@ -12,7 +12,7 @@ alias lsd="dirs -v | grep -Ev '^ 0 .*$'" # list stack directory
 # PROMPT
 
 # is git installed ? (type works on both bash and ash)
-if type __git_ps1 2> /dev/null | grep -q '()'; then
+if type __git_ps1 2> /dev/null | grep -Fq '()'; then
 
   # show more git stuff
   export GIT_PS1_SHOWUPSTREAM='verbose'
@@ -86,7 +86,7 @@ PS_SYSD_BLOCK=$PS_SYSDS
 if [ "${TERM_PROGRAM}" = "vscode" ]; then
   PS1='> '
 else
-  PS1=$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_SYSD_BLOCK$PS_PROMPT
+  PS1='\['$PS_DATE$PS_LOC_BLOCK$PS_EXTRA_BLOCK$PS_SYSD_BLOCK'\]'$PS_PROMPT
 fi
 
 PS2='…  '
