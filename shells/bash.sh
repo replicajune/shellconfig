@@ -51,13 +51,6 @@ _SCES () { echo "$(_SCCLR "${1}")${1}"; }
 # shellcheck disable=SC2016
 _SCESS='$(_SCES $?)\e[0m'
 
-# show temperature
-if [ -f '/sys/class/thermal/thermal_zone0/temp' ]; then
-  # shellcheck disable=SC2016
-  _SCTMP='$(($(</sys/class/thermal/thermal_zone0/temp)/1000))° '
-  PS_SCTMP=$CC_DARK_GREY$_SCTMP$CC_RESET_COLOR
-fi
-
 # use red if root, green otherwise
 _CC_user=$'\e[0;'"$([ "${USER}" = "root" ] && echo '33' || echo '32')"'m'
 
@@ -67,8 +60,6 @@ PS_LOCATION=$_CC_user'\u'$CC_RESET_COLOR'@'$CC_CYAN'\h'$CC_RESET_COLOR
 PS_DIR=$CC_DARK_GREY' \W'$CC_RESET_COLOR
 PS_GIT=$CC_ORANGE$_SCPS1GIT$CC_RESET_COLOR
 PS_ST=$_SCESS
-# shellcheck disable=SC2016
-PS_LOAD='[$(prompt_load)]'
 PS_SYSDS=$CC_DARK_GREY$_SCSDSTS$CC_RESET_COLOR
 
 if env | grep -Eq "^SSH_CONNECTION=.*$"; then
@@ -80,8 +71,8 @@ fi
 
 # PS1/2 definition
 PS_LOC_BLOCK='['$PS_LOCATION$PS_DIR$PS_GIT'] '
-PS_EXTRA_BLOCK=$PS_ST' '$PS_LOAD' '$PS_SCTMP
-PS_SYSD_BLOCK=$PS_SYSDS
+PS_EXTRA_BLOCK=$PS_ST
+PS_SYSD_BLOCK=' '$PS_SYSDS
 
 if [ "${TERM_PROGRAM}" = "vscode" ]; then
   PS1='> '
