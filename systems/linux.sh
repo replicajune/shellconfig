@@ -48,6 +48,9 @@ if [ -f '/etc/os-release' ]; then
     fedora)
       . "${REPO_PATH}/systems/rhel.sh"
     ;;
+    opensuse-tumbleweed)
+      . "${REPO_PATH}/systems/opensuse.sh"
+    ;;
     alpine)
       . "${REPO_PATH}/systems/alpine.sh"
     ;;
