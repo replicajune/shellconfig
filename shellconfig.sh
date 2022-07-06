@@ -137,17 +137,6 @@ if command -v exa > /dev/null 2>&1; then
   alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
 fi
 
-# # rust alternative to cp, can do // and show progress bar by default
-# if command -v xcp > /dev/null 2>&1; then
-#   alias xcp="xcp -w 0"
-#   alias cpr="xcp -r"
-# fi
-
-# # rust alternative to cat, colors by default
-# if command -v bat > /dev/null 2>&1; then
-#   alias rcat="bat --theme Nord --pager=never --style=numbers"
-# fi
-
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias tmpcd='cd "$(mktemp -d)"'
 
