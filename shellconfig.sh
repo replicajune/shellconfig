@@ -116,6 +116,8 @@ fi
 # automaric multithreading for xz (implicit for tar)
 export XZ_DEFAULTS="-T 0"
 
+# allow specific themes for mc
+export COLORTERM=truecolor
 
 # --- ALIASES & FUNCTIONS
 
@@ -338,6 +340,7 @@ if command -v tmux > /dev/null 2>&1 \
   alias sst="tmux neww ssh"
   alias lgt="tmux neww lazygit"
   alias ttop="tmux neww htop"
+  alias mc="tmux neww mc"
 fi
 
 # misc
