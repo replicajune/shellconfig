@@ -163,6 +163,12 @@ fi
 
 alias ltree="tree -a --prune --noreport -h -C -I '*.git'"
 
+# linting tools
+if command -v shellcheck > /dev/null 2>&1; then
+  alias sc='shellcheck --external-sources --format=gcc --color=always \
+											 --exclude=SC1090,SC2039,SC3037,SC3043,SC1091'
+fi
+
 # python
 if command -v python > /dev/null 2>&1 || command -v python3 > /dev/null 2>&1; then
   venv() {
