@@ -116,6 +116,8 @@ fi
 # automaric multithreading for xz (implicit for tar)
 export XZ_DEFAULTS="-T 0"
 
+# allow specific themes for mc
+export COLORTERM=truecolor
 
 # --- ALIASES & FUNCTIONS
 
@@ -134,17 +136,6 @@ if command -v exa > /dev/null 2>&1; then
   alias lla='exa -l --classify --group-directories-first --git --links --inode --blocks --extended --all'
   alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
 fi
-
-# # rust alternative to cp, can do // and show progress bar by default
-# if command -v xcp > /dev/null 2>&1; then
-#   alias xcp="xcp -w 0"
-#   alias cpr="xcp -r"
-# fi
-
-# # rust alternative to cat, colors by default
-# if command -v bat > /dev/null 2>&1; then
-#   alias rcat="bat --theme Nord --pager=never --style=numbers"
-# fi
 
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias tmpcd='cd "$(mktemp -d)"'
@@ -171,6 +162,12 @@ if command -v htop > /dev/null 2>&1; then
 fi
 
 alias ltree="tree -a --prune --noreport -h -C -I '*.git'"
+
+# linting tools
+if command -v shellcheck > /dev/null 2>&1; then
+  alias sc='shellcheck --external-sources --format=gcc --color=always \
+											 --exclude=SC1090,SC2039,SC3037,SC3043,SC1091'
+fi
 
 # python
 if command -v python > /dev/null 2>&1 || command -v python3 > /dev/null 2>&1; then
@@ -338,6 +335,7 @@ if command -v tmux > /dev/null 2>&1 \
   alias sst="tmux neww ssh"
   alias lgt="tmux neww lazygit"
   alias ttop="tmux neww htop"
+  alias mc="tmux neww mc"
 fi
 
 # misc
