@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-alias z='zypper'
+alias z='sudo zypper'
 alias upd="sudo zypper refresh; sudo zypper list-updates"
 alias updl="sudo zypper list-updates"
 alias rpkg="sudo zypper remove --clean-deps --no-confirm"
