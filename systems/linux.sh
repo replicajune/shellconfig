@@ -138,6 +138,13 @@ if (command -v docker > /dev/null 2>&1 || command -v podman > /dev/null 2>&1); t
   alias auditor=cinc-auditor
   alias aud=auditor
   alias doggo='docker run --net=host -t ghcr.io/mr-karan/doggo:latest --color=true'
+  # rootless and :Z,U volume opts are causing my local folder to change its
+  # permissions from a host standpoint which isn't was I want. relying on
+  # sudo / root and exposing the volume as :ro for now
+  markdownlint (){
+    sudo podman run --network none --user root -v "${1-$PWD}:/src" \
+      --workdir '/src' ghcr.io/tmknom/dockerfiles/markdownlint -- .;
+    }
 fi
 
 if command -v docker-compose > /dev/null 2>&1; then
