@@ -132,15 +132,19 @@ if (command -v docker > /dev/null 2>&1 || command -v podman > /dev/null 2>&1); t
   alias dkln="docker network ls"
   alias dklv="docker volume ls"
 
-  # other aliases involving docker images
+  # tools involving docker images
   alias mlt='docker run --rm -i -v "${PWD}:/srv:ro" -v "/etc:/etc:ro" registry.gitlab.com/replicajune/markdown-link-tester:latest'
-  # build a container in a container and not exposing stuff
   alias kaniko='docker run --rm --workdir "/workspace" -v "${PWD}:/workspace:ro" --entrypoint "" gcr.io/kaniko-project/executor:debug /kaniko/executor --no-push --force'
-  # auditor
   alias auditor=cinc-auditor
   alias aud=auditor
-  # doggo
   alias doggo='docker run --net=host -t ghcr.io/mr-karan/doggo:latest --color=true'
+  # rootless and :Z,U volume opts are causing my local folder to change its
+  # permissions from a host standpoint which isn't was I want. relying on
+  # sudo / root and exposing the volume as :ro for now
+  markdownlint (){
+    sudo podman run --network none --user root -v "${1-$PWD}:/src" \
+      --workdir '/src' ghcr.io/tmknom/dockerfiles/markdownlint -- .;
+    }
 fi
 
 if command -v docker-compose > /dev/null 2>&1; then
