@@ -137,6 +137,10 @@ if command -v exa > /dev/null 2>&1; then
   alias lt='exa -l --git --links --inode --blocks --extended --all --sort date'
 fi
 
+if command -v bat > /dev/null 2>&1; then
+  alias see='bat --style=numbers --theme Nord --no-pager'
+fi
+
 alias send="rsync --archive --info=progress2 --human-readable --compress"
 alias tmpcd='cd "$(mktemp -d)"'
 
