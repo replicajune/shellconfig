@@ -67,6 +67,11 @@ fi
 
 # standard aliases
 if readlink -f /bin/ls | grep -q 'busyobox'; then
+  alias l='ls -C --group-directories-first'
+  alias ll='ls -l --group-directories-first -h'
+  alias la='ls -l --group-directories-first -h -a'
+  alias lt='ls -gt -r -h -a'
+else
   alias ls='ls --color=auto'
   alias l='ls -C --classify --group-directories-first'
   alias ll='ls -l --classify --group-directories-first --human-readable'
