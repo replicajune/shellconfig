@@ -66,7 +66,7 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 fi
 
 # standard aliases
-if readlink -f /bin/ls | grep -q 'busyobox'; then
+if readlink -f /bin/ls | grep -q 'busybox'; then
   alias l='ls -C --group-directories-first'
   alias ll='ls -l --group-directories-first -h'
   alias la='ls -l --group-directories-first -h -a'
