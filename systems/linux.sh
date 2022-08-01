@@ -66,13 +66,15 @@ if [ "$(cat /proc/1/comm)" = 'systemd' ]; then
 fi
 
 # standard aliases
-alias ls='ls --color=auto'
-alias l='ls -C --classify --group-directories-first'
-alias ll='ls -l --classify --group-directories-first --human-readable'
-alias la='ls -l --classify --group-directories-first --human-readable --all'
-alias lll='ls -l --inode --classify --group-directories-first --human-readable  --author'
-alias lla='ls -l --inode --classify --group-directories-first --human-readable  --author --all'
-alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
+if readlink -f /bin/ls | grep -q 'busyobox'; then
+  alias ls='ls --color=auto'
+  alias l='ls -C --classify --group-directories-first'
+  alias ll='ls -l --classify --group-directories-first --human-readable'
+  alias la='ls -l --classify --group-directories-first --human-readable --all'
+  alias lll='ls -l --inode --classify --group-directories-first --human-readable  --author'
+  alias lla='ls -l --inode --classify --group-directories-first --human-readable  --author --all'
+  alias lt='ls -gt --classify --reverse --human-readable --all --no-group'
+fi
 
 # file managment
 alias hl="grep -izF" # highlight
