@@ -4,8 +4,7 @@
 alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
 alias vd="diff --side-by-side --suppress-common-lines"
 
-alias psf="
-  ps --ppid 2 -p 2 --deselect \
+alias psf="ps --ppid 2 -p 2 --deselect \
   --format user,pid,ppid,pcpu,pmem,time,stat,cmd --forest"
 alias topm="
   ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pmem \
