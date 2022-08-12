@@ -296,10 +296,6 @@ fi
 
 # vagrant
 if command -v vagrant > /dev/null 2>&1; then
-
-  # use libvirt instead of default virtualbox : better perfs, less oracle stuff
-  export VAGRANT_DEFAULT_PROVIDER=libvirt
-
   vagrant_rsync() {
     # replace vagrant-scp, basicly a fancy wrapper around '-e "ssh -F ${CONF}"'
     # usage : use it like rsync
