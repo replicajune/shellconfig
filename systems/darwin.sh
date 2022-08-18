@@ -18,6 +18,10 @@ fi
 alias hl="grep -izF" # highlight
 hlr () { grep -iFR "${@}" .; } # recursive highlight (not full but ref/numbers avail.)
 
+# package manager
+alias upd='brew update --quiet; brew outdated'
+alias updnow='brew update --quiet; brew upgrade'
+
 # history
 alias h="history -20"
 alias gh='history 1 | grep'
