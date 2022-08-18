@@ -4,22 +4,17 @@
 alias lz='command ls -g --classify --group-directories-first --context --no-group --all'
 alias vd="diff --side-by-side --suppress-common-lines"
 
-alias psf="
-  ps --ppid 2 -p 2 --deselect \
+alias psf="ps --ppid 2 -p 2 --deselect \
   --format user,pid,ppid,pcpu,pmem,time,stat,cmd --forest"
-alias topm="
-  ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pmem \
-  | head -11"
-alias topt="
-  ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -time \
-  | head -11"
-alias topc="
-  ps -A --format user,pid,ppid,pcpu,pmem,time,stat,comm --sort -pcpu \
-  | head -11"
+alias topm="ps -A -o user,pid,ppid,pcpu,pmem,time,stat,comm \
+  | (sed -u 1q; sort -r -k5) | head -11"
+alias topt="ps -A -o user,pid,ppid,pcpu,pmem,time,stat,comm \
+  | (sed -u 1q; sort -r -k6) | head -11"
+alias topc="ps -A -o user,pid,ppid,pcpu,pmem,time,stat,comm \
+  | (sed -u 1q; sort -r -k4) | head -11"
 
 alias lsd="dirs -v | grep -Ev '^0\s+.*$'" # list stack directory
 alias pdir="pushd ./ > /dev/null; lsd"
-
 
 # ressources
 alias topd='sudo sh -c "du -shc .[!.]* * |sort -rh |head -11" 2> /dev/null'
