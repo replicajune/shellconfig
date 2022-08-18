@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 alias sctl="sudo systemctl"
-alias ctl="systemctl --user"
+alias uctl="systemctl --user"
 alias j="sudo journalctl --since '1 day ago'"
 alias jf="sudo journalctl -f"
 alias jg="sudo journalctl --since '1 day ago' --no-pager | grep"
