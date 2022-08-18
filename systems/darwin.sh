@@ -28,14 +28,15 @@ alias gh='history 1 | grep'
 # shellcheck disable=SC2142
 alias ha="history 1 | awk '{ print substr(\$0, index(\$0,\$2)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 
+# write on file .. usage : wof file.iso /dev/usbthing
+wof () { sudo dd if="${1}" of="${2}" bs=32m; sync; }
+
+# specifics
 if command -v limactl > /dev/null 2>&1; then
   alias lm=limactl
 fi
 
-
-# write on file .. usage : wof file.iso /dev/usbthing
-wof () { sudo dd if="${1}" of="${2}" bs=32m; sync; }
-
+# integrate tmux as I don't fall back to the linux flow otherwise
 if command -v tmux > /dev/null 2>&1 \
 && [ -S "$(echo "${TMUX}" | cut -f1 -d',')" ]; then
   if command -v most > /dev/null 2>&1; then
