@@ -11,7 +11,7 @@ while IFS= read -r -d '' SHFILE; do
   fi
 done < <(find . -name "*.sh" -type f -print0)
 
-if [ "${ERROR}" = '1' ] then exit 1; fi
+if [ "${ERROR}" = '1' ]; then exit 1; fi
 
 # SC1090: https://github.com/koalaman/shellcheck/wiki/SC1090
 # - most tests in a CI job would miss the location of an expected

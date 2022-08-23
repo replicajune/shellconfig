@@ -284,6 +284,7 @@ kset (){
       # shellcheck disable=SC2139
       alias kubectl="kubectl ${ARGUMENTS}"
     fi
+  fi
 }
 
 # git
