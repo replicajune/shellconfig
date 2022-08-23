@@ -22,12 +22,7 @@ jobs:
             fi
           done  < <(find . -name "*.sh" -type f -print0)
           if [ "${ERROR}" = '1' ]; then exit 1; fi
-    - name: Download latest earthly
-      run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.6.22/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
-    - name: Earthly version
-      run: earthly --version
-    - name: Run build
-      run: earthly --ci --push +build
+
 
 # SC1090: https://github.com/koalaman/shellcheck/wiki/SC1090
 # - most tests in a CI job would miss the location of an expected
