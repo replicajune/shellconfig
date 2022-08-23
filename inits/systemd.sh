@@ -16,7 +16,7 @@ health() {
   fi
   # return status health for systemd, show failed units if system isn't healthy
   case "$(${SCTL} is-system-running | tr -d '\n')" in
-    running)
+    running
       echo -e '\e[32m●\e[0m system running' # green circle
     ;;
     starting)
