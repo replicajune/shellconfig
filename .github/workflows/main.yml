@@ -8,24 +8,7 @@ jobs:
     steps:
       - name: clone
         uses: actions/checkout@v3
-      - name: install
-        run: |
-          sudo apt-get -qqq update &> /dev/null
-          sudo apt-get -qqq -y install --no-install-recommends shellcheck
-      - name: lint
-        run: |
-          while IFS= read -r -d '' SHFILE; do
-            if ! head -1 "${SHFILE}" | grep -Fq '#!/usr/bin/env zsh'; then
-              shellcheck --external-sources --format=gcc --color=always \
-                --exclude=SC1090,SC2039,SC3037,SC3043,SC1091,SC3003 "${SHFILE}" \
-              || ERROR=1
-            fi
-          done  < <(find . -name "*.sh" -type f -print0)
-          if [ "${ERROR}" = '1' ]; then exit 1; fi
-      - name: Download latest earthly
+      - name: Dependencies
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.6.22/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
-      - name: Earthly version
-        run: earthly --version
-      - name: Run build
-
+      - name: Run Earthly
         run: earthly --ci +all
