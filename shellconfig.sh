@@ -59,7 +59,7 @@ case ${SHELL_IS} in
     . "${REPO_PATH}/shells/extras.sh"
   ;;
   *busybox)
-    . "${REPO_PATH}/shells/ash.sh"
+    . "${REPO_PATH}/shells/shell.sh"
   ;;
   *zsh)
     . "${REPO_PATH}/shells/zsh.sh"
