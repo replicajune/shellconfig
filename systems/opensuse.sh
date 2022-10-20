@@ -14,7 +14,9 @@ updnow () {
   if command -v flatpak > /dev/null 2>&1; then
     flatpak update -y
   fi
-  sudo zypper refresh && sudo zypper dup --no-confirm
+  sudo zypper refresh &&\
+  sudo zypper dup --download-only --force-resolution &&\
+  sudo zypper dup --force-resolution
 }
 
 ipkg () { sudo zypper install -y "./${1}"; }
