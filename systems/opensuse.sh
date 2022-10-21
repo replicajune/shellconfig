@@ -15,7 +15,7 @@ updnow () {
     flatpak update -y
   fi
   sudo zypper refresh &&\
-  sudo zypper dup --download-only --force-resolution &&\
+  sudo zypper dup --download-only --no-confirm --force-resolution &&\
   sudo zypper dup --force-resolution
 }
 
