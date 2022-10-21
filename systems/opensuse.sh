@@ -8,6 +8,7 @@ alias gpkg="zypper search -i"
 alias spkg="zypper search"
 
 updnow () {
+  sudo -v
   if command -v snap > /dev/null 2>&1; then
     sudo snap refresh
   fi
