@@ -10,5 +10,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Dependencies
         run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.6.22/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
-      - name: Run Earthly
-        run: earthly --ci +all
+      - name: Shell linting
+        run: earthly --ci +lint
+      - name: Tests
+        run: earthly --ci +run-all
