@@ -168,3 +168,10 @@ if command -v ddcutil > /dev/null 2>&1; then
   alias light='sudo ddcutil setvcp 10'
   alias b='light'
 fi
+
+if command -v aspell > /dev/null 2>&1; then
+  alias spellcheck='aspell check --master="${LANG%%\.*}" --lang="${LANG%%\.*}"  --sug-mode=slow -x --mode=markdown'
+  alias spell=spellcheck
+  alias spc='aspell check --master="${LANG%%\.*}" --lang="${LANG%%\.*}"  --sug-mode=slow -x --mode=markdown'
+fi
+
