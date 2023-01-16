@@ -258,6 +258,10 @@ alias wt="curl \"wttr.in/?format='+%c%20+%f'\"; echo" # what's the weather like 
 alias wth="curl \"wttr.in/?qF1n\"" # what's the day will look like
 alias wtth="curl \"v2.wttr.in/\"" # full graph mode
 
+if command -v aspell > /dev/null 2>&1; then
+  alias spellcheck='aspell check --master="${LANG%%\.*}" --lang="${LANG%%\.*}"  --sug-mode=slow -x --mode=markdown'
+  alias spc=spellcheck  # sc is already taken by shellcheck
+fi
 
 # --- EXTRA SOURCES
 
