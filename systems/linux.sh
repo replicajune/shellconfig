@@ -168,3 +168,4 @@ if command -v ddcutil > /dev/null 2>&1; then
   alias light='sudo ddcutil setvcp 10'
   alias b='light'
 fi
+
