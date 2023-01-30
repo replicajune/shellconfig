@@ -254,9 +254,6 @@ fi
 alias down="command wget --progress=bar:scroll --no-verbose --show-progress"
 alias epoch="date +%s"
 alias wn='ncal -w'
-alias wt="curl \"wttr.in/?format='+%c%20+%f'\"; echo" # what's the weather like now
-alias wth="curl \"wttr.in/?qF1n\"" # what's the day will look like
-alias wtth="curl \"v2.wttr.in/\"" # full graph mode
 
 if command -v aspell > /dev/null 2>&1; then
   alias spellcheck='aspell check --master="${LANG%%\.*}" --lang="${LANG%%\.*}"  --sug-mode=slow -x --mode=markdown'
