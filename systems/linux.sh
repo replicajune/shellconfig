@@ -165,7 +165,7 @@ alias bt='bluetoothctl'
 alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
 
 if command -v ddcutil > /dev/null 2>&1; then
-  light () { until sudo ddcutil setvcp 10 ${1} &> /dev/null; do sleep 1; done; }
+  light () { until sudo ddcutil setvcp 10 "${1}" > /dev/null 2>&1; do sleep 1; done; }
   alias b='light'
 fi
 
