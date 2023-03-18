@@ -127,7 +127,7 @@ vtype () {
 
 # DOCKER
 # docker on other systems may work differently
-if command -v podman > /dev/null 2>&1; then
+if command -v podman > /dev/null 2>&1 && ! command -v docker > /dev/null 2>&1 ; then
   alias docker='podman'
 fi
 
@@ -165,7 +165,7 @@ alias bt='bluetoothctl'
 alias nt="TMUX=disable gnome-terminal" # new terminal / no tmux
 
 if command -v ddcutil > /dev/null 2>&1; then
-  alias light='sudo ddcutil setvcp 10'
+  light () { until sudo ddcutil setvcp 10 "${1}" > /dev/null 2>&1; do sleep 1; done; }
   alias b='light'
 fi
 
