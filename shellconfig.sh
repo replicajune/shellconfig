@@ -343,7 +343,7 @@ fi
 if command -v tmux > /dev/null 2>&1 &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ] &&\
-   [ "${TERM_PROGRAM}" != "vscode" ] &&\
+   [ "${VSCODE_PID}" = '' ] &&\
    [ "${PWD}" = "${HOME}" ] &&\
    [ "${XDG_SESSION_TYPE}" != "tty" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
