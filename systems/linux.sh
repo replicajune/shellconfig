@@ -17,7 +17,7 @@ fi
 history -a # parallel history
 [ -d "/${HOME}/.var/log" ] || mkdir -p "/${HOME}/.var/log"
 export HISTCONTROL=ignoreboth
-export HISTFILE="/${HOME}/.var/log/$(date +%Y-%m-%d).bash_history.log"
+HISTFILE="/${HOME}/.var/log/$(date +%Y-%m-%d).bash_history.log"; export HISTFILE
 export HISTSIZE='INF'
 export HISTFILESIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
@@ -26,7 +26,7 @@ alias h="history | tail -20"
 alias gh='history | grep'
 # shellcheck disable=SC2142
 alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
-history -r /${HOME}/.var/log/*.bash_history.log
+history -r "/${HOME}/.var/log/"*".bash_history.log"
 
 # source distrib information
 # shellcheck source=/etc/os-release
