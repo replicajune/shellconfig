@@ -255,11 +255,6 @@ alias down="command wget --progress=bar:scroll --no-verbose --show-progress"
 alias epoch="date +%s"
 alias wn='ncal -w'
 
-if command -v aspell > /dev/null 2>&1; then
-  alias spellcheck='aspell check --master="${LANG%%\.*}" --lang="${LANG%%\.*}"  --sug-mode=slow -x --mode=markdown'
-  alias spc=spellcheck  # sc is already taken by shellcheck
-fi
-
 # --- EXTRA SOURCES
 
 # Include extra config files :
@@ -343,7 +338,7 @@ fi
 if command -v tmux > /dev/null 2>&1 &&\
    [ -z "$TMUX" ] &&\
    [ -z "$SUDO_USER" ] &&\
-   [ "${TERM_PROGRAM}" != "vscode" ] &&\
+   [ "${VSCODE_PID}" = '' ] &&\
    [ "${PWD}" = "${HOME}" ] &&\
    [ "${XDG_SESSION_TYPE}" != "tty" ]; then
   tmux attach -t default 2> /dev/null || tmux new -s default
