@@ -17,7 +17,7 @@ updnow () {
   fi
   sudo zypper refresh &&\
   sudo zypper dup --download-only --no-confirm --force-resolution &&\
-  sudo zypper dup --force-resolution --no-allow-vendor-change
+  sudo zypper dup
 }
 
 ipkg () { sudo zypper install -y "./${1}"; }
