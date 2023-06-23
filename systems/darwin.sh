@@ -23,10 +23,13 @@ alias upd='brew update --quiet; brew outdated'
 alias updnow='brew update --quiet; brew upgrade'
 
 # history
+[ -d "/${HOME}/.var/log" ] || mkdir -p "/${HOME}/.var/log"
+HISTFILE="/${HOME}/.var/log/$(date +%Y-%m-%d).zsh_history.log"; export HISTFILE
+export HISTSIZE='INF'
 alias h="history -20"
-alias gh='history 1 | grep'
-# shellcheck disable=SC2142
-alias ha="history 1 | awk '{ print substr(\$0, index(\$0,\$2)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
+gh () { grep -FRi "${1}" ~/.var/log/*.zsh_history.log | cut -f2- -d':'; }
+# # shellcheck disable=SC2142
+# alias ha="history 1 | awk '{ print substr(\$0, index(\$0,\$2)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 
 # write on file .. usage : wof file.iso /dev/usbthing
 wof () { sudo dd if="${1}" of="${2}" bs=32m; sync; }
