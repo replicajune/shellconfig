@@ -23,7 +23,7 @@ export HISTFILESIZE='INF'
 export HISTTIMEFORMAT="[%d/%m/%y %T] "
 export PROMPT_COMMAND="history -a";
 alias h="history | tail -20"
-alias gh='history | grep'
+gh () { grep -FRi "${1}" ~/.var/log/*.bash_history.log | cut -f2- -d':'; }
 # shellcheck disable=SC2142
 alias ha="history | awk '{ print substr(\$0, index(\$0,\$4)) }' | sort | uniq -c | sort -h | grep -E '^[[:space:]]+[[:digit:]]+[[:space:]].{9,}$'"
 history -r "/${HOME}/.var/log/"*".bash_history.log"
