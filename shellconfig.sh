@@ -330,21 +330,6 @@ else
   prompt_git () { true; }
 fi
 
-
-# --- TMUX
-# disable this last bit:
-# - include "export TMUX=disable" before loading shellconfig
-# - uninstall tmux
-if command -v tmux > /dev/null 2>&1 &&\
-   [ -z "$TMUX" ] &&\
-   [ -z "$SUDO_USER" ] &&\
-   [ "${VSCODE_PID}" = '' ] &&\
-   [ "${PWD}" = "${HOME}" ] &&\
-   [ "${XDG_SESSION_TYPE}" != "tty" ]; then
-  tmux attach -t default 2> /dev/null || tmux new -s default
-  exit
-fi
-
 # ---
 # Shellcheck deactivations :
 # - SC2139 / https://github.com/koalaman/shellcheck/wiki/SC2139
