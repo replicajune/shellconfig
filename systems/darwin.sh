@@ -1,13 +1,19 @@
 #!/usr/bin/env sh
 
 # standard aliases
-alias ls='ls -G'
+if command -v eza > /dev/null 2>&1; then
+  alias ls='eza -G'
+  alias lll='ls -l -h'
+  alias lt='ls -l -a -h -t=modified'
+else
+  alias ls='ls -G'
+  alias lll='ls -l -h -O'
+  alias lt='ls -l -a -h -tr'
+fi
 alias l='ls -F'
 alias ll='ls -F -l -h'
 alias la='ls -F -l -h -A'
-alias lll='ls -l -h -O'
 alias lla='ls -l -h -a'
-alias lt='ls -l -a -h -tr'
 
 # user binaries in ~/.local/bin
 if [ -n "${PATH##*/.local/bin*}" ]; then
