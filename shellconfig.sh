@@ -283,6 +283,11 @@ else
   prompt_git () { true; }
 fi
 
+# experiment: using fish shell if it's installed. I inherit a few variables doing so.
+if command -v fish > /dev/null 2>&1; then
+  fish
+fi
+
 # ---
 # Shellcheck deactivations :
 # - SC2139 / https://github.com/koalaman/shellcheck/wiki/SC2139
