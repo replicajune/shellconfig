@@ -286,6 +286,7 @@ fi
 # experiment: using fish shell if it's installed. I inherit a few variables doing so.
 if command -v fish > /dev/null 2>&1; then
   fish
+  exit 0
 fi
 
 # ---
